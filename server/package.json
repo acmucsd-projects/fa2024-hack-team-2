@@ -10,10 +10,14 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.7",
     "@types/express": "^5.0.0",
+    "@types/morgan": "^1.9.9",
     "typescript": "^5.6.3"
   },
   "dependencies": {
-    "express": "^4.21.1"
+    "cookie-parser": "^1.4.7",
+    "express": "^4.21.1",
+    "morgan": "^1.10.0"
   }
 }
