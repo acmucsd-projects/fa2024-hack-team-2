@@ -86,7 +86,7 @@ const Home: React.FC = () => {
             Deploy <span>-&gt;</span>
           </h2>
           <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
+            Hello World from Chris!
           </p>
         </a>
       </div>
