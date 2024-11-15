@@ -86,11 +86,11 @@ const Home: React.FC = () => {
             Deploy <span>-&gt;</span>
           </h2>
           <p>
-            Hello World from Chris! PR TEST
-            Hello World from Mikey!
-            Hello World from Isabel!
-            Hello World from Kelvin!
-            Hello World from Chester!
+            Hello World from Chris! PR Test
+            Hello World from Mikey! PR TEST 
+            Hello World from Chester! PR test
+            Hello World from Isabel! PR TEST
+            Hello World from Kelvin! PR TEST
           </p>
         </a>
       </div>
