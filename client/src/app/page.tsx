@@ -90,6 +90,7 @@ const Home: React.FC = () => {
             Hello World from Mikey!
             Hello World from Isabel!
             Hello World from Kelvin!
+            Hello World from Chester!
           </p>
         </a>
       </div>
