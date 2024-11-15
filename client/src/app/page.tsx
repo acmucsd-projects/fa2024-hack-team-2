@@ -88,6 +88,7 @@ const Home: React.FC = () => {
           <p>
             Hello World from Chris!
             Hello World from Kelvin!
+            Hello World from Chester!
           </p>
         </a>
       </div>
