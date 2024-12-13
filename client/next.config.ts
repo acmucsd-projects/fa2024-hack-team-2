@@ -6,7 +6,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'wip',
+        hostname: 'upload.wikimedia.org',
+        pathname: '/**/*.{png,svg}'
       },
     ]
   }

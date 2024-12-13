@@ -3,9 +3,7 @@
 @tailwind utilities;
 
 :root {
-  /* Color palette */
-  --main-blue: #4690FF;
-  --white: #f0f0f0;
+
 }
 
 body {
@@ -14,7 +12,6 @@ body {
   align-items: center;
   height: 100vh;
   font-family: "Raleway", sans-serif;
-  background-color: #f0f0f0;
 }
 
 #__next {
@@ -35,4 +32,12 @@ body {
 
 .title-demo h1 {
   font-size: 2em;
+}
+
+button {
+  transition: 0.2s ease-in-out;
+}
+button:hover {
+  opacity: 80%;
+  transform: scale(1.05);
 }
