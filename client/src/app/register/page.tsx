@@ -127,7 +127,7 @@ const RegisterPage: React.FC = () => {
                 Continue with Facebook
               </button>
               {/* Google */}
-              <button className="flex w-full items-center justify-center gap-2 rounded bg-white p-2 py-3 text-lg font-bold text-black outline-blue-400 drop-shadow-md hover:outline">
+              <button className="flex w-full items-center justify-center gap-2 rounded bg-white p-2 py-3 text-lg font-bold text-black outline-blue-200 drop-shadow-md hover:outline active:opacity-60">
                 <Image
                   src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png"
                   width={20}

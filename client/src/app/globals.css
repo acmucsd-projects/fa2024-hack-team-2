@@ -41,3 +41,7 @@ button:hover {
   opacity: 80%;
   transform: scale(1.05);
 }
+
+button:active {
+  opacity: 95%;
+}
