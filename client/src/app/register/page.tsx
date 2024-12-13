@@ -7,11 +7,13 @@ import Image from "next/image";
 
 const RegisterPage: React.FC = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
-
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
-
+  const toggleConfirmPasswordVisibility = () => {
+    setConfirmPasswordVisible(!confirmPasswordVisible);
+  };
   return (
     <>
       {/* Left Side */}
@@ -80,6 +82,21 @@ const RegisterPage: React.FC = () => {
                   className="absolute right-2 text-blue-600"
                 >
                   {passwordVisible ? "Hide" : "Show"}
+                </button>
+              </InputBox>
+              <InputBox
+                htmlFor="confirmPassword"
+                text="Confirm Password"
+                size="basis-1/2"
+                type={confirmPasswordVisible ? "text" : "password"}
+                isRequired={true}
+              >
+                <button
+                  type="button"
+                  onClick={toggleConfirmPasswordVisibility}
+                  className="absolute right-2 text-blue-600"
+                >
+                  {confirmPasswordVisible ? "Hide" : "Show"}
                 </button>
               </InputBox>
               {/* Create Button */}
