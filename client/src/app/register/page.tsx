@@ -4,8 +4,10 @@ import React, { useState } from "react";
 import Link from "next/link";
 import InputBox from "../components/InputBox";
 import Image from "next/image";
+import { useRouter } from "next/navigation"; // Use 'next/navigation' for client components
 
 const RegisterPage: React.FC = () => {
+  // Password Visibility
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const togglePasswordVisibility = () => {
@@ -14,6 +16,37 @@ const RegisterPage: React.FC = () => {
   const toggleConfirmPasswordVisibility = () => {
     setConfirmPasswordVisible(!confirmPasswordVisible);
   };
+  // Password logic
+  const [passwordValue, setPasswordValue] = useState('');
+  const [confirmPasswordValue, setConfirmPasswordValue] = useState('');
+  const [isMatching, setIsMatching] = useState(true);
+
+  const handlePasswordChange = (value: string, inputNumber: number) => {
+    if (inputNumber === 1) {
+      setPasswordValue(value);
+      setIsMatching(value === confirmPasswordValue);
+    } else {
+      setConfirmPasswordValue(value);
+      setIsMatching(value === passwordValue);
+    }
+  };
+
+
+  // Function for create button
+  const router = useRouter(); 
+  const handleRegistration = async (event: React.FormEvent) => {
+    event.preventDefault(); 
+    // Check for password logic
+    if (!isMatching) {
+      return;
+    }
+    // Redirect if successful
+    const registrationSuccessful = true;  // Change later
+    if (registrationSuccessful) {
+      router.push('/login');
+    }
+  };
+
   return (
     <>
       {/* Left Side */}
@@ -75,6 +108,8 @@ const RegisterPage: React.FC = () => {
                 size="basis-1/2"
                 type={passwordVisible ? "text" : "password"}
                 isRequired={true}
+                value={passwordValue}
+                onChange={(e) => handlePasswordChange(e.target.value, 1)}
               >
                 <button
                   type="button"
@@ -90,6 +125,8 @@ const RegisterPage: React.FC = () => {
                 size="basis-1/2"
                 type={confirmPasswordVisible ? "text" : "password"}
                 isRequired={true}
+                value={confirmPasswordValue}
+                onChange={(e) => handlePasswordChange(e.target.value, 2)}
               >
                 <button
                   type="button"
@@ -99,10 +136,17 @@ const RegisterPage: React.FC = () => {
                   {confirmPasswordVisible ? "Hide" : "Show"}
                 </button>
               </InputBox>
+              {/* Error message when passwords do not match */}
+              {isMatching ? (
+                <></>
+              ) : (
+                <p className="text-red-500 basis-1/2 text-center">Passwords do not match.</p>
+              )}
               {/* Create Button */}
               <button
                 type="submit"
                 className="w-full rounded bg-blue-500 p-2 text-3xl font-bold text-white"
+                onClick={handleRegistration}
               >
                 Create
               </button>
