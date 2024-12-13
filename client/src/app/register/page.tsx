@@ -17,8 +17,8 @@ const RegisterPage: React.FC = () => {
     setConfirmPasswordVisible(!confirmPasswordVisible);
   };
   // Password logic
-  const [passwordValue, setPasswordValue] = useState('');
-  const [confirmPasswordValue, setConfirmPasswordValue] = useState('');
+  const [passwordValue, setPasswordValue] = useState("");
+  const [confirmPasswordValue, setConfirmPasswordValue] = useState("");
   const [isMatching, setIsMatching] = useState(true);
 
   const handlePasswordChange = (value: string, inputNumber: number) => {
@@ -31,19 +31,18 @@ const RegisterPage: React.FC = () => {
     }
   };
 
-
   // Function for create button
-  const router = useRouter(); 
+  const router = useRouter();
   const handleRegistration = async (event: React.FormEvent) => {
-    event.preventDefault(); 
+    event.preventDefault();
     // Check for password logic
     if (!isMatching) {
       return;
     }
     // Redirect if successful
-    const registrationSuccessful = true;  // Change later
+    const registrationSuccessful = true; // Change later
     if (registrationSuccessful) {
-      router.push('/login');
+      router.push("/login");
     }
   };
 
@@ -140,7 +139,9 @@ const RegisterPage: React.FC = () => {
               {isMatching ? (
                 <></>
               ) : (
-                <p className="text-red-500 basis-1/2 text-center">Passwords do not match.</p>
+                <p className="basis-1/2 text-center text-red-500">
+                  Passwords do not match.
+                </p>
               )}
               {/* Create Button */}
               <button
