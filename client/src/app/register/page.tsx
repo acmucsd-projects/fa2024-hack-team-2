@@ -4,10 +4,10 @@ import React, { useState } from "react";
 import Link from "next/link";
 import InputBox from "../components/InputBox";
 import Image from "next/image";
-import { useRouter } from "next/navigation"; // Use 'next/navigation' for client components
+import { useRouter } from "next/navigation";
 
 const RegisterPage: React.FC = () => {
-  // Password Visibility
+  // Password visibility
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const togglePasswordVisibility = () => {
@@ -16,47 +16,116 @@ const RegisterPage: React.FC = () => {
   const toggleConfirmPasswordVisibility = () => {
     setConfirmPasswordVisible(!confirmPasswordVisible);
   };
+
   // Password logic
+  // Note: Could make more efficient in the future by just using form data
   const [passwordValue, setPasswordValue] = useState("");
   const [confirmPasswordValue, setConfirmPasswordValue] = useState("");
   const [isMatching, setIsMatching] = useState(true);
 
   const handlePasswordChange = (value: string, inputNumber: number) => {
     if (inputNumber === 1) {
-      setPasswordValue(value);
       setIsMatching(value === confirmPasswordValue);
+      handleInputChange("password", value);
+      // Note: might want to remove the following line for redundancy purposes
+      setPasswordValue(value);
     } else {
       setConfirmPasswordValue(value);
       setIsMatching(value === passwordValue);
     }
   };
 
+  // Form state
+  const [formData, setFormData] = useState({
+    "first name": "",
+    "last name": "",
+    email: "",
+    username: "",
+    password: "",
+  });
+
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const handleInputChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Email validation function
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   // Function for create button
   const router = useRouter();
   const handleRegistration = async (event: React.FormEvent) => {
     event.preventDefault();
-    // Check for password logic
+
+    // Validate all fields filled out
+    for (const [name, value] of Object.entries(formData)) {
+      if (!value) {
+        setError(`Please fill out the ${name} field.`);
+        return;
+      }
+      // Check for valid email
+      if (name === "email") {
+        if (!validateEmail(formData.email)) {
+          setError("Please enter a valid email address.");
+          return;
+        }
+      }
+    }
+
+    // Check for password matching logic
     if (!isMatching) {
+      setError("Passwords do not match.");
       return;
     }
-    // Redirect if successful
-    const registrationSuccessful = true; // Change later
-    if (registrationSuccessful) {
-      router.push("/login");
+
+    // Check for password not being empty
+    if (!passwordValue) {
+      setError("Password cannot be empty.");
+      return;
+    }
+
+    // Check with BE (send POST request?)
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // TODO: Implement some sort of hashing for password
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setSuccessMessage("Registration successful! Redirecting to login...");
+        setTimeout(() => {
+          // Wait 3 seconds before redirecting
+          router.push("/login");
+        }, 3000);
+      } else {
+        const data = await response.json();
+        setError(data.message || "Registration failed. Please try again.");
+      }
+    } catch (error) {
+      setError("An error occurred while registering. Please try again.");
     }
   };
 
   return (
     <>
       {/* Left Side */}
-      <div className="flex h-screen w-screen flex-col bg-white lg:flex-row">
+      <div className="flex h-screen w-screen flex-col bg-white lg:flex-row lg:overflow-y-hidden">
         <div className="flex h-1/5 w-screen border-b-2 lg:h-full lg:w-2/5 lg:border-b-0 lg:border-r-2">
           <p className="m-auto flex items-center text-center text-5xl font-bold text-blue-500">
             Swipe Style
           </p>
         </div>
         {/* Right Side */}
-        <div className="flex h-4/5 w-screen flex-col bg-white transition-all lg:h-full lg:w-3/5 lg:p-8">
+        <div className="flex h-4/5 w-screen flex-col bg-white transition-all lg:h-full lg:w-3/5 lg:overflow-y-scroll lg:p-8">
           <p className="mt-5 rounded-sm text-center text-2xl font-bold shadow-none">
             Create Account
           </p>
@@ -68,7 +137,7 @@ const RegisterPage: React.FC = () => {
           </p>
           <div className="mx-auto mt-4 w-3/5 p-4">
             <form
-              action=""
+              action="/login"
               method="POST"
               className="flex w-full flex-wrap place-content-around place-items-center content-center gap-6"
             >
@@ -79,6 +148,9 @@ const RegisterPage: React.FC = () => {
                 size="basis-1/2 lg:basis-1/4"
                 type="text"
                 isRequired={true}
+                onChange={(e) =>
+                  handleInputChange("first name", e.target.value)
+                }
               />
               <InputBox
                 htmlFor="lastName"
@@ -86,6 +158,7 @@ const RegisterPage: React.FC = () => {
                 size="basis-1/2 lg:basis-1/4"
                 type="text"
                 isRequired={true}
+                onChange={(e) => handleInputChange("last name", e.target.value)}
               />
               <InputBox
                 htmlFor="email"
@@ -93,6 +166,7 @@ const RegisterPage: React.FC = () => {
                 size="basis-1/2"
                 type="email"
                 isRequired={true}
+                onChange={(e) => handleInputChange("email", e.target.value)}
               />
               <InputBox
                 htmlFor="username"
@@ -100,6 +174,7 @@ const RegisterPage: React.FC = () => {
                 size="basis-1/2"
                 type="text"
                 isRequired={true}
+                onChange={(e) => handleInputChange("username", e.target.value)}
               />
               <InputBox
                 htmlFor="password"
@@ -135,15 +210,17 @@ const RegisterPage: React.FC = () => {
                   {confirmPasswordVisible ? "Hide" : "Show"}
                 </button>
               </InputBox>
-              {/* Error message when passwords do not match */}
-              {isMatching ? (
-                <></>
-              ) : (
-                <p className="basis-1/2 text-center text-red-500">
-                  Passwords do not match.
+              {/* Error message */}
+              {error && (
+                <p className="basis-1/2 text-center text-red-500">{error}</p>
+              )}
+              {/* Success message */}
+              {successMessage && (
+                <p className="basis-1/2 text-center text-green-600">
+                  {successMessage}
                 </p>
               )}
-              {/* Create Button */}
+              {/* Create button */}
               <button
                 type="submit"
                 className="w-full rounded bg-blue-500 p-2 text-3xl font-bold text-white"
