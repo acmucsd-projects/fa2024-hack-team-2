@@ -148,6 +148,7 @@ const RegisterPage: React.FC = () => {
                 size="basis-1/2 lg:basis-1/4"
                 type="text"
                 isRequired={true}
+                value={formData["first name"]}
                 onChange={(e) =>
                   handleInputChange("first name", e.target.value)
                 }
@@ -158,6 +159,7 @@ const RegisterPage: React.FC = () => {
                 size="basis-1/2 lg:basis-1/4"
                 type="text"
                 isRequired={true}
+                value={formData["last name"]}
                 onChange={(e) => handleInputChange("last name", e.target.value)}
               />
               <InputBox
@@ -166,6 +168,7 @@ const RegisterPage: React.FC = () => {
                 size="basis-1/2"
                 type="email"
                 isRequired={true}
+                value={formData["email"]}
                 onChange={(e) => handleInputChange("email", e.target.value)}
               />
               <InputBox
@@ -174,6 +177,7 @@ const RegisterPage: React.FC = () => {
                 size="basis-1/2"
                 type="text"
                 isRequired={true}
+                value={formData["username"]}
                 onChange={(e) => handleInputChange("username", e.target.value)}
               />
               <InputBox
