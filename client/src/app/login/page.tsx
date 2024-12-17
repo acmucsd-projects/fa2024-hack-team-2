@@ -107,6 +107,7 @@ const LoginPage: React.FC = () => {
                 size="basis-1/2"
                 type="email"
                 isRequired={true}
+                value={emailValue}
                 onChange={(e) => setEmailValue(e.target.value)}
               />
               <InputBox
@@ -115,6 +116,7 @@ const LoginPage: React.FC = () => {
                 size="basis-1/2"
                 type={passwordVisible ? "text" : "password"}
                 isRequired={true}
+                value={passwordValue}
                 onChange={(e) => setPasswordValue(e.target.value)}
               >
                 <button
