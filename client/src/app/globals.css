@@ -1,10 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+
+}
+
 body {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  font-family: Arial, sans-serif;
-  background-color: #f0f0f0;
+  font-family: "Raleway", sans-serif;
 }
 
 #__next {
@@ -25,4 +32,16 @@ body {
 
 .title-demo h1 {
   font-size: 2em;
+}
+
+button {
+  transition: 0.2s ease-in-out;
+}
+button:hover {
+  opacity: 80%;
+  transform: scale(1.05);
+}
+
+button:active {
+  opacity: 95%;
 }
