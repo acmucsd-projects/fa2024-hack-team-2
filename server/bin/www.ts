@@ -7,6 +7,10 @@
 import app from '../app';
 import debug from 'debug';
 import http from 'http';
+import { Socket, Server} from 'socket.io';
+import mongoose from 'mongoose';
+import { Message } from '../schemas/messageSchema';
+import { v4 as uuidv4} from 'uuid';
 
 /**
  * Get port from environment and store in Express.
@@ -20,7 +24,63 @@ app.set('port', port);
  */
 
 const server = http.createServer(app);
+/**
+ * Connect to MongoDB
+ */
 
+mongoose.connect('mongodb://127.0.0.1:27017/testMessages').then(() =>{
+  console.log('connected to mongodb');
+}).catch((err) => {
+  console.error('error connecting to mongodb', err);
+});
+
+/**
+ * Create SocketIO server
+ */
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+  }
+});
+
+/**
+ * Listen to connection on socket server
+ */
+
+io.on('connection', (socket: Socket) => {
+  console.log('user connected:', socket.id);
+
+  socket.on('join_room', (room) => {
+      socket.join(room);
+      console.log('user joined room:', room);
+  });
+  
+  socket.on('send_message', async (data) =>{
+    const newMessage = new Message({
+        message: data.message,
+        room: data.room,
+    });
+    
+    try {
+      await newMessage.save();
+      console.log('saved message:', newMessage.message);
+      console.log('room no.:', newMessage.room);
+      if (!newMessage.room){
+          io.emit('receive_message', newMessage);
+      } else{
+          socket.to(data.room).emit('receive_message', newMessage);
+      }
+
+    } catch (error){
+      console.error('error saving message', error);
+    }
+  });
+
+  socket.on('disconnect', () => {
+    console.log('user disconnected:', socket.id);
+  });
+});
 /**
  * Listen on provided port, on all network interfaces.
  */
@@ -90,3 +150,5 @@ function onListening(): void {
     : 'port ' + (addr?.port || '');
   debug('Listening on ' + bind);
 }
+
+export { server };
