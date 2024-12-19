@@ -13,7 +13,7 @@ const NavBarLink: React.FC<MyComponentProps> = ({ linkAddress, image, imageAlt }
   );
     
   return (
-    <span className="flex flex-shrink-0 items-center justify-center opacity-40 hover:opacity-50 hover:scale-110 transition mx-2">
+    <span className="flex flex-shrink-0 items-center justify-center opacity-40 hover:opacity-50 hover:scale-110 transition mx-2 active:opacity-60">
        {linkAddress ? 
             <Link href={linkAddress}> {imageElement} </Link> :
             imageElement

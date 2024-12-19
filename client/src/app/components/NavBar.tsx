@@ -58,7 +58,7 @@ const NavBar: React.FC<MyComponentProps> = ({}) => {
         {/* Logo */}
         <Link
           href="/"
-          className="font-bold flex-shrink-0 text-blue-500 text-[20px] lg:text-[24px] flex justify-center items-center p-1 lg:p-2 hover:opacity-90 hover:scale-105 transition lg:mr-4 ml-2"
+          className="font-bold flex-shrink-0 text-blue-500 text-[20px] lg:text-[24px] flex justify-center items-center p-1 lg:p-2 hover:opacity-90 hover:scale-105 transition lg:mr-4 ml-2 active:opacity-80"
         >
           Swipe Style
         </Link>
@@ -101,7 +101,7 @@ const NavBar: React.FC<MyComponentProps> = ({}) => {
       </div>
 
       {/* User Profile Button */}
-      <div className="md:bg-blue-500 flex items-center justify-center rounded p-0.5 mx-1 px-2">
+      <div className="md:bg-blue-500 flex items-center justify-center rounded p-0.5 mx-1 px-2 hover:scale-105 transition hover:opacity-85 active:opacity-75">
         <Image
           src={tempPFP}
           width={30}
