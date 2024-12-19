@@ -86,7 +86,10 @@ const NavBar: React.FC<MyComponentProps> = ({}) => {
           height={20}
           alt="Search"
           className={`opacity-50 hover:opacity-60 hover:scale-110 transition cursor-pointer mx-2`}
-          onClick={() => setIsMobileShowNav(!isMobileShowNav)}
+          onClick={() => {
+            if (window.innerWidth < 1024)
+              setIsMobileShowNav(!isMobileShowNav)}
+          }
         />
         <input
           type="text"
