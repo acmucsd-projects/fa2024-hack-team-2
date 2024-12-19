@@ -21,11 +21,18 @@
     "typescript": "^5.6.3"
   },
   "dependencies": {
+    "@types/passport-google-oauth20": "^2.0.16",
     "cookie-parser": "^1.4.7",
+    "crypto": "^1.0.1",
     "debug": "^4.3.7",
     "dotenv": "^16.4.7",
-    "express": "^4.21.1",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "google-auth-library": "^9.15.0",
+    "googleapis": "^144.0.0",
     "morgan": "^1.10.0",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
     "pug": "^3.0.3"
   }
 }
