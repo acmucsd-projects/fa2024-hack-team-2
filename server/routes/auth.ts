@@ -1,7 +1,11 @@
-import express from 'express';
-import passport from 'passport';
+import express, { Request, Response, NextFunction } from 'express';import passport from 'passport';
 
 const router = express.Router();
+
+router.get('/', (req: Request, res: Response, next: NextFunction) => {
+    res.send('auth route');
+  });
+  
 
 // Redirect user to Google OAuth
 router.get(
