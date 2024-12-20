@@ -3,11 +3,9 @@ import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
-import cors from 'cors';
 
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';
-import messageRouter from './routes/messages';
 
 const app = express();
 
@@ -23,10 +21,20 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "session-secret",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Routes
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/messageLogs', messageRouter);
+
 // catch 404 and forward to error handler
 app.use((req: Request, res: Response, next: NextFunction) => {
   next(createError(404));
