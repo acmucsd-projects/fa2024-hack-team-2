@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+
 import styles from "./homepage.module.css";
 import NavBar from "./components/NavBar.tsx";
 import likeIcon from "/public/images/heart-regular.svg";
@@ -8,7 +11,7 @@ import likedIcon from "/public/images/heart-solid.svg";
 import interestIcon from "/public/images/thumbs-up-solid.svg";
 import disinterestIcon from "/public/images/thumbs-down-solid.svg";
 
-import Image from "next/image";
+
 
 const getRandomRotation = () => {
   const positiveOrNegative = Math.random() < 0.5 ? 1 : -1;
@@ -22,6 +25,10 @@ const Home: React.FC = () => {
   // Store random rotations and opacities for the "other" cards
   const [rotations, setRotations] = useState<number[]>([]);
   const [opacities, setOpacities] = useState<number[]>([]);
+
+  // TODO: Get data from BE
+  const authorPFP = likeIcon;
+
   useEffect(() => {
     const initialCards = [
       "https://files.idyllic.app/files/static/294916?width=750&optimizer=image",
@@ -50,10 +57,12 @@ const Home: React.FC = () => {
           <div className="relative flex items-center justify-center w-full lg:w-3/5 h-96 lg:h-[32rem]">
             {/* Other cards */}
             {cards.slice(1).map((card, index) => (
-              <img
+              <Image
                 key={index}
+                width={0}
+                height={0}
                 src={card}
-                alt={`Card ${index + 1}`}
+                alt="Card"
                 className="absolute w-64 h-96 lg:w-72 lg:h-[28rem] object-cover rounded-lg drop-shadow-lg bg-gray-300"
                 style={{
                   transform: `rotate(${rotations[index] || 0}deg)`,
@@ -77,6 +86,18 @@ const Home: React.FC = () => {
                   className="w-full h-full object-cover"
                   onClick={() => setCards([...cards.slice(1), cards[0]])}
                 />
+                {/* Author */}
+                <span className="drop-shadow-lg rounded-full z-50 bg-gray-50 absolute top-3 left-3">
+                  <Link href="/">
+                    <Image
+                      src={authorPFP}
+                      width={30}
+                      height={30}
+                      alt="Author"
+                      className="m-0.5 opacity-30"
+                    />
+                  </Link>
+                </span>
                 {/* Bottom part of main card */}
                 <div className="absolute bottom-0 bg-gradient-to-t from-black w-full pt-6 pb-4">
                   <p className="font-bold text-lg text-white mx-4 mt-4">Main Card Title</p>
