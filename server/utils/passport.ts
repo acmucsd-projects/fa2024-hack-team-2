@@ -18,6 +18,8 @@ passport.use(
       (accessToken, refreshToken, profile, done) => {
         // replace with database storing
         console.log('Google profile:', profile);
+        console.log('accessToken:', accessToken);
+        console.log('refreshToken:', refreshToken);
         done(null, profile);
       }
     )

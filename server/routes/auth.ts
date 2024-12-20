@@ -3,6 +3,10 @@ import passport from 'passport';
 
 const router = express.Router();
 
+function isLoggedIn(req: Request, res: Response, next: NextFunction) {
+  req.user ? next() : res.sendStatus(401);
+}
+
 router.get('/', (req: Request, res: Response, next: NextFunction) => {
     res.send('auth route');
   });
@@ -23,5 +27,10 @@ router.get(
     res.redirect('/');
   }
 );
+
+router.get('/protected', isLoggedIn, (req: Request, res: Response) => {
+  res.send('protected route');
+});
+
 
 export default router;

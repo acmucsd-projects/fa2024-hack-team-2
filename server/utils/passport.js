@@ -17,6 +17,8 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
 }, (accessToken, refreshToken, profile, done) => {
     // replace with database storing
     console.log('Google profile:', profile);
+    console.log('accessToken:', accessToken);
+    console.log('refreshToken:', refreshToken);
     done(null, profile);
 }));
 passport_1.default.serializeUser((user, done) => {
