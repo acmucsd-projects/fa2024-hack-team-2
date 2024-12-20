@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 "use client"
 import styles from './messages.module.css';
 import io from 'socket.io-client';
@@ -53,16 +52,6 @@ const MessagesPage: React.FC = () => {
                     </ul>
         </div>
     );
-=======
-import styles from "./messages.module.css";
-
-const MessagesPage: React.FC = () => {
-  return (
-    <div className="title-demo">
-      <h1>Messages Page</h1>
-    </div>
-  );
->>>>>>> main
 };
 
 export default MessagesPage;
