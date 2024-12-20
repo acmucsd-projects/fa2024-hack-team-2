@@ -3,9 +3,9 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import dotenv from 'dotenv';
 dotenv.config();
 
-console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID);
-console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET);
-console.log('REDIRECT_URI:', process.env.GOOGLE_CALLBACK_URL);
+// console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID);
+// console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET);
+// console.log('REDIRECT_URI:', process.env.GOOGLE_CALLBACK_URL);
 
 
 passport.use(
@@ -16,6 +16,7 @@ passport.use(
         callbackURL: process.env.GOOGLE_CALLBACK_URL || '',
       },
       (accessToken, refreshToken, profile, done) => {
+        // replace with database storing
         console.log('Google profile:', profile);
         done(null, profile);
       }

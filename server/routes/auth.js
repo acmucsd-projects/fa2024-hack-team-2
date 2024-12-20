@@ -13,7 +13,7 @@ router.get('/', (req, res, next) => {
 router.get('/google', passport_1.default.authenticate('google', { scope: ['profile', 'email'] }));
 // Callback route for Google OAuth
 router.get('/google/callback', passport_1.default.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
-    // Successful authentication, redirect or send response
+    // Successful authentication, redirects to index
     res.redirect('/');
 });
 exports.default = router;
