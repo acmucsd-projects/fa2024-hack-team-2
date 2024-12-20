@@ -4,7 +4,7 @@ import Chatlog from "./Chatlog";
 
 const MessagesPage: React.FC = () => {
   return (
-    <div className="w-[85vw] h-[75vh] flex border border-green-500 ">
+    <div className="w-[85vw] h-[75vh] flex">
       <RecentMessages />
       <Chatlog />
     </div>
