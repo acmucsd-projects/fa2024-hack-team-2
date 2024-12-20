@@ -85,7 +85,7 @@ const NavBar: React.FC<MyComponentProps> = ({}) => {
           width={20}
           height={20}
           alt="Search"
-          className={`opacity-50 hover:opacity-60 hover:scale-110 transition cursor-pointer mx-2`}
+          className={`opacity-50 hover:opacity-60 hover:scale-110 transition cursor-pointer ml-2 lg:mx-2`}
           onClick={() => {
             if (window.innerWidth < 1024)
               setIsMobileShowNav(!isMobileShowNav)}
@@ -96,7 +96,7 @@ const NavBar: React.FC<MyComponentProps> = ({}) => {
           className={`w-full outline-none bg-gray-100 text-gray-600 ${
             isMobileShowNav && window.innerWidth < 1024 ? "block" : "hidden lg:block"
           }`}
-          placeholder={isMobileShowNav ? "Search for styles..." : "Search for styles, ideas, etc."}
+          placeholder="Search for styles..."
         />
       </div>
 
