@@ -4,7 +4,7 @@ import React, { use, useState, useEffect } from "react";
 import backendConnection from "../communication";
 import { useUserContext } from "./UserProvider";
 import { Message } from "./MessageProps";
-import socket from "../socket";
+import socket from "./socket";
 
 const Chatlog = () => {
     const [input, setInput] = useState<string>("");
@@ -177,14 +177,38 @@ const Chatlog = () => {
     };
 
     useEffect(() => {
-        console.log("Fetching messages...");
-        fetchMessages("123");
+        socket.on("receive_message", (data) => {
+            console.log("Fetching messages...");
+            const newMessage: Message = {
+                sender: "bot",
+                text: data.message,
+                timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
+                date: new Date().toISOString().split('T')[0]
+            };
+            setMessages((prevMessages) => [...prevMessages, newMessage]);
+        })
+
+        return () => {
+            socket.off("receive_message");
+        }
     }, []);
 
     
 
     const handleSend = (): void => {
-        socket.emit("send_message", {message: input})
+        socket.emit("send_message", {
+            message: input,
+            conversation_id: '',
+            user_id: selectedUserId,
+        });
+
+        const newMessage: Message = {
+            sender: "user",
+            text: input,
+            timestamp: new Date().toLocaleDateString('en-us', {hour12: false}),
+            date: new Date().toISOString().split('T')[0]
+        };
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
     };
 
     // Grouped messages by date and timestamp 

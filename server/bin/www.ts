@@ -51,11 +51,9 @@ const io = new Server(server, {
 io.on('connection', (socket: Socket) => {
   console.log('user connected:', socket.id);
 
-  socket.on('join_room', (conversation_id) => {
-      socket.join(conversation_id);
-      console.log('user joined room:', conversation_id);
-  });
-  
+  socket.on("join_chat", async (conversation_id) => {
+    socket.join(conversation_id);
+  })
   socket.on('send_message', async (data) =>{
     const newMessage = new Message({
         message: data.message,

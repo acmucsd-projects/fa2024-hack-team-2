@@ -54,10 +54,9 @@ const io = new socket_io_1.Server(server, {
  */
 io.on('connection', (socket) => {
     console.log('user connected:', socket.id);
-    socket.on('join_room', (conversation_id) => {
+    socket.on("join_chat", (conversation_id) => __awaiter(void 0, void 0, void 0, function* () {
         socket.join(conversation_id);
-        console.log('user joined room:', conversation_id);
-    });
+    }));
     socket.on('send_message', (data) => __awaiter(void 0, void 0, void 0, function* () {
         const newMessage = new messageSchema_1.Message({
             message: data.message,
