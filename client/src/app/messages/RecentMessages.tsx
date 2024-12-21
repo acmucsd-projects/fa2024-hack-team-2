@@ -1,61 +1,71 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
 import RecentMessage from "./RecentMessage";
-interface RecentMessageProps {
-    userName: string;
-    message: string;
-    time: number;
-}
+import { RecentMessageProps } from "./MessageProps";
+
 
 const RecentMessages: React.FC = () => {
-    const testData: RecentMessageProps[] = [
-        {
-            userName: "John Doe",
-            message: "Hello, how are you?",
-            time: 10,
-        },
-        {
-            userName: "Jane Smith",
-            message: "Let's catch up later!",
-            time: 1,
-        },
-        {
-            userName: "Alex Johnson",
-            message: "Great job on the project!",
-            time: 2,
-        },
-        {
-            userName: "Emily Davis",
-            message: "Looking forward to the meeting tomorrow.",
-            time: 5,
-        },
-        {
-            userName: "Michael Brown",
-            message: "Can you review my latest code?",
-            time: 3,
-        },
-        {
-            userName: "Sophia Wilson",
-            message: "Happy Birthday!",
-            time: 0,
-        },
-        {
-            userName: "David Lee",
-            message: "Let's schedule a call.",
-            time: 8,
-        },
-    ];
+    const [recentMessages, setRecentMessage] = useState<RecentMessageProps[]>([]);
+    const fetchRecentMessages = () => {
+        // Simulating fetching data from a backend service
+        // The backend should provide an array of objects, each representing a recent message
+        // Each object should conform to the RecentMessageProps interface with the following fields:
+        // - username: string - the name of the user who sent the message
+        // - message: string - the content of the message
+        // - time: string - the time the message was sent, in HH:MM format
+        // - date: string - the date the message was sent, in YYYY-MM-DD format
+        // - user_id: string - a unique identifier for the user
+
+        const testData: RecentMessageProps[] = [
+            {
+                username: "John Doe",
+                message: "Hello, how are you?",
+                time: "10:00",
+                date: "2024-12-20",
+                user_id: "userid1",
+            },
+            {
+                username: "Jane Smith",
+                message: "I'm good, thanks! How about you?",
+                time: "10:05",
+                date: "2024-12-20",
+                user_id: "userid2",
+            },
+            {
+                username: "Alice Johnson",
+                message: "Are we still on for the meeting tomorrow?",
+                time: "11:00",
+                date: "2024-12-20",
+                user_id: "userid3",
+            },
+            {
+                username: "Bob Brown",
+                message: "Yes, see you there!",
+                time: "11:05",
+                date: "2024-12-20",
+                user_id: "userid4",
+            },
+        ];
+
+        setRecentMessage(testData);
+    };
+
+    useEffect(() => {
+        fetchRecentMessages();
+    }, []);
 
     return (
         <div className="h-full w-[25%] flex border border-gray-500 justify-start items-center flex-col px-4 py-4 gap-4">
-            {testData
-                .slice()
-                .sort((a, b) => a.time - b.time)
-                .map((message) => (
-                    <RecentMessage
-                        key={message.userName}
-                        userName={message.userName}
-                        message={message.message}
-                        time={message.time}
-                    />
+            {recentMessages.map((user) => (
+                <RecentMessage
+                    key={user.username}
+                    username={user.username}
+                    message={user.message}
+                    time={user.time}
+                    user_id={user.user_id}
+                    date={user.date}
+                />
             ))}
         </div>
     );
