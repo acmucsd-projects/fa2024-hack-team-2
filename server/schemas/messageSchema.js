@@ -7,7 +7,8 @@ exports.Message = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const messageSchema = new mongoose_1.default.Schema({
     message: String,
-    room: String,
+    conversation_id: String,
+    user_id: String,
     time: { type: Date, default: Date.now },
 });
 const Message = mongoose_1.default.model('Message', messageSchema);

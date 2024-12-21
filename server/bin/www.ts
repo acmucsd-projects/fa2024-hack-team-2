@@ -51,26 +51,24 @@ const io = new Server(server, {
 io.on('connection', (socket: Socket) => {
   console.log('user connected:', socket.id);
 
-  socket.on('join_room', (room) => {
-      socket.join(room);
-      console.log('user joined room:', room);
+  socket.on('join_room', (conversation_id) => {
+      socket.join(conversation_id);
+      console.log('user joined room:', conversation_id);
   });
   
   socket.on('send_message', async (data) =>{
     const newMessage = new Message({
         message: data.message,
-        room: data.room,
+        conversation_id: data.conversation_id,
+        user_id: data.user_id,
+        time: data.time
     });
     
     try {
       await newMessage.save();
       console.log('saved message:', newMessage.message);
-      console.log('room no.:', newMessage.room);
-      if (!newMessage.room){
-          io.emit('receive_message', newMessage);
-      } else{
-          socket.to(data.room).emit('receive_message', newMessage);
-      }
+      console.log('conversation id:', newMessage.conversation_id);
+      socket.to(data.conversation_id).emit("receive_message", newMessage);
 
     } catch (error){
       console.error('error saving message', error);
@@ -81,6 +79,7 @@ io.on('connection', (socket: Socket) => {
     console.log('user disconnected:', socket.id);
   });
 });
+
 /**
  * Listen on provided port, on all network interfaces.
  */

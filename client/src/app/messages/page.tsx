@@ -7,17 +7,17 @@ const socket = io("http://localhost:3001");
 
 const MessagesPage: React.FC = () => {
     const[message, setMessage] = useState("");
-    const[room, setRoom] = useState("");
-
+    const[conversation_id, setConversation_id] = useState("");
+    
     const[messageReceived, setMessageReceived] = useState<any[]>([]);
 
 
     const sendMessage = () =>{
-        socket.emit("send_message", {message,room});
+        socket.emit("send_message", {message,conversation_id});
     };
 
     const joinRoom = () =>{
-        socket.emit("join_room", room);
+        socket.emit("join_room", conversation_id);
     }
 
     useEffect(() => { 
@@ -43,7 +43,7 @@ const MessagesPage: React.FC = () => {
                 <button onClick = {sendMessage}>Send Message</button>
 
                 <input placeholder = "Room..." onChange = {(event) =>{
-                    setRoom(event.target.value)}}/>
+                    setConversation_id(event.target.value)}}/>
                 <button onClick = {joinRoom}>Join Room</button>
 
                 <h1>Message:</h1>
