@@ -66,9 +66,15 @@ io.on('connection', (socket) => {
         });
         try {
             yield newMessage.save();
+            const sampleResponse = new messageSchema_1.Message({
+                message: 'hello',
+                conversation_id: data.conversation_id,
+                user_id: data.user_id,
+                time: data.time
+            });
             console.log('saved message:', newMessage.message);
             console.log('conversation id:', newMessage.conversation_id);
-            socket.to(data.conversation_id).emit("receive_message", newMessage);
+            io.emit("receive_message", sampleResponse);
         }
         catch (error) {
             console.error('error saving message', error);

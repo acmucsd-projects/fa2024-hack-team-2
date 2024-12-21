@@ -205,7 +205,7 @@ const Chatlog = () => {
         const newMessage: Message = {
             sender: "user",
             text: input,
-            timestamp: new Date().toLocaleDateString('en-us', {hour12: false}),
+            timestamp: new Date().toLocaleTimeString('en-us', {hour: '2-digit', minute: '2-digit',hour12: false}),
             date: new Date().toISOString().split('T')[0]
         };
         setMessages((prevMessages) => [...prevMessages, newMessage]);
