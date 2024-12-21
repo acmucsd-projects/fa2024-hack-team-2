@@ -14,6 +14,24 @@ import searchIcon from "/public/images/magnifying-glass-solid.svg";
 interface MyComponentProps {}
 
 const NavBar: React.FC<MyComponentProps> = ({}) => {
+  const [PFP, setPFP] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+
+  // TODO: Get data from BE
+  const fetchData = () => {
+    return {
+      PFP: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
+      username: "ORIGAMI"
+    }
+  };
+
+  // Initial fetch
+  useEffect(()=> {
+    const data = fetchData();
+    setPFP(data.PFP);
+    setUsername(data.username);
+  });
+
   // State to toggle the search bar in mobile view
   const [isMobileShowNav, setIsMobileShowNav] = useState(false);
 
@@ -103,13 +121,13 @@ const NavBar: React.FC<MyComponentProps> = ({}) => {
       {/* User Profile Button */}
       <div className="md:bg-blue-500 flex items-center justify-center rounded p-0.5 mx-1 px-2 hover:scale-105 transition hover:opacity-85 active:opacity-75">
         <Image
-          src={tempPFP}
+          src={PFP ? PFP : tempPFP}
           width={30}
           height={30}
           alt="Profile Picture"
-          className="flex-shrink-0 m-0.5 opacity-30 mr-2"
+          className="flex-shrink-0 m-0.5 opacity-30 mr-2 rounded-full"
         />
-        <p className="hidden md:block mr-1 text-white font-bold">USERNAME</p>
+        <p className="hidden md:block mr-1 text-white font-bold">{username}</p>
       </div>
     </div>
   );

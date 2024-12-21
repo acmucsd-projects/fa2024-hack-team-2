@@ -3,43 +3,108 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-
-import styles from "./homepage.module.css";
 import NavBar from "./components/NavBar.tsx";
-import likeIcon from "/public/images/heart-regular.svg";
 import likedIcon from "/public/images/heart-solid.svg";
 import interestIcon from "/public/images/thumbs-up-solid.svg";
 import disinterestIcon from "/public/images/thumbs-down-solid.svg";
-
 
 
 const getRandomRotation = () => {
   const positiveOrNegative = Math.random() < 0.5 ? 1 : -1;
   return positiveOrNegative * (Math.random() * 10 + 5); // Range: 5 to 15
 };
-const getRandomOpacity = () => Math.random() * 0.6; // Range: 0 to 0.6
+
+const getRandomOpacity = () => Math.random() * 0.6+0.2; // Range: 0.2 to 0.8
 
 const Home: React.FC = () => {
   // Set up card states
   const [cards, setCards] = useState<string[]>([]);
-  // Store random rotations and opacities for the "other" cards
+  const [authorPFP, setAuthorPFP] = useState<string>("");
+  const [postId, setPostId] = useState<string>("");
+  const [cardDetails, setCardDetails] = useState<{
+    title: string;
+    description: string;
+    stores: string;
+    likeCount: Number;
+    material?: string;
+    brand?: string;
+    cost?: string;
+  } | null>(null);
+  const [availableStores, setAvailableStores] = useState<{ 
+    location: string;
+    address: string;
+    status: string; 
+    image: string;
+    link: string
+  }[]>([]);
   const [rotations, setRotations] = useState<number[]>([]);
   const [opacities, setOpacities] = useState<number[]>([]);
 
   // TODO: Get data from BE
-  const authorPFP = likeIcon;
+  const fetchData = () => {
+    return {
+      _id: "au83a90wr",
+      authorPFP:
+        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
+      cards: [
+        "https://files.idyllic.app/files/static/294916?width=750&optimizer=image",
+        "https://i.pinimg.com/originals/4a/bc/b7/4abcb7a620546e9fd26d3cbed76bbeaa.png",
+        "https://i.etsystatic.com/31914527/r/il/4063ee/4539566858/il_fullxfull.4539566858_ksxq.jpg",
+      ],
+      cardDetails: {
+        title: "Blue Dress",
+        description: "Best dress of all time!",
+        likeCount: 123,
+        stores: "Found in 2 stores",
+        material: "Silk",
+        cost: "$1000",
+        brand: "DanceLuxe",
+      },
+      availableStores: [
+        {
+          image: "https://files.idyllic.app/files/static/294916?width=750&optimizer=image",
+          location: "Twirl Dance Boutique",
+          address: "6431 Independence Ave Woodland Hills, CA 91367",
+          status: "Available",
+          link: "/"
+        },
+        {
+          image: "https://files.idyllic.app/files/static/294916?width=750&optimizer=image",
+          location: "D's Dance Boutique",
+          address: "427 Imperial Hwy Fullerton, CA 92835",
+          status: "Unavailable",
+          link: "/"
+        },
+      ],
+    };
+  };
 
-  useEffect(() => {
-    const initialCards = [
-      "https://files.idyllic.app/files/static/294916?width=750&optimizer=image",
-      "https://i.pinimg.com/originals/4a/bc/b7/4abcb7a620546e9fd26d3cbed76bbeaa.png",
-      "https://i.etsystatic.com/31914527/r/il/4063ee/4539566858/il_fullxfull.4539566858_ksxq.jpg"
-    ];
-    setCards(initialCards);
-    const newRotations = initialCards.slice(1).map(() => getRandomRotation());
-    const newOpacities = initialCards.slice(1).map(() => getRandomOpacity());
+  // Fetch data after interest/disinterest buttons are clicked
+  const nextPost = (liked: boolean) => {
+    // TODO: send sendData to BE
+    const sendData = {
+      _id: postId,
+      liked: liked ? true : false,
+    };
+    const data = fetchData();
+    setAuthorPFP(data.authorPFP);
+    setPostId(data._id);
+    setCards(data.cards);
+    setCardDetails(data.cardDetails);
+    setAvailableStores(
+      data.availableStores.sort((a, b) =>
+        a.status === "Available" ? -1 : 1
+      )
+    );
+    const newRotations = data.cards.slice(1).map(() => getRandomRotation());
+    const newOpacities = data.cards.slice(1).map(() => getRandomOpacity());
     setRotations(newRotations);
     setOpacities(newOpacities);
+  };
+
+  // Initial fetch
+  useEffect(() => {
+    nextPost(false);
   }, []);
 
   return (
@@ -63,7 +128,7 @@ const Home: React.FC = () => {
                 height={0}
                 src={card}
                 alt="Card"
-                className="absolute w-64 h-96 lg:w-72 lg:h-[28rem] object-cover rounded-lg drop-shadow-lg bg-gray-300"
+                className="absolute w-64 h-96 lg:w-72 lg:h-[28rem] object-cover rounded-lg shadow-lg bg-gray-300"
                 style={{
                   transform: `rotate(${rotations[index] || 0}deg)`,
                   opacity: opacities[index] || 1,
@@ -74,34 +139,35 @@ const Home: React.FC = () => {
             {/* Main card */}
             {cards.length > 0 && (
               <div
-                className="relative w-64 h-96 lg:w-72 lg:h-[28rem] rounded-lg overflow-hidden drop-shadow-xl bg-gray-100"
+                className="relative w-64 h-96 lg:w-72 lg:h-[28rem] rounded-lg overflow-hidden shadow-xl bg-gray-100"
                 style={{ zIndex: cards.length }}
+                onClick={() => setCards([...cards.slice(1), cards[0]])}
               >
-                {/* Image */}
                 <Image
                   src={cards[0]}
                   alt="Main Card"
                   width={6400}
                   height={9600}
-                  className="w-full h-full object-cover"
-                  onClick={() => setCards([...cards.slice(1), cards[0]])}
+                  className="w-full h-full object-cover pointer-events-none"
                 />
-                {/* Author */}
-                <span className="drop-shadow-lg rounded-full z-50 bg-gray-50 absolute top-3 left-3">
+                <span className="shadow-lg rounded-full z-50 bg-gray-50 absolute top-3 left-3">
                   <Link href="/">
                     <Image
                       src={authorPFP}
                       width={30}
                       height={30}
                       alt="Author"
-                      className="m-0.5 opacity-30"
+                      className="m-0.5 opacity-30 rounded-full"
                     />
                   </Link>
                 </span>
-                {/* Bottom part of main card */}
                 <div className="absolute bottom-0 bg-gradient-to-t from-black w-full pt-6 pb-4">
-                  <p className="font-bold text-lg text-white mx-4 mt-4">Main Card Title</p>
-                  <p className="text-sm text-white mx-4 mt-0">Found in x stores</p>
+                  <p className="font-bold text-lg text-white mx-4 mt-4">
+                    {cardDetails?.title}
+                  </p>
+                  <p className="text-sm text-white mx-4 mt-0">
+                    {cardDetails?.stores}
+                  </p>
                   <span className="right-4 absolute bottom-2 text-center">
                     <Image
                       src={likedIcon}
@@ -110,13 +176,14 @@ const Home: React.FC = () => {
                       alt="Like Button"
                       className="invert"
                     />
-                    <p className="text-white">123</p>
+                    <p className="text-white">
+                      {cardDetails?.likeCount.toString()}
+                    </p>
                   </span>
                 </div>
               </div>
             )}
           </div>
-
           {/* Swipe Buttons */}
           <div className="flex mt-8 lg:mt-4 space-x-4">
             <div className="w-16 h-16 mr-8 transition hover:scale-110 active:opacity-90">
@@ -126,6 +193,7 @@ const Home: React.FC = () => {
                 height={80}
                 alt="Interested"
                 className="opacity-40"
+                onClick={() => nextPost(true)}
               />
             </div>
             <div className="w-16 h-16 mt-2 transition hover:scale-110 active:opacity-90">
@@ -135,59 +203,67 @@ const Home: React.FC = () => {
                 height={80}
                 alt="Uninterested"
                 className="opacity-20"
+                onClick={() => nextPost(false)}
               />
             </div>
           </div>
         </div>
-
         {/* Right Side */}
         <div className="w-full lg:w-5/12 p-4 overflow-y-auto">
-          {/* Description */}
           <div className="outline outline-gray-300 rounded bg-white p-4">
-            <div>
-              <p className="font-bold text-3xl mb-4">Title</p>
-              <p className="mb-4">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-                sunt in culpa qui officia deserunt mollit anim id est laborum.
-              </p>
-            </div>
-            <span>
-              <p className="font-bold text-xl border-t-gray-300 mt-4 border-t pt-2">
-                Material
-              </p>
-              <p className="mb-4">Cotton</p>
-            </span>
-            <span>
-              <p className="font-bold text-xl border-t-gray-300 mt-4 border-t pt-2">
-                Brand
-              </p>
-              <p className="mb-4">Nike</p>
-            </span>
-            <span>
-              <p className="font-bold text-xl border-t-gray-300 mt-4 border-t pt-2">
-                Cost
-              </p>
-              <p>$300</p>
-            </span>
+            <p className="font-bold text-3xl mb-4">{cardDetails?.title}</p>
+            <p className="mb-4">{cardDetails?.description}</p>
+            {cardDetails?.material && (
+              <>
+                <p className="font-bold text-xl border-t-gray-300 mt-4 border-t pt-2">
+                  Material
+                </p>
+                <p className="mb-4">{cardDetails.material}</p>
+              </>
+            )}
+            {cardDetails?.brand && (
+              <>
+                <p className="font-bold text-xl border-t-gray-300 mt-4 border-t pt-2">
+                  Brand
+                </p>
+                <p className="mb-4">{cardDetails.brand}</p>
+              </>
+            )}
+            {cardDetails?.cost && (
+              <>
+                <p className="font-bold text-xl border-t-gray-300 mt-4 border-t pt-2">
+                  Cost
+                </p>
+                <p>{cardDetails.cost}</p>
+              </>
+            )}
           </div>
-          {/* Available Stores */}
           <div className="outline outline-gray-300 rounded bg-white p-4 mt-4">
-          <p className="font-bold text-3xl mb-4">Available Stores</p>
-            <div className="flex flex-col">
-              <span className="outline outline-gray-300 rounded bg-white w-full mt-2 flex gap-2">
-                <Image src={likeIcon} width={50} height={50} alt="Image of Location" className="m-2"/>
-                <span className="flex-1 my-2 relative">
-                  <p className="text-lg font-bold">Location</p>
-                  <p className="text-md">Address</p>
-                  <span className="w-[12px] h-[12px] rounded-full bg-green-300 top-1 right-2 absolute drop-shadow"></span>
+            <p className="font-bold text-3xl mb-4">Available Stores</p>
+            {availableStores.map((store, index) => (
+              <Link href={store.link} key={index}>
+                <span
+                  className="outline outline-gray-300 rounded bg-white w-full mt-2 flex gap-2"
+                >
+                  <Image
+                    src={store.image}
+                    width={50}
+                    height={50}
+                    alt="Location"
+                    className="m-2"
+                  />
+                  <span className="flex-1 my-2 relative">
+                    <p className="text-lg font-bold">{store.location}</p>
+                    <p className="text-sm text-gray-600">{store.address}</p>
+                    <span
+                      className={`w-[12px] h-[12px] rounded-full ${
+                        store.status === "Available" ? "bg-green-300" : "bg-red-300"
+                      } top-1 right-2 absolute drop-shadow`}
+                    ></span>
+                  </span>
                 </span>
-              </span>
-            </div>
+              </Link>
+            ))}
           </div>
         </div>
       </div>
