@@ -1,15 +1,10 @@
-import express from 'express';
-import { Message } from '../schemas/messageSchema';
+import express, { Request, Response, NextFunction } from 'express';
+import { Message } from '../models/messageSchema';
 
 const router = express.Router();
 
-router.get('/', async(req, res) => {
-    try {
-        const messages = await Message.find().sort({timestamp: 1});
-        res.json(messages);
-    } catch (error){
-        res.status(500).json({ error: 'Failed to fetch messages'});
-    }
+router.get('/', (req: Request, res: Response, next: NextFunction) => {
+    res.send('messages route');
 });
 
 export default router;

@@ -3,52 +3,22 @@
 import React, { useState, useEffect } from "react";
 import RecentMessage from "./RecentMessage";
 import { RecentMessageProps } from "./MessageProps";
+import backendConnection from "../../communication"
 
 
 const RecentMessages: React.FC = () => {
     const [recentMessages, setRecentMessage] = useState<RecentMessageProps[]>([]);
-    const fetchRecentMessages = () => {
-        // Simulating fetching data from a backend service
-        // The backend should provide an array of objects, each representing a recent message
-        // Each object should conform to the RecentMessageProps interface with the following fields:
-        // - username: string - the name of the user who sent the message
-        // - message: string - the content of the message
-        // - time: string - the time the message was sent, in HH:MM format
-        // - date: string - the date the message was sent, in YYYY-MM-DD format
-        // - user_id: string - a unique identifier for the user
 
-        const testData: RecentMessageProps[] = [
-            {
-                username: "John Doe",
-                message: "Hello, how are you?",
-                time: "10:00",
-                date: "2024-12-20",
-                user_id: "userid1",
-            },
-            {
-                username: "Jane Smith",
-                message: "I'm good, thanks! How about you?",
-                time: "10:05",
-                date: "2024-12-20",
-                user_id: "userid2",
-            },
-            {
-                username: "Alice Johnson",
-                message: "Are we still on for the meeting tomorrow?",
-                time: "11:00",
-                date: "2024-12-20",
-                user_id: "userid3",
-            },
-            {
-                username: "Bob Brown",
-                message: "Yes, see you there!",
-                time: "11:05",
-                date: "2024-12-20",
-                user_id: "userid4",
-            },
-        ];
+    // For now the "recent messages" are jsut going to be all users until we can estabilsh saving messages in database
+    const fetchRecentMessages = async () => {
+        const response = await backendConnection.get('users/all', { withCredentials: true })
+            .then((res) => res.data)
+            .then((data) => {
+                console.log("users")
+                console.log(data)
 
-        setRecentMessage(testData);
+                setRecentMessage(data);
+            })
     };
 
     useEffect(() => {

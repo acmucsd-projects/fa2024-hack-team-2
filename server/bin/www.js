@@ -22,7 +22,6 @@ const debug_1 = __importDefault(require("debug"));
 const http_1 = __importDefault(require("http"));
 const socket_io_1 = require("socket.io");
 const mongoose_1 = __importDefault(require("mongoose"));
-const messageSchema_1 = require("../schemas/messageSchema");
 /**
  * Get port from environment and store in Express.
  */
@@ -36,7 +35,7 @@ exports.server = server;
 /**
  * Connect to MongoDB
  */
-mongoose_1.default.connect('mongodb://127.0.0.1:27017/testMessages').then(() => {
+mongoose_1.default.connect('mongodb://127.0.0.1:27017/Users').then(() => {
     console.log('connected to mongodb');
 }).catch((err) => {
     console.error('error connecting to mongodb', err);
@@ -47,41 +46,41 @@ mongoose_1.default.connect('mongodb://127.0.0.1:27017/testMessages').then(() => 
 const io = new socket_io_1.Server(server, {
     cors: {
         origin: "http://localhost:3000",
+        credentials: true, // Allow cookies to be sent with requests
     }
 });
 /**
  * Listen to connection on socket server
  */
 io.on('connection', (socket) => {
-    console.log('user connected:', socket.id);
-    socket.on("join_chat", (conversation_id) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('User connected:', socket.id);
+    // Store conversation_id on the socket object
+    let conversation_id;
+    // Listen for 'join_chat' event from client
+    socket.on('join_chat', (user_id1, user_id2) => {
+        // Determine a unique conversation_id based on user IDs
+        conversation_id = user_id1 > user_id2 ? `${user_id1}${user_id2}` : `${user_id2}${user_id1}`;
+        // Join the socket to the specified conversation room
         socket.join(conversation_id);
-    }));
+        console.log(`User ${socket.id} joined chat room: ${conversation_id}`);
+        // Emit an event to confirm the user has joined the chat room
+        socket.emit('joined_chat', { conversation_id });
+    });
     socket.on('send_message', (data) => __awaiter(void 0, void 0, void 0, function* () {
-        const newMessage = new messageSchema_1.Message({
-            message: data.message,
-            conversation_id: data.conversation_id,
-            user_id: data.user_id,
-            time: data.time
-        });
+        const { message, user_id } = data;
         try {
-            yield newMessage.save();
-            const sampleResponse = new messageSchema_1.Message({
-                message: 'hello',
-                conversation_id: data.conversation_id,
-                user_id: data.user_id,
-                time: data.time
-            });
-            console.log('saved message:', newMessage.message);
-            console.log('conversation id:', newMessage.conversation_id);
-            io.emit("receive_message", sampleResponse);
+            // Broadcast the message to the unique chat room
+            io.to(conversation_id).emit('receive_message', { message, user_id });
+            // Optionally, acknowledge the sender that the message was sent
+            socket.emit('message_sent', { success: true, message });
         }
         catch (error) {
-            console.error('error saving message', error);
+            console.error('Error sending message:', error);
+            socket.emit('error_message', { error: 'Failed to send message' });
         }
     }));
     socket.on('disconnect', () => {
-        console.log('user disconnected:', socket.id);
+        console.log('User disconnected:', socket.id);
     });
 });
 /**

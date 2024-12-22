@@ -18,12 +18,19 @@ dotenv.config();
 
 const app = express();
 
+const corsOptions = {
+  origin: 'http://localhost:3000',  // Allow requests from frontend (React app)
+  methods: 'GET,POST,PUT,DELETE',  // Allow these HTTP methods
+  credentials: true,  // Allow cookies to be sent with the request
+};
+
+app.use(cors(corsOptions));  // Enable CORS with the configured options
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
 // middleware
-app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -44,7 +51,7 @@ app.use(passport.session());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
-app.use('/messageLogs', messageRouter);
+app.use('/messages', messageRouter);
 
 // catch 404 and forward to error handler
 app.use((req: Request, res: Response, next: NextFunction) => {

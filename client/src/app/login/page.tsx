@@ -74,6 +74,11 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  const handleGoogleLogin = () => {
+    // Redirect directly to your backend's /auth/google route
+    window.location.href = 'http://localhost:3001/auth/google';
+  };
+ 
   return (
     <>
       {/* Left Side */}
@@ -165,7 +170,9 @@ const LoginPage: React.FC = () => {
                 Continue with Facebook
               </button>
               {/* Google */}
-              <button className="flex w-full items-center justify-center gap-2 rounded bg-white p-2 py-3 text-lg font-bold text-black outline-blue-400 drop-shadow-md hover:outline active:opacity-60">
+              <button className="flex w-full items-center justify-center gap-2 rounded bg-white p-2 py-3 text-lg font-bold text-black outline-blue-400 drop-shadow-md hover:outline active:opacity-60"
+                onClick={handleGoogleLogin}
+              >
                 <Image
                   src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png"
                   width={20}

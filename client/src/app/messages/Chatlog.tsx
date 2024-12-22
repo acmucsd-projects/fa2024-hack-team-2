@@ -1,7 +1,7 @@
 "use client";
 
 import React, { use, useState, useEffect } from "react";
-import backendConnection from "../communication";
+import backendConnection from "../../communication";
 import { useUserContext } from "./UserProvider";
 import { Message } from "./MessageProps";
 import socket from "./socket";
@@ -10,209 +10,235 @@ const Chatlog = () => {
     const [input, setInput] = useState<string>("");
     const [messages, setMessages] = useState<Message[]>([]);
     const { selectedUserId } = useUserContext(); // Access the selectedUserId from context
-    const {username} = useUserContext();
+    const { username } = useUserContext();
+    const [currentUserId, setCurrentUserId] = useState<string>("");
+
+    const fetchUserData = async () => {
+        try {
+            const response = await backendConnection.get('users/self', { withCredentials: true })
+                .then((res) => res.data)
+                .then((data) => {
+                    console.log(data)
+                    setCurrentUserId(data);
+                })
+
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    };
 
     useEffect(() => {
         if (selectedUserId) {
-          fetchMessages(selectedUserId); // Fetch messages for the selected user
-        }
-      }, [selectedUserId]); // This hook runs when selectedUserId changes
+            // Emit 'join_chat' event to the server
+            socket.emit("join_chat", currentUserId, selectedUserId);
 
-    const fetchMessages = (user_id: string) => { 
-        const messagesPerUser: { [key: string]: Message[] } = {
-            "userid1": [
-                {
-                    sender: "bot",
-                    text: "Hello! How can I assist you today?",
-                    timestamp: "10:00", // Military time format
-                    date: "2024-13-20"  // Date in YYYY-MM-DD format
-                },
-                {
-                    sender: "user",
-                    text: "Hi! Can you help me with my order? Hi! Can you help me with my order? Hi! Can you help me with my order? Hi! Can you help me with my order?",
-                    timestamp: "10:01", // Military time format
-                    date: "2024-12-20"  // Date in YYYY-MM-DD format
-                },
-                {
-                    sender: "bot",
-                    text: "Sure! Can you provide me with your order ID?",
-                    timestamp: "10:02", // Military time format
-                    date: "2024-12-20"  // Date in YYYY-MM-DD format
-                },
-                {
-                    sender: "user",
-                    text: "It's #12345.",
-                    timestamp: "10:03", // Military time format
-                    date: "2024-12-20"  // Date in YYYY-MM-DD format
-                },
-                {
-                    sender: "bot",
-                    text: "Got it! Let me check that for you.",
-                    timestamp: "10:04", // Military time format
-                    date: "2024-12-20"  // Date in YYYY-MM-DD format
-                },
-                {
-                    sender: "bot",
-                    text: "Your order is scheduled to arrive tomorrow.",
-                    timestamp: "10:05", // Military time format
-                    date: "2024-12-20"  // Date in YYYY-MM-DD format
-                },
-                {
-                    sender: "user",
-                    text: "Thanks for the update!",
-                    timestamp: "10:06", // Military time format
-                    date: "2024-12-20"  // Date in YYYY-MM-DD format
-                },
-                {
-                    sender: "bot",
-                    text: "You're welcome! Have a great day!",
-                    timestamp: "10:07", // Military time format
-                    date: "2024-12-20"  // Date in YYYY-MM-DD format
-                },
-            ],
-            "userid2": [
-                {
-                    sender: "user",
-                    text: "Hi!",
-                    timestamp: "10:00", // Military time format
-                    date: "2024-12-25"  // Date in YYYY-MM-DD format
-                },
-                {
-                    sender: "bot",
-                    text: "Merry Christmas!",
-                    timestamp: "10:01", // Military time format
-                    date: "2024-12-25"  // Date in YYYY-MM-DD format
-                },
-                {
-                    sender: "user",
-                    text: "I love presents!",
-                    timestamp: "10:02", // Military time format
-                    date: "2024-12-25"  // Date in YYYY-MM-DD format
-                },
-                {
-                    sender: "bot",
-                    text: "Who doesn't love presents?",
-                    timestamp: "10:03", // Military time format
-                    date: "2024-12-25"  // Date in YYYY-MM-DD format
-                },
-            ],
-            "userid3": [
-                {
-                    sender: "user",
-                    text: "What are you doing for New Year's?",
-                    timestamp: "11:00", // Military time format
-                    date: "2024-12-31"  // Date in YYYY-MM-DD format
-                },
-                {
-                    sender: "bot",
-                    text: "I'm just a bot, so I don't have plans.",
-                    timestamp: "11:01", // Military time format
-                    date: "2024-12-31"  // Date in YYYY-MM-DD format
-                },
-                {
-                    sender: "user",
-                    text: "That's a bummer.",
-                    timestamp: "11:02", // Military time format
-                    date: "2024-12-31"  // Date in YYYY-MM-DD format
-                },
-                {
-                    sender: "bot",
-                    text: "I'm sure you'll have a great time, though!",
-                    timestamp: "11:03", // Military time format
-                    date: "2024-12-31"  // Date in YYYY-MM-DD format
-                },
-            ],
-            "userid4": [
-                {
-                    sender: "user",
-                    text: "Hey, have you seen the latest episode of that show?",
-                    timestamp: "09:00",
-                    date: "2024-12-21"
-                },
-                {
-                    sender: "bot",
-                    text: "Not yet! Is it any good?",
-                    timestamp: "09:01",
-                    date: "2024-12-21"
-                },
-                {
-                    sender: "user",
-                    text: "Absolutely! The plot twists are amazing!",
-                    timestamp: "09:02",
-                    date: "2024-12-21"
-                },
-                {
-                    sender: "bot",
-                    text: "I'll make sure to watch it tonight then.",
-                    timestamp: "09:03",
-                    date: "2024-12-21"
-                },
-                {
-                    sender: "user",
-                    text: "Let me know what you think after you watch it.",
-                    timestamp: "09:04",
-                    date: "2024-12-21"
-                },
-                {
-                    sender: "bot",
-                    text: "Definitely! I'll text you right after.",
-                    timestamp: "09:05",
-                    date: "2024-12-21"
-                },
-                {
-                    sender: "user",
-                    text: "Great! Looking forward to hearing your thoughts.",
-                    timestamp: "09:06",
-                    date: "2024-12-21"
-                },
-                {
-                    sender: "bot",
-                    text: "Catch you later!",
-                    timestamp: "09:07",
-                    date: "2024-12-21"
+            // Listen for new messages
+            socket.on("receive_message", (data) => {
+                // Only add the message if it's not from the current user
+                if (data.user_id !== currentUserId) {
+                    const newMessage: Message = {
+                        sender: data.user_id === currentUserId ? "user" : "other",  // Ensure sender is labeled correctly
+                        text: data.message,
+                        timestamp: "time",  // You can update this with actual timestamp
+                        date: "date",  // You can update this with actual date
+                    };
+                    setMessages((prevMessages) => [...prevMessages, newMessage]);
                 }
-            ],
-        };
-        setMessages(messagesPerUser[user_id] || []);
-    };
+            });
 
-    useEffect(() => {
-        socket.on("receive_message", (data) => {
-            console.log("Fetching messages...");
-            const newMessage: Message = {
-                sender: "bot",
-                text: data.message,
-                timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
-                date: new Date().toISOString().split('T')[0]
+            return () => {
+                // Clean up the listener when component unmounts or selectedUserId changes
+                socket.off("receive_message");
             };
-            setMessages((prevMessages) => [...prevMessages, newMessage]);
-        })
-
-        return () => {
-            socket.off("receive_message");
         }
-    }, []);
+        fetchUserData();
+    }, [selectedUserId, currentUserId]);
 
-    
+    //     const messagesPerUser: { [key: string]: Message[] } = {
+    //         "userid1": [
+    //             {
+    //                 sender: "bot",
+    //                 text: "Hello! How can I assist you today?",
+    //                 timestamp: "10:00", // Military time format
+    //                 date: "2024-13-20"  // Date in YYYY-MM-DD format
+    //             },
+    //             {
+    //                 sender: "user",
+    //                 text: "Hi! Can you help me with my order? Hi! Can you help me with my order? Hi! Can you help me with my order? Hi! Can you help me with my order?",
+    //                 timestamp: "10:01", // Military time format
+    //                 date: "2024-12-20"  // Date in YYYY-MM-DD format
+    //             },
+    //             {
+    //                 sender: "bot",
+    //                 text: "Sure! Can you provide me with your order ID?",
+    //                 timestamp: "10:02", // Military time format
+    //                 date: "2024-12-20"  // Date in YYYY-MM-DD format
+    //             },
+    //             {
+    //                 sender: "user",
+    //                 text: "It's #12345.",
+    //                 timestamp: "10:03", // Military time format
+    //                 date: "2024-12-20"  // Date in YYYY-MM-DD format
+    //             },
+    //             {
+    //                 sender: "bot",
+    //                 text: "Got it! Let me check that for you.",
+    //                 timestamp: "10:04", // Military time format
+    //                 date: "2024-12-20"  // Date in YYYY-MM-DD format
+    //             },
+    //             {
+    //                 sender: "bot",
+    //                 text: "Your order is scheduled to arrive tomorrow.",
+    //                 timestamp: "10:05", // Military time format
+    //                 date: "2024-12-20"  // Date in YYYY-MM-DD format
+    //             },
+    //             {
+    //                 sender: "user",
+    //                 text: "Thanks for the update!",
+    //                 timestamp: "10:06", // Military time format
+    //                 date: "2024-12-20"  // Date in YYYY-MM-DD format
+    //             },
+    //             {
+    //                 sender: "bot",
+    //                 text: "You're welcome! Have a great day!",
+    //                 timestamp: "10:07", // Military time format
+    //                 date: "2024-12-20"  // Date in YYYY-MM-DD format
+    //             },
+    //         ],
+    //         "userid2": [
+    //             {
+    //                 sender: "user",
+    //                 text: "Hi!",
+    //                 timestamp: "10:00", // Military time format
+    //                 date: "2024-12-25"  // Date in YYYY-MM-DD format
+    //             },
+    //             {
+    //                 sender: "bot",
+    //                 text: "Merry Christmas!",
+    //                 timestamp: "10:01", // Military time format
+    //                 date: "2024-12-25"  // Date in YYYY-MM-DD format
+    //             },
+    //             {
+    //                 sender: "user",
+    //                 text: "I love presents!",
+    //                 timestamp: "10:02", // Military time format
+    //                 date: "2024-12-25"  // Date in YYYY-MM-DD format
+    //             },
+    //             {
+    //                 sender: "bot",
+    //                 text: "Who doesn't love presents?",
+    //                 timestamp: "10:03", // Military time format
+    //                 date: "2024-12-25"  // Date in YYYY-MM-DD format
+    //             },
+    //         ],
+    //         "userid3": [
+    //             {
+    //                 sender: "user",
+    //                 text: "What are you doing for New Year's?",
+    //                 timestamp: "11:00", // Military time format
+    //                 date: "2024-12-31"  // Date in YYYY-MM-DD format
+    //             },
+    //             {
+    //                 sender: "bot",
+    //                 text: "I'm just a bot, so I don't have plans.",
+    //                 timestamp: "11:01", // Military time format
+    //                 date: "2024-12-31"  // Date in YYYY-MM-DD format
+    //             },
+    //             {
+    //                 sender: "user",
+    //                 text: "That's a bummer.",
+    //                 timestamp: "11:02", // Military time format
+    //                 date: "2024-12-31"  // Date in YYYY-MM-DD format
+    //             },
+    //             {
+    //                 sender: "bot",
+    //                 text: "I'm sure you'll have a great time, though!",
+    //                 timestamp: "11:03", // Military time format
+    //                 date: "2024-12-31"  // Date in YYYY-MM-DD format
+    //             },
+    //         ],
+    //         "userid4": [
+    //             {
+    //                 sender: "user",
+    //                 text: "Hey, have you seen the latest episode of that show?",
+    //                 timestamp: "09:00",
+    //                 date: "2024-12-21"
+    //             },
+    //             {
+    //                 sender: "bot",
+    //                 text: "Not yet! Is it any good?",
+    //                 timestamp: "09:01",
+    //                 date: "2024-12-21"
+    //             },
+    //             {
+    //                 sender: "user",
+    //                 text: "Absolutely! The plot twists are amazing!",
+    //                 timestamp: "09:02",
+    //                 date: "2024-12-21"
+    //             },
+    //             {
+    //                 sender: "bot",
+    //                 text: "I'll make sure to watch it tonight then.",
+    //                 timestamp: "09:03",
+    //                 date: "2024-12-21"
+    //             },
+    //             {
+    //                 sender: "user",
+    //                 text: "Let me know what you think after you watch it.",
+    //                 timestamp: "09:04",
+    //                 date: "2024-12-21"
+    //             },
+    //             {
+    //                 sender: "bot",
+    //                 text: "Definitely! I'll text you right after.",
+    //                 timestamp: "09:05",
+    //                 date: "2024-12-21"
+    //             },
+    //             {
+    //                 sender: "user",
+    //                 text: "Great! Looking forward to hearing your thoughts.",
+    //                 timestamp: "09:06",
+    //                 date: "2024-12-21"
+    //             },
+    //             {
+    //                 sender: "bot",
+    //                 text: "Catch you later!",
+    //                 timestamp: "09:07",
+    //                 date: "2024-12-21"
+    //             }
+    //         ],
+    //     };
+    //     setMessages(messagesPerUser[user_id] || []);
+    // };
 
     const handleSend = (): void => {
-        socket.emit("send_message", {
-            message: input,
-            conversation_id: '',
-            user_id: selectedUserId,
-        });
+        if (!input.trim()) return; // Prevent sending empty messages
 
-        const newMessage: Message = {
-            sender: "user",
-            text: input,
-            timestamp: new Date().toLocaleTimeString('en-us', {hour: '2-digit', minute: '2-digit',hour12: false}),
-            date: new Date().toISOString().split('T')[0]
+        // Construct the message object to be sent
+        const messageData = {
+            message: input,    // The message content
+            user_id: currentUserId,  // The ID of the current user
         };
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+        // Emit the message to the WebSocket server
+        socket.emit('send_message', messageData);
+
+        // Optionally update the local messages immediately
+        const newMessage: Message = {
+            sender: 'user',
+            text: input,
+            timestamp: "time",
+            date: "date",
+        };
+
+        setMessages((prevMessages) => [...prevMessages, newMessage]); // Update the messages list
+
+        // Clear the input field
+        setInput('');
     };
 
-    // Grouped messages by date and timestamp 
 
+    // Grouped messages by date and timestamp 
     return (
         <div className="h-full w-[75%] flex flex-col">
             {/* This is top container */}
@@ -248,7 +274,7 @@ const Chatlog = () => {
                                         }`}
                                 >
                                     <span className="block text-sm text-gray-700">
-                                        {msg.sender === "user" ? "You" : "Bot"}
+                                        {msg.sender === "user" ? "You" : username}
                                     </span>
                                     <span className="block mt-1">{msg.text}</span>
                                     <span className="block text-xs text-gray-500 mt-1">
