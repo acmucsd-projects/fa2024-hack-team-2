@@ -294,6 +294,11 @@ const Chatlog = () => {
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                handleSend();
+                            }
+                        }}
                         className="flex-1 border rounded-md p-2"
                         placeholder="Type a message..."
                     />
@@ -304,6 +309,7 @@ const Chatlog = () => {
                         Send
                     </button>
                 </div>
+
             </div>
 
         </div>
