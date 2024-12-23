@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef} from "react";
 import Image from "next/image";
 import Link from "next/link";
 import NavBar from "./components/NavBar.tsx";
@@ -186,24 +186,24 @@ const Home: React.FC = () => {
           </div>
           {/* Swipe Buttons */}
           <div className="flex mt-8 lg:mt-4 space-x-4">
-            <div className="w-16 h-16 mr-8 transition hover:scale-110 active:opacity-90">
-              <Image
-                src={interestIcon}
-                width={80}
-                height={80}
-                alt="Interested"
-                className="opacity-40"
-                onClick={() => nextPost(true)}
-              />
-            </div>
-            <div className="w-16 h-16 mt-2 transition hover:scale-110 active:opacity-90">
+            <div className="w-16 h-16 mr-8 transition hover:scale-110 active:opacity-90 mt-2">
               <Image
                 src={disinterestIcon}
                 width={80}
                 height={80}
                 alt="Uninterested"
-                className="opacity-20"
+                className="opacity-40"
                 onClick={() => nextPost(false)}
+              />
+            </div>
+            <div className="w-16 h-16 transition hover:scale-y-110 hover:scale-x-[-1.1] active:opacity-90 scale-x-[-1]">
+              <Image
+                src={interestIcon}
+                width={80}
+                height={80}
+                alt="Interested"
+                className="opacity-20"
+                onClick={() => nextPost(true)}
               />
             </div>
           </div>
@@ -242,9 +242,7 @@ const Home: React.FC = () => {
             <p className="font-bold text-3xl mb-4">Available Stores</p>
             {availableStores.map((store, index) => (
               <Link href={store.link} key={index}>
-                <span
-                  className="outline outline-gray-300 rounded bg-white w-full mt-2 flex gap-2"
-                >
+                <span className="outline outline-gray-300 rounded bg-white w-full mt-2 flex gap-2">
                   <Image
                     src={store.image}
                     width={50}
