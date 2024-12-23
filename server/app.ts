@@ -6,10 +6,12 @@ import logger from 'morgan';
 import passport from './utils/passport';
 import session from 'express-session';
 import connectDB from './db';
+import mongoose from 'mongoose';
 
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';
 import authRouter from './routes/auth';
+import userRoutes from './routes/user';
 
 import dotenv from 'dotenv';
 
@@ -43,6 +45,7 @@ app.use(passport.session());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
+app.use('/api', userRoutes);
 
 // catch 404 and forward to error handler
 app.use((req: Request, res: Response, next: NextFunction) => {
