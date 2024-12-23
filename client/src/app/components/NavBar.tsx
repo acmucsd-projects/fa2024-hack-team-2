@@ -17,20 +17,24 @@ const NavBar: React.FC<MyComponentProps> = ({}) => {
   const [PFP, setPFP] = useState<string>("");
   const [username, setUsername] = useState<string>("");
 
+  // Dropdown state
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   // TODO: Get data from BE
   const fetchData = () => {
     return {
       PFP: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
       username: "ORIGAMI"
-    }
+    };
   };
 
   // Initial fetch
-  useEffect(()=> {
+  useEffect(() => {
     const data = fetchData();
     setPFP(data.PFP);
     setUsername(data.username);
-  });
+  }, []);
 
   // State to toggle the search bar in mobile view
   const [isMobileShowNav, setIsMobileShowNav] = useState(false);
@@ -60,6 +64,12 @@ const NavBar: React.FC<MyComponentProps> = ({}) => {
         !searchBarRef.current.contains(event.target as Node)
       ) {
         setIsMobileShowNav(false);
+      }
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
       }
     };
 
@@ -105,9 +115,8 @@ const NavBar: React.FC<MyComponentProps> = ({}) => {
           alt="Search"
           className={`opacity-50 hover:opacity-60 hover:scale-110 transition cursor-pointer ml-2 lg:mx-2`}
           onClick={() => {
-            if (window.innerWidth < 1024)
-              setIsMobileShowNav(!isMobileShowNav)}
-          }
+            if (window.innerWidth < 1024) setIsMobileShowNav(!isMobileShowNav);
+          }}
         />
         <input
           type="text"
@@ -119,7 +128,10 @@ const NavBar: React.FC<MyComponentProps> = ({}) => {
       </div>
 
       {/* User Profile Button */}
-      <div className="md:bg-blue-500 flex items-center justify-center rounded p-0.5 mx-1 px-2 hover:scale-105 transition hover:opacity-85 active:opacity-75">
+      <div
+        className="relative md:bg-blue-500 flex items-center justify-center rounded p-0.5 mx-1 px-2 z-50 hover:opacity-90 active:opacity-75 transition"
+        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+      >
         <Image
           src={PFP ? PFP : tempPFP}
           width={30}
@@ -128,6 +140,29 @@ const NavBar: React.FC<MyComponentProps> = ({}) => {
           className="flex-shrink-0 m-0.5 opacity-30 mr-2 rounded-full"
         />
         <p className="hidden md:block mr-1 text-white font-bold">{username}</p>
+        {isDropdownOpen && (
+          <div
+            ref={dropdownRef}
+            className="absolute top-full right-0 bg-white outline outline-gray-300 shadow-lg rounded p-2 w-40 flex flex-col mt-2 z-50"
+            onMouseEnter={() => setIsDropdownOpen(true)}
+            onMouseLeave={() => setIsDropdownOpen(false)}
+          >
+            <Link
+              href="/profile"
+              className="px-4 py-2 text-gray-800 bg-white rounded hover:bg-gray-200"
+            >
+              Profile
+            </Link>
+            <span
+              className="px-4 py-2 text-gray-800 bg-white rounded text-left hover:bg-gray-200"
+              onClick={() => {
+                console.log("Log Out clicked"); // Replace with actual logout logic
+              }}
+            >
+              Log Out
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
