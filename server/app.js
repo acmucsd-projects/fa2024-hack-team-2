@@ -10,11 +10,13 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const morgan_1 = __importDefault(require("morgan"));
 const passport_1 = __importDefault(require("./utils/passport"));
 const express_session_1 = __importDefault(require("express-session"));
+const db_1 = __importDefault(require("./db"));
 const index_1 = __importDefault(require("./routes/index"));
 const users_1 = __importDefault(require("./routes/users"));
 const auth_1 = __importDefault(require("./routes/auth"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
+(0, db_1.default)();
 const app = (0, express_1.default)();
 // view engine setup
 app.set('views', path_1.default.join(__dirname, 'views'));

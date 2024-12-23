@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import passport from './utils/passport';
 import session from 'express-session';
+import connectDB from './db';
 
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';
@@ -14,6 +15,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+connectDB();
 const app = express();
 
 // view engine setup
