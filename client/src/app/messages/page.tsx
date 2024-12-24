@@ -15,7 +15,9 @@ const MessagesPage: React.FC = () => {
         <Chatlog />
       </div>
     </UserProvider>
-  );
+  );  
 };
 
 export default MessagesPage;
+
+

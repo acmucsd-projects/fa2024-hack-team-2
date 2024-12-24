@@ -26,7 +26,7 @@ const RecentMessages: React.FC = () => {
     }, []);
 
     return (
-        <div className="h-full w-[25%] flex border border-gray-500 justify-start items-center flex-col px-4 py-4 gap-4">
+        <div className="h-full w-[25%] flex border border-gray-500 rounded-lg justify-start items-center flex-col">
             {recentMessages.map((user) => (
                 <RecentMessage
                     key={user.username}
