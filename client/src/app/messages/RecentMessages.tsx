@@ -26,12 +26,12 @@ const RecentMessages: React.FC = () => {
     }, []);
 
     return (
-        <div className="h-full w-[25%] flex border border-gray-500 rounded-lg justify-start items-center flex-col">
+        <div className="h-full w-[25%] flex border border-gray-500 rounded-lg justify-start items-center flex-col overflow-y-auto">
             {recentMessages.map((user) => (
                 <RecentMessage
                     key={user.username}
                     username={user.username}
-                    message={user.message}
+                    message={"this is a test message where this is the most recent message"}
                     time={user.time}
                     user_id={user.user_id}
                     date={user.date}

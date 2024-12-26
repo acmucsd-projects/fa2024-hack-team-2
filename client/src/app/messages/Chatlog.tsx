@@ -83,14 +83,14 @@ const Chatlog = () => {
     };
 
     return (
-        <div className="h-full w-[75%] flex flex-col rounded-lg border border-gray-500">
+        <div className="h-full w-[75%] flex flex-col rounded-lg border border-gray-500 ">
             {/* Top Container */}
-            <div className="h-[10%] w-full flex justify-center items-center">
-                <div className="h-full w-[100%] px-5 flex items-center justify-between border border-gray-500">
+            <div className="h-[10%] w-full flex justify-center items-center ">
+                <div className="h-full w-[100%] px-5 flex items-center justify-between border-b border-gray-500 ">
                     <div className="h-[80%] w-[90%] flex flex-row items-center justify-center gap-5">
                         <div className="h-full flex flex-row items-start justify-start">
                             <div className="bg-blue-500 rounded-full flex justify-center items-center h-full aspect-square">
-                                <span className="text-white font-bold">C</span>
+                                <span className="text-white font-bold">P</span>
                             </div>
                         </div>
                         <div className="h-full w-full flex justify-start items-center">
@@ -106,7 +106,7 @@ const Chatlog = () => {
             </div>
 
             {/* Chat Log */}
-            <div className="flex flex-col h-[90%] w-full border">
+            <div className="flex flex-col h-[90%] w-full border rounded-lg">
                 <div
                     ref={chatContainerRef} // Attach ref to the chat container
                     className="flex-1 overflow-y-auto p-4 space-y-4"
@@ -124,25 +124,27 @@ const Chatlog = () => {
                                             : "bg-gray-200 text-black"
                                     }`}
                                 >
-                                    <span className="block text-sm text-gray-700">
-                                        {msg.sender === "user" ? "You" : username}
-                                    </span>
-                                    <span className="block mt-1">{msg.text}</span>
-                                    <span className="block text-xs text-gray-500 mt-1">
-                                        {msg.date} {msg.timestamp}
-                                    </span>
+                                    <span className="block">{msg.text}</span>
                                 </div>
                             </div>
                         ))
                     ) : (
                         <div className="flex items-center justify-center text-center text-gray-500 h-[100%]">
-                            No user selected
+                            {username ? (
+                                <div className="text-center">
+                                    Send your first message to {username}
+                                </div>
+                            ) : (
+                                <div className="text-center">
+                                    Select a user to send a message
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
 
                 {/* Input Area */}
-                <div className="border-t p-4 flex items-center space-x-2">
+                <div className=" p-4 flex items-center space-x-2 border-t">
                     <input
                         type="text"
                         value={input}
