@@ -14,18 +14,14 @@ const RecentMessage: React.FC<RecentMessageProps> = ({ username, message, time, 
     };
 
     return (
-        <div className={`w-full py-2 ${selectedUserId === user_id ? "bg-gray-100" : ""
+        <div className={`w-full p-2 ${selectedUserId === user_id ? "bg-gray-100" : ""
             }`}
             onClick={() => handleMessageClick(user_id)}>
             <div
-                className={`flex justify-center items-center flex-row h-[75px] w-full gap-4 cursor-pointer`}
-
-            >
-
-
+                className={`flex justify-center items-center flex-row h-[75px] w-full gap-4 cursor-pointer`}>
                 <div className="h-full">
                     <div className="bg-blue-500 rounded-full flex justify-center items-center h-full aspect-square">
-                        <span className="text-white font-bold">C</span>
+                        <span className="text-white font-bold">P</span>
                     </div>
                 </div>
                 <div className="w-[75%] flex justify-center items-center flex-col gap-1">
@@ -40,8 +36,6 @@ const RecentMessage: React.FC<RecentMessageProps> = ({ username, message, time, 
                 </div>
             </div>
         </div>
-
-
     );
 };
 
