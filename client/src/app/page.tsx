@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef} from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Swipeable from "./components/Swipeable.tsx";
@@ -9,13 +9,12 @@ import likedIcon from "/public/images/heart-solid.svg";
 import interestIcon from "/public/images/thumbs-up-solid.svg";
 import disinterestIcon from "/public/images/thumbs-down-solid.svg";
 
-
 const getRandomRotation = () => {
   const positiveOrNegative = Math.random() < 0.5 ? 1 : -1;
   return positiveOrNegative * (Math.random() * 10 + 5); // Range: 5 to 15
 };
 
-const getRandomOpacity = () => Math.random() * 0.6+0.2; // Range: 0.2 to 0.8
+const getRandomOpacity = () => Math.random() * 0.6 + 0.2; // Range: 0.2 to 0.8
 
 const Home: React.FC = () => {
   // Set up card states
@@ -31,13 +30,15 @@ const Home: React.FC = () => {
     brand?: string;
     cost?: string;
   } | null>(null);
-  const [availableStores, setAvailableStores] = useState<{ 
-    location: string;
-    address: string;
-    status: string; 
-    image: string;
-    link: string
-  }[]>([]);
+  const [availableStores, setAvailableStores] = useState<
+    {
+      location: string;
+      address: string;
+      status: string;
+      image: string;
+      link: string;
+    }[]
+  >([]);
   const [rotations, setRotations] = useState<number[]>([]);
   const [opacities, setOpacities] = useState<number[]>([]);
 
@@ -63,18 +64,20 @@ const Home: React.FC = () => {
       },
       availableStores: [
         {
-          image: "https://files.idyllic.app/files/static/294916?width=750&optimizer=image",
+          image:
+            "https://files.idyllic.app/files/static/294916?width=750&optimizer=image",
           location: "Twirl Dance Boutique",
           address: "6431 Independence Ave Woodland Hills, CA 91367",
           status: "Available",
-          link: "/"
+          link: "/",
         },
         {
-          image: "https://files.idyllic.app/files/static/294916?width=750&optimizer=image",
+          image:
+            "https://files.idyllic.app/files/static/294916?width=750&optimizer=image",
           location: "D's Dance Boutique",
           address: "427 Imperial Hwy Fullerton, CA 92835",
           status: "Unavailable",
-          link: "/"
+          link: "/",
         },
       ],
     };
@@ -85,7 +88,7 @@ const Home: React.FC = () => {
     // TODO: send sendData to BE
     const sendData = {
       _id: postId,
-      liked: liked
+      liked: liked,
     };
     const data = fetchData();
     setAuthorPFP(data.authorPFP);
@@ -93,9 +96,7 @@ const Home: React.FC = () => {
     setCards(data.cards);
     setCardDetails(data.cardDetails);
     setAvailableStores(
-      data.availableStores.sort((a, b) =>
-        a.status === "Available" ? -1 : 1
-      )
+      data.availableStores.sort((a, b) => (a.status === "Available" ? -1 : 1)),
     );
     const newRotations = data.cards.slice(1).map(() => getRandomRotation());
     const newOpacities = data.cards.slice(1).map(() => getRandomOpacity());
@@ -108,93 +109,98 @@ const Home: React.FC = () => {
     nextPost(false);
   }, []);
 
-  
   return (
-    <main className="flex flex-col h-screen w-screen bg-gray-50">
+    <main className="flex h-screen w-screen flex-col bg-gray-50">
       {/* Navbar */}
-      <div className="flex justify-center mb-8 lg:mb-4">
+      <div className="mb-8 flex justify-center lg:mb-4">
         <NavBar />
       </div>
 
       {/* Content */}
       <div className="flex flex-1 flex-col lg:flex-row">
         {/* Left Side */}
-        <div className="lg:w-1/2 flex flex-col items-center justify-center lg:ml-4">
+        <div className="flex flex-col items-center justify-center lg:ml-4 lg:w-1/2">
           {/* Cards */}
-          <Swipeable closeDirection="left" onSwipeComplete={() => nextPost(false)}
-              className="relative flex items-center justify-center w-full lg:w-3/5 h-96 lg:h-[32rem]">
-            <Swipeable closeDirection="right" onSwipeComplete={() => nextPost(true)}
-                className="relative flex items-center justify-center w-full lg:w-3/5 h-96 lg:h-[32rem]">
-            <div className="relative flex items-center justify-center w-full lg:w-3/5 h-96 lg:h-[32rem]">
-              {/* Other cards */}
-              {cards.slice(1).map((card, index) => (
-                <Image
-                  key={index}
-                  width={0}
-                  height={0}
-                  src={card}
-                  alt="Card"
-                  className="absolute w-64 h-96 lg:w-72 lg:h-[28rem] object-cover rounded-lg shadow-lg bg-gray-300"
-                  style={{
-                    transform: `rotate(${rotations[index] || 0}deg)`,
-                    opacity: opacities[index] || 1,
-                    zIndex: index,
-                  }}
-                />
-              ))}
-              {/* Main card */}
-              {cards.length > 0 && (
-                <div
-                  className="relative w-64 h-96 lg:w-72 lg:h-[28rem] rounded-lg overflow-hidden shadow-xl bg-gray-100"
-                  style={{ zIndex: cards.length }}
-                  onClick={() => setCards([...cards.slice(1), cards[0]])}
-                >
+          <Swipeable
+            closeDirection="left"
+            onSwipeComplete={() => nextPost(false)}
+            className="relative flex h-96 w-full items-center justify-center lg:h-[32rem] lg:w-3/5"
+          >
+            <Swipeable
+              closeDirection="right"
+              onSwipeComplete={() => nextPost(true)}
+              className="relative flex h-96 w-full items-center justify-center lg:h-[32rem] lg:w-3/5"
+            >
+              <div className="relative flex h-96 w-full items-center justify-center lg:h-[32rem] lg:w-3/5">
+                {/* Other cards */}
+                {cards.slice(1).map((card, index) => (
                   <Image
-                    src={cards[0]}
-                    alt="Main Card"
-                    width={6400}
-                    height={9600}
-                    className="w-full h-full object-cover pointer-events-none"
+                    key={index}
+                    width={0}
+                    height={0}
+                    src={card}
+                    alt="Card"
+                    className="absolute h-96 w-64 rounded-lg bg-gray-300 object-cover shadow-lg lg:h-[28rem] lg:w-72"
+                    style={{
+                      transform: `rotate(${rotations[index] || 0}deg)`,
+                      opacity: opacities[index] || 1,
+                      zIndex: index,
+                    }}
                   />
-                  <span className="shadow-lg rounded-full z-50 bg-gray-50 absolute top-3 left-3">
-                    <Link href="/">
-                      <Image
-                        src={authorPFP}
-                        width={30}
-                        height={30}
-                        alt="Author"
-                        className="m-0.5 opacity-30 rounded-full"
-                      />
-                    </Link>
-                  </span>
-                  <div className="absolute bottom-0 bg-gradient-to-t from-black w-full pt-6 pb-4">
-                    <p className="font-bold text-lg text-white mx-4 mt-4">
-                      {cardDetails?.title}
-                    </p>
-                    <p className="text-sm text-white mx-4 mt-0">
-                      {cardDetails?.stores}
-                    </p>
-                    <span className="right-4 absolute bottom-2 text-center">
-                      <Image
-                        src={likedIcon}
-                        width={30}
-                        height={30}
-                        alt="Like Button"
-                        className="invert"
-                      />
-                      <p className="text-white">
-                        {cardDetails?.likeCount.toString()}
-                      </p>
+                ))}
+                {/* Main card */}
+                {cards.length > 0 && (
+                  <div
+                    className="relative h-96 w-64 overflow-hidden rounded-lg bg-gray-100 shadow-xl lg:h-[28rem] lg:w-72"
+                    style={{ zIndex: cards.length }}
+                    onClick={() => setCards([...cards.slice(1), cards[0]])}
+                  >
+                    <Image
+                      src={cards[0]}
+                      alt="Main Card"
+                      width={6400}
+                      height={9600}
+                      className="pointer-events-none h-full w-full object-cover"
+                    />
+                    <span className="absolute left-3 top-3 z-50 rounded-full bg-gray-50 shadow-lg">
+                      <Link href="/">
+                        <Image
+                          src={authorPFP}
+                          width={30}
+                          height={30}
+                          alt="Author"
+                          className="m-0.5 rounded-full opacity-30"
+                        />
+                      </Link>
                     </span>
+                    <div className="absolute bottom-0 w-full bg-gradient-to-t from-black pb-4 pt-6">
+                      <p className="mx-4 mt-4 text-lg font-bold text-white">
+                        {cardDetails?.title}
+                      </p>
+                      <p className="mx-4 mt-0 text-sm text-white">
+                        {cardDetails?.stores}
+                      </p>
+                      <span className="absolute bottom-2 right-4 text-center">
+                        <Image
+                          src={likedIcon}
+                          width={30}
+                          height={30}
+                          alt="Like Button"
+                          className="invert"
+                        />
+                        <p className="text-white">
+                          {cardDetails?.likeCount.toString()}
+                        </p>
+                      </span>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
             </Swipeable>
           </Swipeable>
           {/* Swipe Buttons */}
-          <div className="flex mt-8 lg:mt-4 space-x-4">
-            <div className="w-16 h-16 mr-8 transition hover:scale-110 active:opacity-90 mt-2">
+          <div className="mt-8 flex space-x-4 lg:mt-4">
+            <div className="mr-8 mt-2 h-16 w-16 transition hover:scale-110 active:opacity-90">
               <Image
                 src={disinterestIcon}
                 width={80}
@@ -204,7 +210,7 @@ const Home: React.FC = () => {
                 onClick={() => nextPost(false)}
               />
             </div>
-            <div className="w-16 h-16 transition hover:scale-y-110 hover:scale-x-[-1.1] active:opacity-90 scale-x-[-1]">
+            <div className="h-16 w-16 scale-x-[-1] transition hover:scale-x-[-1.1] hover:scale-y-110 active:opacity-90">
               <Image
                 src={interestIcon}
                 width={80}
@@ -217,13 +223,13 @@ const Home: React.FC = () => {
           </div>
         </div>
         {/* Right Side */}
-        <div className="w-full lg:w-5/12 p-4 overflow-y-auto">
-          <div className="outline outline-gray-300 rounded bg-white p-4">
-            <p className="font-bold text-3xl mb-4">{cardDetails?.title}</p>
+        <div className="w-full overflow-y-auto p-4 lg:w-5/12">
+          <div className="rounded bg-white p-4 outline outline-gray-300">
+            <p className="mb-4 text-3xl font-bold">{cardDetails?.title}</p>
             <p className="mb-4">{cardDetails?.description}</p>
             {cardDetails?.material && (
               <>
-                <p className="font-bold text-xl border-t-gray-300 mt-4 border-t pt-2">
+                <p className="mt-4 border-t border-t-gray-300 pt-2 text-xl font-bold">
                   Material
                 </p>
                 <p className="mb-4">{cardDetails.material}</p>
@@ -231,7 +237,7 @@ const Home: React.FC = () => {
             )}
             {cardDetails?.brand && (
               <>
-                <p className="font-bold text-xl border-t-gray-300 mt-4 border-t pt-2">
+                <p className="mt-4 border-t border-t-gray-300 pt-2 text-xl font-bold">
                   Brand
                 </p>
                 <p className="mb-4">{cardDetails.brand}</p>
@@ -239,18 +245,18 @@ const Home: React.FC = () => {
             )}
             {cardDetails?.cost && (
               <>
-                <p className="font-bold text-xl border-t-gray-300 mt-4 border-t pt-2">
+                <p className="mt-4 border-t border-t-gray-300 pt-2 text-xl font-bold">
                   Cost
                 </p>
                 <p>{cardDetails.cost}</p>
               </>
             )}
           </div>
-          <div className="outline outline-gray-300 rounded bg-white p-4 mt-4">
-            <p className="font-bold text-3xl mb-4">Available Stores</p>
+          <div className="mt-4 rounded bg-white p-4 outline outline-gray-300">
+            <p className="mb-4 text-3xl font-bold">Available Stores</p>
             {availableStores.map((store, index) => (
               <Link href={store.link} key={index}>
-                <span className="outline outline-gray-300 rounded bg-white w-full mt-2 flex gap-2">
+                <span className="mt-2 flex w-full gap-2 rounded bg-white outline outline-gray-300">
                   <Image
                     src={store.image}
                     width={50}
@@ -258,13 +264,15 @@ const Home: React.FC = () => {
                     alt="Location"
                     className="m-2"
                   />
-                  <span className="flex-1 my-2 relative">
+                  <span className="relative my-2 flex-1">
                     <p className="text-lg font-bold">{store.location}</p>
                     <p className="text-sm text-gray-600">{store.address}</p>
                     <span
-                      className={`w-[12px] h-[12px] rounded-full ${
-                        store.status === "Available" ? "bg-green-300" : "bg-red-300"
-                      } top-1 right-2 absolute drop-shadow`}
+                      className={`h-[12px] w-[12px] rounded-full ${
+                        store.status === "Available"
+                          ? "bg-green-300"
+                          : "bg-red-300"
+                      } absolute right-2 top-1 drop-shadow`}
                     ></span>
                   </span>
                 </span>

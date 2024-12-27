@@ -7,17 +7,22 @@ interface MyComponentProps {
   imageAlt: string;
 }
 
-const NavBarLink: React.FC<MyComponentProps> = ({ linkAddress, image, imageAlt }) => {
+const NavBarLink: React.FC<MyComponentProps> = ({
+  linkAddress,
+  image,
+  imageAlt,
+}) => {
   const imageElement = (
     <Image src={image} width={25} height={25} alt={imageAlt} />
   );
-    
+
   return (
-    <span className="flex flex-shrink-0 items-center justify-center opacity-40 hover:opacity-50 hover:scale-110 transition mx-2 active:opacity-60">
-       {linkAddress ? 
-            <Link href={linkAddress}> {imageElement} </Link> :
-            imageElement
-        }
+    <span className="mx-2 flex flex-shrink-0 items-center justify-center opacity-40 transition hover:scale-110 hover:opacity-50 active:opacity-60">
+      {linkAddress ? (
+        <Link href={linkAddress}> {imageElement} </Link>
+      ) : (
+        imageElement
+      )}
     </span>
   );
 };

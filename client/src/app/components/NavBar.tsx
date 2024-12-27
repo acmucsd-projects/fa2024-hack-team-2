@@ -25,7 +25,7 @@ const NavBar: React.FC<MyComponentProps> = ({}) => {
   const fetchData = () => {
     return {
       PFP: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
-      username: "ORIGAMI"
+      username: "ORIGAMI",
     };
   };
 
@@ -80,22 +80,27 @@ const NavBar: React.FC<MyComponentProps> = ({}) => {
   }, []);
 
   return (
-    <div className="mt-4 flex h-10 w-10/12 items-center justify-between gap-1 bg-white outline outline-gray-300 rounded">
+    <div className="mt-4 flex h-10 w-10/12 items-center justify-between gap-1 rounded bg-white outline outline-gray-300">
       {/* Left Options */}
       <div className="flex">
         {/* Logo */}
         <Link
           href="/"
-          className="font-bold flex-shrink-0 text-blue-500 text-[20px] lg:text-[24px] flex justify-center items-center p-1 lg:p-2 hover:opacity-90 hover:scale-105 transition lg:mr-4 ml-2 active:opacity-80"
+          className="ml-2 flex flex-shrink-0 items-center justify-center p-1 text-[20px] font-bold text-blue-500 transition hover:scale-105 hover:opacity-90 active:opacity-80 lg:mr-4 lg:p-2 lg:text-[24px]"
         >
           Swipe Style
         </Link>
         {/* Component Pop Ups */}
-        <div className={`flex ${isMobileShowNav && window.innerWidth < 1024 ? "hidden" : ""}`}>
+        <div
+          className={`flex ${isMobileShowNav && window.innerWidth < 1024 ? "hidden" : ""}`}
+        >
           <NavBarLink image={createIcon} imageAlt={"Create"}></NavBarLink>
           <NavBarLink image={historyIcon} imageAlt={"History"}></NavBarLink>
           <NavBarLink image={messagesIcon} imageAlt={"Messages"}></NavBarLink>
-          <NavBarLink image={leaderboardIcon} imageAlt={"Leaderboard"}></NavBarLink>
+          <NavBarLink
+            image={leaderboardIcon}
+            imageAlt={"Leaderboard"}
+          ></NavBarLink>
         </div>
       </div>
 
@@ -106,22 +111,24 @@ const NavBar: React.FC<MyComponentProps> = ({}) => {
           isMobileShowNav && window.innerWidth < 1024
             ? "w-6/12 bg-gray-100 outline outline-gray-400"
             : "w-2/12 md:w-3/12 lg:bg-gray-100"
-        } lg:outline-gray-200 lg:outline rounded focus-within:outline-gray-400 justify-center`}
+        } justify-center rounded focus-within:outline-gray-400 lg:outline lg:outline-gray-200`}
       >
         <Image
           src={searchIcon}
           width={20}
           height={20}
           alt="Search"
-          className={`opacity-50 hover:opacity-60 hover:scale-110 transition cursor-pointer ml-2 lg:mx-2`}
+          className={`ml-2 cursor-pointer opacity-50 transition hover:scale-110 hover:opacity-60 lg:mx-2`}
           onClick={() => {
             if (window.innerWidth < 1024) setIsMobileShowNav(!isMobileShowNav);
           }}
         />
         <input
           type="text"
-          className={`w-full outline-none bg-gray-100 text-gray-600 ${
-            isMobileShowNav && window.innerWidth < 1024 ? "block" : "hidden lg:block"
+          className={`w-full bg-gray-100 text-gray-600 outline-none ${
+            isMobileShowNav && window.innerWidth < 1024
+              ? "block"
+              : "hidden lg:block"
           }`}
           placeholder="Search for styles..."
         />
@@ -129,7 +136,7 @@ const NavBar: React.FC<MyComponentProps> = ({}) => {
 
       {/* User Profile Button */}
       <div
-        className="relative md:bg-blue-500 flex items-center justify-center rounded p-0.5 mx-1 px-2 z-50 hover:opacity-90 active:opacity-75 transition"
+        className="relative z-50 mx-1 flex items-center justify-center rounded p-0.5 px-2 transition hover:opacity-90 active:opacity-75 md:bg-blue-500"
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
       >
         <Image
@@ -137,24 +144,24 @@ const NavBar: React.FC<MyComponentProps> = ({}) => {
           width={30}
           height={30}
           alt="Profile Picture"
-          className="flex-shrink-0 m-0.5 opacity-30 mr-2 rounded-full"
+          className="m-0.5 mr-2 flex-shrink-0 rounded-full opacity-30"
         />
-        <p className="hidden md:block mr-1 text-white font-bold">{username}</p>
+        <p className="mr-1 hidden font-bold text-white md:block">{username}</p>
         {isDropdownOpen && (
           <div
             ref={dropdownRef}
-            className="absolute top-full right-0 bg-white outline outline-gray-300 shadow-lg rounded p-2 w-40 flex flex-col mt-2 z-50"
+            className="absolute right-0 top-full z-50 mt-2 flex w-40 flex-col rounded bg-white p-2 shadow-lg outline outline-gray-300"
             onMouseEnter={() => setIsDropdownOpen(true)}
             onMouseLeave={() => setIsDropdownOpen(false)}
           >
             <Link
               href="/profile"
-              className="px-4 py-2 text-gray-800 bg-white rounded hover:bg-gray-200"
+              className="rounded bg-white px-4 py-2 text-gray-800 hover:bg-gray-200"
             >
               Profile
             </Link>
             <span
-              className="px-4 py-2 text-gray-800 bg-white rounded text-left hover:bg-gray-200"
+              className="rounded bg-white px-4 py-2 text-left text-gray-800 hover:bg-gray-200"
               onClick={() => {
                 console.log("Log Out clicked"); // Replace with actual logout logic
               }}
