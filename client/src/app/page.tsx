@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef} from "react";
 import Image from "next/image";
 import Link from "next/link";
+import Swipeable from "./components/Swipeable.tsx";
 import NavBar from "./components/NavBar.tsx";
 import likedIcon from "/public/images/heart-solid.svg";
 import interestIcon from "/public/images/thumbs-up-solid.svg";
@@ -84,7 +85,7 @@ const Home: React.FC = () => {
     // TODO: send sendData to BE
     const sendData = {
       _id: postId,
-      liked: liked ? true : false,
+      liked: liked
     };
     const data = fetchData();
     setAuthorPFP(data.authorPFP);
@@ -107,6 +108,7 @@ const Home: React.FC = () => {
     nextPost(false);
   }, []);
 
+  
   return (
     <main className="flex flex-col h-screen w-screen bg-gray-50">
       {/* Navbar */}
@@ -119,71 +121,77 @@ const Home: React.FC = () => {
         {/* Left Side */}
         <div className="lg:w-1/2 flex flex-col items-center justify-center lg:ml-4">
           {/* Cards */}
-          <div className="relative flex items-center justify-center w-full lg:w-3/5 h-96 lg:h-[32rem]">
-            {/* Other cards */}
-            {cards.slice(1).map((card, index) => (
-              <Image
-                key={index}
-                width={0}
-                height={0}
-                src={card}
-                alt="Card"
-                className="absolute w-64 h-96 lg:w-72 lg:h-[28rem] object-cover rounded-lg shadow-lg bg-gray-300"
-                style={{
-                  transform: `rotate(${rotations[index] || 0}deg)`,
-                  opacity: opacities[index] || 1,
-                  zIndex: index,
-                }}
-              />
-            ))}
-            {/* Main card */}
-            {cards.length > 0 && (
-              <div
-                className="relative w-64 h-96 lg:w-72 lg:h-[28rem] rounded-lg overflow-hidden shadow-xl bg-gray-100"
-                style={{ zIndex: cards.length }}
-                onClick={() => setCards([...cards.slice(1), cards[0]])}
-              >
+          <Swipeable closeDirection="left" onSwipeComplete={() => nextPost(false)}
+              className="relative flex items-center justify-center w-full lg:w-3/5 h-96 lg:h-[32rem]">
+            <Swipeable closeDirection="right" onSwipeComplete={() => nextPost(true)}
+                className="relative flex items-center justify-center w-full lg:w-3/5 h-96 lg:h-[32rem]">
+            <div className="relative flex items-center justify-center w-full lg:w-3/5 h-96 lg:h-[32rem]">
+              {/* Other cards */}
+              {cards.slice(1).map((card, index) => (
                 <Image
-                  src={cards[0]}
-                  alt="Main Card"
-                  width={6400}
-                  height={9600}
-                  className="w-full h-full object-cover pointer-events-none"
+                  key={index}
+                  width={0}
+                  height={0}
+                  src={card}
+                  alt="Card"
+                  className="absolute w-64 h-96 lg:w-72 lg:h-[28rem] object-cover rounded-lg shadow-lg bg-gray-300"
+                  style={{
+                    transform: `rotate(${rotations[index] || 0}deg)`,
+                    opacity: opacities[index] || 1,
+                    zIndex: index,
+                  }}
                 />
-                <span className="shadow-lg rounded-full z-50 bg-gray-50 absolute top-3 left-3">
-                  <Link href="/">
-                    <Image
-                      src={authorPFP}
-                      width={30}
-                      height={30}
-                      alt="Author"
-                      className="m-0.5 opacity-30 rounded-full"
-                    />
-                  </Link>
-                </span>
-                <div className="absolute bottom-0 bg-gradient-to-t from-black w-full pt-6 pb-4">
-                  <p className="font-bold text-lg text-white mx-4 mt-4">
-                    {cardDetails?.title}
-                  </p>
-                  <p className="text-sm text-white mx-4 mt-0">
-                    {cardDetails?.stores}
-                  </p>
-                  <span className="right-4 absolute bottom-2 text-center">
-                    <Image
-                      src={likedIcon}
-                      width={30}
-                      height={30}
-                      alt="Like Button"
-                      className="invert"
-                    />
-                    <p className="text-white">
-                      {cardDetails?.likeCount.toString()}
-                    </p>
+              ))}
+              {/* Main card */}
+              {cards.length > 0 && (
+                <div
+                  className="relative w-64 h-96 lg:w-72 lg:h-[28rem] rounded-lg overflow-hidden shadow-xl bg-gray-100"
+                  style={{ zIndex: cards.length }}
+                  onClick={() => setCards([...cards.slice(1), cards[0]])}
+                >
+                  <Image
+                    src={cards[0]}
+                    alt="Main Card"
+                    width={6400}
+                    height={9600}
+                    className="w-full h-full object-cover pointer-events-none"
+                  />
+                  <span className="shadow-lg rounded-full z-50 bg-gray-50 absolute top-3 left-3">
+                    <Link href="/">
+                      <Image
+                        src={authorPFP}
+                        width={30}
+                        height={30}
+                        alt="Author"
+                        className="m-0.5 opacity-30 rounded-full"
+                      />
+                    </Link>
                   </span>
+                  <div className="absolute bottom-0 bg-gradient-to-t from-black w-full pt-6 pb-4">
+                    <p className="font-bold text-lg text-white mx-4 mt-4">
+                      {cardDetails?.title}
+                    </p>
+                    <p className="text-sm text-white mx-4 mt-0">
+                      {cardDetails?.stores}
+                    </p>
+                    <span className="right-4 absolute bottom-2 text-center">
+                      <Image
+                        src={likedIcon}
+                        width={30}
+                        height={30}
+                        alt="Like Button"
+                        className="invert"
+                      />
+                      <p className="text-white">
+                        {cardDetails?.likeCount.toString()}
+                      </p>
+                    </span>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+            </Swipeable>
+          </Swipeable>
           {/* Swipe Buttons */}
           <div className="flex mt-8 lg:mt-4 space-x-4">
             <div className="w-16 h-16 mr-8 transition hover:scale-110 active:opacity-90 mt-2">
