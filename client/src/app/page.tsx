@@ -155,13 +155,11 @@ const Home: React.FC = () => {
                     height={0}
                     src={card}
                     alt="Card"
-                    className="absolute rounded-lg bg-gray-300 object-cover shadow-lg"
+                    className="absolute rounded-lg bg-gray-300 object-cover shadow-lg h-full w-full"
                     style={{
                       transform: `rotate(${rotations[index] || 0}deg)`,
                       opacity: opacities[index] || 1,
                       zIndex: index,
-                      height: "100%",
-                      width: "100%",
                     }}
                   />
                 ))}
@@ -218,7 +216,7 @@ const Home: React.FC = () => {
             </Swipeable>
           </Swipeable>
           {/* Swipe Buttons */}
-          <div className="absolute bottom-44 flex space-x-4 lg:bottom-4">
+          <div className="relative flex space-x-4 mt-4">
             <div className="mr-8 mt-2 h-16 w-16 transition hover:scale-110 active:opacity-90">
               <Image
                 src={disinterestIcon}
@@ -242,7 +240,8 @@ const Home: React.FC = () => {
           </div>
         </div>
         {/* Right Side */}
-        <div className="m-24 flex w-full flex-col items-center overflow-y-auto p-4 lg:m-0 lg:max-w-lg">
+        <div className="m-4 flex w-full flex-col items-center overflow-y-auto p-4 lg:m-0 lg:max-w-lg">
+          {/* Description */}
           <div className="mb-4 w-full rounded bg-white p-4 outline outline-gray-300">
             <p className="mb-4 text-center text-3xl font-bold lg:text-left">
               {cardDetails?.title}
@@ -275,7 +274,8 @@ const Home: React.FC = () => {
               </>
             )}
           </div>
-          <div className="max-h-56 w-full overflow-y-scroll rounded bg-white p-4 outline outline-gray-300 lg:max-h-48">
+          {/* Available Stores */}
+          <div className="max-h-56 w-full overflow-y-scroll rounded bg-white p-4 outline outline-gray-300 lg:max-h-48 mb-[5.5rem]">
             <p className="mb-4 text-3xl font-bold">Available Stores</p>
             {availableStores.map((store, index) => (
               <Link href={store.link} key={index}>
