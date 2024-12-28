@@ -5,17 +5,21 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import passport from './utils/passport';
 import session from 'express-session';
+import connectDB from './db';
+import mongoose from 'mongoose';
 import cors from 'cors';
 
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';
 import authRouter from './routes/auth';
-import messageRouter from './routes/messages';
-
+import userRoutes from './routes/user';
+import postRoutes from './routes/post';
+import messageRoutes from './routes/message';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
+connectDB();
 const app = express();
 
 const corsOptions = {
@@ -51,7 +55,10 @@ app.use(passport.session());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
-app.use('/messages', messageRouter);
+app.use('/api', userRoutes);
+app.use('/api', postRoutes);
+app.use('/api', messageRoutes);
+
 
 // catch 404 and forward to error handler
 app.use((req: Request, res: Response, next: NextFunction) => {
