@@ -14,10 +14,16 @@ router.get('/', (req, res, next) => {
 });
 // Redirect user to Google OAuth
 router.get('/google', passport_1.default.authenticate('google', { scope: ['profile', 'email'] }));
-// Callback route for Google OAuth
+// Google OAuth callback route
 router.get('/google/callback', passport_1.default.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
-    // Successful authentication, redirects to index
-    res.redirect('/');
+    if (req.user) {
+        console.log('User authenticated successfully:', req.user);
+        return res.redirect('http://localhost:3000'); // Correct redirection
+    }
+    else {
+        console.log("User not authenticated.");
+        return res.redirect('/login'); // Fallback if no user object
+    }
 });
 router.get('/protected', isLoggedIn, (req, res) => {
     res.send('protected route');

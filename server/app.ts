@@ -7,6 +7,7 @@ import passport from './utils/passport';
 import session from 'express-session';
 import connectDB from './db';
 import mongoose from 'mongoose';
+import cors from 'cors';
 
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';
@@ -14,13 +15,20 @@ import authRouter from './routes/auth';
 import userRoutes from './routes/user';
 import postRoutes from './routes/post';
 import messageRoutes from './routes/message';
-
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 connectDB();
 const app = express();
+
+const corsOptions = {
+  origin: 'http://localhost:3000',  // Allow requests from frontend (React app)
+  methods: 'GET,POST,PUT,DELETE',  // Allow these HTTP methods
+  credentials: true,  // Allow cookies to be sent with the request
+};
+
+app.use(cors(corsOptions));  // Enable CORS with the configured options
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -50,6 +58,7 @@ app.use('/auth', authRouter);
 app.use('/api', userRoutes);
 app.use('/api', postRoutes);
 app.use('/api', messageRoutes);
+
 
 // catch 404 and forward to error handler
 app.use((req: Request, res: Response, next: NextFunction) => {
