@@ -96,14 +96,14 @@ const ViewHistory: React.FC = () => {
       {/* Main Content */}
       <div className="fixed inset-0 flex justify-center items-center z-50">
         <div className="w-[90vw] h-[90vh] bg-white border border-gray-300 shadow-2xl overflow-hidden rounded-lg p-6 flex flex-col">
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+        <div className="absolute top-4% left-1/2 transform -translate-x-1/2">
   <h1 className="text-2xl font-bold text-center">View History</h1>
 </div>
 
 
           {/* Buttons */}
-          <div className="flex justify-center gap-4 mb-4">
-            <button
+          <div className="flex justify-center gap-4 mb-4 mt-[5%]">
+          <button
               onClick={() => setShowPosts(true)}
               className={`text-sm sm:text-base font-semibold ${
                 showPosts ? 'text-blue-600' : 'text-gray-500'
@@ -121,8 +121,8 @@ const ViewHistory: React.FC = () => {
             </button>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 overflow-y-auto flex-grow">
-            {currentData.slice(
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 overflow-y-auto flex-grow mt-[5%]">
+          {currentData.slice(
               (currentPage - 1) * ITEMS_PER_PAGE,
               currentPage * ITEMS_PER_PAGE
             ).map((item) => (
