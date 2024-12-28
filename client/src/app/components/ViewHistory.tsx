@@ -38,7 +38,8 @@ const Card: React.FC<{ data: any; type: 'post' | 'user' }> = ({ data, type, onCl
       type === 'user'
         ? 'bg-gradient-to-b from-[#8B0000] via-[#8B0000] to-black rounded-2xl border border-gray-300'
         : 'bg-gradient-to-b from-[#7390fb] via-[#7390fb] to-black rounded-2xl border border-gray-300'
-    } max-h-[350px]`} 
+    }`}
+    style={{ maxHeight: '350px' }} 
     onClick={onClick}
   >
     <div className="overflow-hidden">
@@ -63,7 +64,6 @@ const Card: React.FC<{ data: any; type: 'post' | 'user' }> = ({ data, type, onCl
     )}
   </a>
 );
-
 
 // takes data and displays it
 const ViewHistory: React.FC = () => {
@@ -96,13 +96,13 @@ const ViewHistory: React.FC = () => {
       {/* Main Content */}
       <div className="fixed inset-0 flex justify-center items-center z-50">
         <div className="w-[90vw] h-[90vh] bg-white border border-gray-300 shadow-2xl overflow-hidden rounded-lg p-6 flex flex-col">
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+        <div className="absolute top-4% left-1/2 transform -translate-x-1/2">
   <h1 className="text-2xl font-bold text-center">View History</h1>
 </div>
 
 
           {/* Buttons */}
-          <div className="flex justify-center gap-4 mb-4">
+          <div className="flex justify-center gap-4 mb-4 mt-[5%]">
             <button
               onClick={() => setShowPosts(true)}
               className={`text-sm sm:text-base font-semibold ${
@@ -121,8 +121,8 @@ const ViewHistory: React.FC = () => {
             </button>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 overflow-y-auto flex-grow">
-            {currentData.slice(
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 overflow-y-auto flex-grow mt-[5%]">
+          {currentData.slice(
               (currentPage - 1) * ITEMS_PER_PAGE,
               currentPage * ITEMS_PER_PAGE
             ).map((item) => (
