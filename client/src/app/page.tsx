@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Swipeable from "./components/Swipeable.tsx";
@@ -79,6 +79,22 @@ const Home: React.FC = () => {
           status: "Unavailable",
           link: "/",
         },
+        {
+          image:
+            "https://files.idyllic.app/files/static/294916?width=750&optimizer=image",
+          location: "D's Dance Boutique",
+          address: "427 Imperial Hwy Fullerton, CA 92835",
+          status: "Unavailable",
+          link: "/",
+        },
+        {
+          image:
+            "https://files.idyllic.app/files/static/294916?width=750&optimizer=image",
+          location: "D's Dance Boutique",
+          address: "427 Imperial Hwy Fullerton, CA 92835",
+          status: "Available",
+          link: "/",
+        },
       ],
     };
   };
@@ -112,26 +128,25 @@ const Home: React.FC = () => {
   return (
     <main className="flex h-screen w-screen flex-col bg-gray-50">
       {/* Navbar */}
-      <div className="mb-8 flex justify-center lg:mb-4">
+      <div className="mb-4 flex justify-center lg:mb-2">
         <NavBar />
       </div>
-
       {/* Content */}
-      <div className="flex flex-1 flex-col lg:flex-row">
+      <div className="mb-8 flex flex-1 flex-col items-center justify-center gap-0 lg:flex-row lg:items-center lg:justify-center">
         {/* Left Side */}
-        <div className="flex flex-col items-center justify-center lg:ml-4 lg:w-1/2">
+        <div className="flex flex-col items-center justify-center lg:w-[40%]">
           {/* Cards */}
           <Swipeable
             closeDirection="left"
             onSwipeComplete={() => nextPost(false)}
-            className="relative flex h-96 w-full items-center justify-center lg:h-[32rem] lg:w-3/5"
+            className="relative flex h-[28rem] w-[20rem] items-center justify-center lg:h-[34rem] lg:w-[24rem]"
           >
             <Swipeable
               closeDirection="right"
               onSwipeComplete={() => nextPost(true)}
-              className="relative flex h-96 w-full items-center justify-center lg:h-[32rem] lg:w-3/5"
+              className="relative flex h-[28rem] w-[20rem] items-center justify-center lg:h-[34rem] lg:w-[24rem]"
             >
-              <div className="relative flex h-96 w-full items-center justify-center lg:h-[32rem] lg:w-3/5">
+              <div className="relative flex h-[28rem] w-[20rem] items-center justify-center lg:h-[34rem] lg:w-[24rem]">
                 {/* Other cards */}
                 {cards.slice(1).map((card, index) => (
                   <Image
@@ -140,19 +155,23 @@ const Home: React.FC = () => {
                     height={0}
                     src={card}
                     alt="Card"
-                    className="absolute h-96 w-64 rounded-lg bg-gray-300 object-cover shadow-lg lg:h-[28rem] lg:w-72"
+                    className="absolute rounded-lg bg-gray-300 object-cover shadow-lg"
                     style={{
                       transform: `rotate(${rotations[index] || 0}deg)`,
                       opacity: opacities[index] || 1,
                       zIndex: index,
+                      height: "100%",
+                      width: "100%",
                     }}
                   />
                 ))}
                 {/* Main card */}
                 {cards.length > 0 && (
                   <div
-                    className="relative h-96 w-64 overflow-hidden rounded-lg bg-gray-100 shadow-xl lg:h-[28rem] lg:w-72"
-                    style={{ zIndex: cards.length }}
+                    className="relative h-full w-full overflow-hidden rounded-lg bg-gray-100 shadow-xl"
+                    style={{
+                      zIndex: cards.length,
+                    }}
                     onClick={() => setCards([...cards.slice(1), cards[0]])}
                   >
                     <Image
@@ -199,7 +218,7 @@ const Home: React.FC = () => {
             </Swipeable>
           </Swipeable>
           {/* Swipe Buttons */}
-          <div className="mt-8 flex space-x-4 lg:mt-4">
+          <div className="absolute bottom-44 flex space-x-4 lg:bottom-4">
             <div className="mr-8 mt-2 h-16 w-16 transition hover:scale-110 active:opacity-90">
               <Image
                 src={disinterestIcon}
@@ -223,10 +242,14 @@ const Home: React.FC = () => {
           </div>
         </div>
         {/* Right Side */}
-        <div className="w-full overflow-y-auto p-4 lg:w-5/12">
-          <div className="rounded bg-white p-4 outline outline-gray-300">
-            <p className="mb-4 text-3xl font-bold">{cardDetails?.title}</p>
-            <p className="mb-4">{cardDetails?.description}</p>
+        <div className="m-24 flex w-full flex-col items-center overflow-y-auto p-4 lg:m-0 lg:max-w-lg">
+          <div className="mb-4 w-full rounded bg-white p-4 outline outline-gray-300">
+            <p className="mb-4 text-center text-3xl font-bold lg:text-left">
+              {cardDetails?.title}
+            </p>
+            <p className="mb-4 text-center lg:text-left">
+              {cardDetails?.description}
+            </p>
             {cardDetails?.material && (
               <>
                 <p className="mt-4 border-t border-t-gray-300 pt-2 text-xl font-bold">
@@ -252,7 +275,7 @@ const Home: React.FC = () => {
               </>
             )}
           </div>
-          <div className="mt-4 rounded bg-white p-4 outline outline-gray-300">
+          <div className="max-h-56 w-full overflow-y-scroll rounded bg-white p-4 outline outline-gray-300 lg:max-h-48">
             <p className="mb-4 text-3xl font-bold">Available Stores</p>
             {availableStores.map((store, index) => (
               <Link href={store.link} key={index}>
