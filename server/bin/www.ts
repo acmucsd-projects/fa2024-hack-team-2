@@ -28,11 +28,11 @@ const server = http.createServer(app);
  * Connect to MongoDB
  */
 
-mongoose.connect('mongodb://127.0.0.1:27017/Users').then(() =>{
-  console.log('connected to mongodb');
-}).catch((err) => {
-  console.error('error connecting to mongodb', err);
-});
+// mongoose.connect('mongodb://127.0.0.1:27017/Users').then(() =>{
+//   console.log('connected to mongodb');
+// }).catch((err) => {
+//   console.error('error connecting to mongodb', err);
+// });
 
 /**
  * Create SocketIO server

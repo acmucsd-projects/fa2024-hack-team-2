@@ -21,7 +21,6 @@ const app_1 = __importDefault(require("../app"));
 const debug_1 = __importDefault(require("debug"));
 const http_1 = __importDefault(require("http"));
 const socket_io_1 = require("socket.io");
-const mongoose_1 = __importDefault(require("mongoose"));
 /**
  * Get port from environment and store in Express.
  */
@@ -35,11 +34,11 @@ exports.server = server;
 /**
  * Connect to MongoDB
  */
-mongoose_1.default.connect('mongodb://127.0.0.1:27017/Users').then(() => {
-    console.log('connected to mongodb');
-}).catch((err) => {
-    console.error('error connecting to mongodb', err);
-});
+// mongoose.connect('mongodb://127.0.0.1:27017/Users').then(() =>{
+//   console.log('connected to mongodb');
+// }).catch((err) => {
+//   console.error('error connecting to mongodb', err);
+// });
 /**
  * Create SocketIO server
  */

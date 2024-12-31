@@ -23,25 +23,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.User = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const userSchema = new mongoose_1.Schema({
-    user_id: { type: String, unique: true, required: true },
-    username: { type: String, required: true },
-    bio: { type: String },
-    pronouns: { type: String },
-    tags: { type: [String], default: [] },
-    followers: { type: Number, default: 0 },
-    following: { type: Number, default: 0 },
-    wishlist: { type: [String], default: [] },
-    posts: { type: [String], default: [] },
-    liked: { type: [String], default: [] },
-    disliked: { type: [String], default: [] },
-    picture: { type: String },
-    settings: {
-        privateAccount: { type: Boolean, default: false },
-    },
+const messageSchema = new mongoose_1.Schema({
+    conversation_id: { type: String, required: true },
+    user_id: { type: String, required: true },
+    timestamp: { type: String, required: true },
+    message: { type: String, required: true },
 });
-// type UserDocument = InferSchemaType<typeof userSchema>;
-const User = mongoose_1.default.model('User', userSchema);
-exports.User = User;
+const Message = mongoose_1.default.model('Message', messageSchema);
+exports.default = Message;

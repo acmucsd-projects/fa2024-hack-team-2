@@ -1,11 +1,12 @@
 import express, { Request, Response, NextFunction } from 'express';
 const router = express.Router();
 import {User} from "../models/User"
+import type { IUser } from "../models/User";
 
 // This gets the current user's information, as of now just user_id
 router.get('/self', (req: Request, res: Response, next: NextFunction) => {
   if (req.user) {
-    res.json((req.user as User).user_id);  // Send the user's name (or 'username' field)
+    res.json((req.user as IUser).user_id);  // Send the user's name (or 'username' field)
   } else {
     res.status(401).send('Unauthorized');
   }
@@ -15,11 +16,12 @@ router.get('/self', (req: Request, res: Response, next: NextFunction) => {
 router.get('/all', async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Check if the user is authenticated
-    const currentUser = req.user as User | undefined;
+    const currentUser = req.user as IUser | undefined;
     console.log("currentser", currentUser)
 
     if (!currentUser) {
       res.status(401).json({ error: 'Unauthorized' });
+      return;
     }
 
     // Query to fetch all users excluding the current authenticated user
