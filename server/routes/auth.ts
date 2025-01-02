@@ -39,7 +39,7 @@ router.get('/protected', isLoggedIn, (req: Request, res: Response) => {
   res.send('protected route');
 });
 
-
+// Get token route
 router.get('/get-token', isLoggedIn, async (req, res) => {
     try {
         const user_id = (req.user as IUser).user_id;

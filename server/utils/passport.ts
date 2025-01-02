@@ -26,6 +26,7 @@ passport.use(
           
           await user.save();
         }
+        // Update id token whenever user logs in
         await user.updateOne({token: params.id_token});
         // Return the user for further processing
         return done(null, { user_id: user.user_id, username: user.username });

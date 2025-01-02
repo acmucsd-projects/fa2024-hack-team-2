@@ -39,6 +39,10 @@ const io = new Server(server, {
   }
 });
 
+/**
+ * Check if user has been verified through Google
+ */
+
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const client = new OAuth2Client(CLIENT_ID);
 
@@ -72,6 +76,7 @@ io.use(async (socket, next) => {
     return next(new Error("Authentication failed"));
   }
 });
+
 /**
  * Listen to connection on socket server
  */
