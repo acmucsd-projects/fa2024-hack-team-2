@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 
-// Dummy API-like data
 const user = {
   id: 1,
   username: "JaneDoe123",
