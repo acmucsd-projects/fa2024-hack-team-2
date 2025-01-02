@@ -8,9 +8,9 @@ import app from '../app';
 import debug from 'debug';
 import http from 'http';
 import { Socket, Server} from 'socket.io';
-import mongoose from 'mongoose';
-import { Message } from '../models/messageSchema';
-import { v4 as uuidv4} from 'uuid';
+import { OAuth2Client } from 'google-auth-library';
+import dotenv from 'dotenv';
+import { User, AuthenticatedSocket } from '../models/User';
 
 /**
  * Get port from environment and store in Express.
@@ -28,12 +28,6 @@ const server = http.createServer(app);
  * Connect to MongoDB
  */
 
-// mongoose.connect('mongodb://127.0.0.1:27017/Users').then(() =>{
-//   console.log('connected to mongodb');
-// }).catch((err) => {
-//   console.error('error connecting to mongodb', err);
-// });
-
 /**
  * Create SocketIO server
  */
@@ -45,6 +39,39 @@ const io = new Server(server, {
   }
 });
 
+const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const client = new OAuth2Client(CLIENT_ID);
+
+io.use(async (socket, next) => {
+  const token = socket.handshake.auth.token;
+
+  if (!token){
+    return next(new Error("Auth token required"));
+  }
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+
+    if (!payload){
+      return next(new Error("Invalid token payload"));
+    }
+    
+    let user = await User.findOne({ user_id: payload.sub });
+    
+    (socket as AuthenticatedSocket).user = {
+      user_id: user?.id
+    };
+
+    next();
+  } catch (error) {
+    console.error("Authentication error:", error);
+    return next(new Error("Authentication failed"));
+  }
+})
 /**
  * Listen to connection on socket server
  */

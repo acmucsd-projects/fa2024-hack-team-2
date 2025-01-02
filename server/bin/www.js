@@ -21,6 +21,8 @@ const app_1 = __importDefault(require("../app"));
 const debug_1 = __importDefault(require("debug"));
 const http_1 = __importDefault(require("http"));
 const socket_io_1 = require("socket.io");
+const google_auth_library_1 = require("google-auth-library");
+const User_1 = require("../models/User");
 /**
  * Get port from environment and store in Express.
  */
@@ -34,11 +36,6 @@ exports.server = server;
 /**
  * Connect to MongoDB
  */
-// mongoose.connect('mongodb://127.0.0.1:27017/Users').then(() =>{
-//   console.log('connected to mongodb');
-// }).catch((err) => {
-//   console.error('error connecting to mongodb', err);
-// });
 /**
  * Create SocketIO server
  */
@@ -48,6 +45,33 @@ const io = new socket_io_1.Server(server, {
         credentials: true, // Allow cookies to be sent with requests
     }
 });
+const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const client = new google_auth_library_1.OAuth2Client(CLIENT_ID);
+io.use((socket, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const token = socket.handshake.auth.token;
+    if (!token) {
+        return next(new Error("Auth token required"));
+    }
+    try {
+        const ticket = yield client.verifyIdToken({
+            idToken: token,
+            audience: CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        if (!payload) {
+            return next(new Error("Invalid token payload"));
+        }
+        let user = yield User_1.User.findOne({ user_id: payload.sub });
+        socket.user = {
+            user_id: user === null || user === void 0 ? void 0 : user.id
+        };
+        next();
+    }
+    catch (error) {
+        console.error("Authentication error:", error);
+        return next(new Error("Authentication failed"));
+    }
+}));
 /**
  * Listen to connection on socket server
  */

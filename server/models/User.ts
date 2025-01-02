@@ -1,8 +1,10 @@
 import mongoose, { Schema, Model, InferSchemaType } from 'mongoose';
+import { Socket } from 'socket.io'
 
 interface IUser {
   user_id: string;
   username: string;
+  token: string;
   bio?: string;
   pronouns?: string;
   tags: string[];
@@ -18,9 +20,14 @@ interface IUser {
   };
 }
 
+interface MinUser {
+  user_id: String;
+};
+
 const userSchema = new Schema<IUser>({
   user_id: { type: String, unique: true, required: true },
   username: { type: String, required: true },
+  token: { type: String },
   bio: { type: String },
   pronouns: { type: String },
   tags: { type: [String], default: [] },
@@ -40,4 +47,8 @@ const userSchema = new Schema<IUser>({
 
 const User: Model<IUser> = mongoose.model<IUser>('User', userSchema);
 
-export { User, IUser };
+interface AuthenticatedSocket extends Socket{
+  user?: MinUser;
+};
+
+export { User, IUser, AuthenticatedSocket };

@@ -21,7 +21,7 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
     clientID: process.env.GOOGLE_CLIENT_ID || '',
     clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     callbackURL: process.env.GOOGLE_CALLBACK_URL || '',
-}, (accessToken, refreshToken, profile, done) => __awaiter(void 0, void 0, void 0, function* () {
+}, (accessToken, refreshToken, params, profile, done) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
         // Check if the user already exists in the database
@@ -31,6 +31,7 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
             user = new User_1.User({
                 user_id: profile.id,
                 username: profile.displayName || ((_a = profile.name) === null || _a === void 0 ? void 0 : _a.givenName) || 'Unknown User',
+                token: params.id_token
             });
             yield user.save();
         }

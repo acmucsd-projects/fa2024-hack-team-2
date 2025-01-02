@@ -15,6 +15,7 @@ import authRouter from './routes/auth';
 import userRoutes from './routes/user';
 import postRoutes from './routes/post';
 import messageRoutes from './routes/message';
+
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -35,7 +36,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
 // middleware
-app.use(cors());
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -59,6 +60,7 @@ app.use('/auth', authRouter);
 app.use('/api', userRoutes);
 app.use('/api', postRoutes);
 app.use('/api', messageRoutes);
+
 
 
 // catch 404 and forward to error handler

@@ -4,7 +4,8 @@ import React, { useRef, useState, useEffect } from "react";
 import backendConnection from "../../communication";
 import { useUserContext } from "./UserProvider";
 import { Message } from "./MessageProps";
-import socket from "./socket";
+import createSocket from './socket';
+import { Socket } from 'socket.io-client';
 
 const Chatlog = () => {
     const [input, setInput] = useState<string>("");
@@ -13,6 +14,32 @@ const Chatlog = () => {
     const { username } = useUserContext();
     const [currentUserId, setCurrentUserId] = useState<string>("");
     const chatContainerRef = useRef<HTMLDivElement>(null); // Ref to the chat container
+    const [socket, setSocket] = useState<Socket | null>(null);
+
+    // Initialize socket connection
+    useEffect(() => {
+        let mounted = true;
+
+        const initSocket = async () => {
+            try {
+                const newSocket = await createSocket();
+                if (mounted && newSocket) {
+                    setSocket(newSocket);
+                }
+            } catch (error) {
+                console.error("Error initializing socket:", error);
+            }
+        };
+
+        initSocket();
+
+        return () => {
+            mounted = false;
+            if (socket) {
+                socket.disconnect();
+            }
+        };
+    }, []);
 
     const fetchUserData = async () => {
         try {
@@ -29,10 +56,10 @@ const Chatlog = () => {
     useEffect(() => {
         if (selectedUserId) {
             // Emit 'join_chat' event to the server
-            socket.emit("join_chat", currentUserId, selectedUserId);
+            socket?.emit("join_chat", currentUserId, selectedUserId);
 
             // Listen for new messages
-            socket.on("receive_message", (data) => {
+            socket?.on("receive_message", (data) => {
                 if (data.user_id !== currentUserId) {
                     const newMessage: Message = {
                         sender: data.user_id === currentUserId ? "user" : "other",
@@ -45,7 +72,7 @@ const Chatlog = () => {
             });
 
             return () => {
-                socket.off("receive_message");
+                socket?.off("receive_message");
             };
         }
         fetchUserData();
@@ -69,7 +96,7 @@ const Chatlog = () => {
             user_id: currentUserId,
         };
 
-        socket.emit("send_message", messageData);
+        socket?.emit("send_message", messageData);
 
         const newMessage: Message = {
             sender: "user",

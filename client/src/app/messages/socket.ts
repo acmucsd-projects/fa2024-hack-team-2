@@ -1,6 +1,35 @@
 import io from "socket.io-client";
+import { Socket } from "socket.io-client";
 
-const socket = io("http://localhost:3001");
+const getToken = async() => {
+    const response = await fetch('http://localhost:3001/auth/get-token', {
+        method: 'GET',
+        credentials: 'include'
+    });
 
-export default socket;
+    if (response.ok){
+        const data = await response.json();
+        console.log('token:', data.token);
+        return data.token;
+    } else {
+        console.error('Failed to retrieve token');
+    }
+};
+
+const createSocket = async() =>{
+    try {
+        const token = await getToken();
+        console.log('token:', token);
+        const socket = io("http://localhost:3001", {
+            auth: {
+                token: token
+            }
+        });
+        return socket;
+    } catch(error){
+        console.error("Error creating socket:", error);
+    }
+};
+
+export default createSocket;
 

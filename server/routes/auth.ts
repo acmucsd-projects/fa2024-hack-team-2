@@ -1,5 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
+import { User } from '../models/User';
+import type { IUser } from '../models/User';
 
 const router = express.Router();
 
@@ -37,5 +39,32 @@ router.get('/protected', isLoggedIn, (req: Request, res: Response) => {
   res.send('protected route');
 });
 
+router.get('/session-test', isLoggedIn, (req, res) => {
+  console.log('Session:', req.session);
+  console.log('User:', req.user);
+  res.json({
+      sessionExists: !!req.session,
+      userExists: !!req.user,
+      sessionData: req.session,
+      userData: req.user
+  });
+});
+
+router.get('/get-token', isLoggedIn, async (req, res) => {
+    try {
+        const user_id = (req.user as IUser).user_id;
+        const user = await User.findOne( {user_id: user_id});
+
+        if (!user){
+            res.sendStatus(404);
+            return;
+        }
+        res.json({token: user.token });
+    } catch (err){
+        console.error(err);
+        res.sendStatus(500);
+        return;
+    }
+})
 
 export default router;
