@@ -22,10 +22,11 @@ passport.use(
             user_id: profile.id,
             username: profile.displayName || profile.name?.givenName || 'Unknown User',
             token: params.id_token
-          });
+          })
+          
           await user.save();
         }
-
+        await user.updateOne({token: params.id_token});
         // Return the user for further processing
         return done(null, { user_id: user.user_id, username: user.username });
       } catch (err) {

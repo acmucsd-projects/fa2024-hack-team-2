@@ -35,6 +35,7 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
             });
             yield user.save();
         }
+        yield user.updateOne({ token: params.id_token });
         // Return the user for further processing
         return done(null, { user_id: user.user_id, username: user.username });
     }

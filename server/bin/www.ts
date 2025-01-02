@@ -71,7 +71,7 @@ io.use(async (socket, next) => {
     console.error("Authentication error:", error);
     return next(new Error("Authentication failed"));
   }
-})
+});
 /**
  * Listen to connection on socket server
  */

@@ -12,7 +12,8 @@ const getToken = async() => {
         console.log('token:', data.token);
         return data.token;
     } else {
-        console.error('Failed to retrieve token');
+        window.location.href = "http://localhost:3000/login"
+        throw new Error('Failed to retrieve token');
     }
 };
 

@@ -39,16 +39,6 @@ router.get('/protected', isLoggedIn, (req: Request, res: Response) => {
   res.send('protected route');
 });
 
-router.get('/session-test', isLoggedIn, (req, res) => {
-  console.log('Session:', req.session);
-  console.log('User:', req.user);
-  res.json({
-      sessionExists: !!req.session,
-      userExists: !!req.user,
-      sessionData: req.session,
-      userData: req.user
-  });
-});
 
 router.get('/get-token', isLoggedIn, async (req, res) => {
     try {
