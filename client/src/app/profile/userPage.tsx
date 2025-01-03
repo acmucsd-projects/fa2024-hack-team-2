@@ -59,7 +59,6 @@ const Card: React.FC<{ data: any; type: 'post' | 'liked' }> = ({ data, type }) =
       <img src={data.imageUrl} alt={data.name} className="w-full h-48 object-cover rounded-md mb-2" />
     </div>
     <h3 className="font-bold text-sm text-white">{data.name}</h3>
-    {/* Removed description from here */}
     {type === 'post' && (
       <div className="absolute bottom-2 right-2 text-xs text-white">
         <span>{data.likedByUser ? '❤️' : '🤍'}</span>
@@ -98,7 +97,6 @@ const UserPage: React.FC = () => {
           {/* User Info */}
           <div className="flex flex-col items-center mt-16">
             <h1 className="text-xl font-bold">{user.username}</h1>
-            {/* Removed the description */}
             <p className="italic text-gray-400">{user.bio}</p>
             <p className="text-gray-500 text-sm">{user.pronouns}</p>
           </div>
