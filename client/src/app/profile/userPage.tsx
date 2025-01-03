@@ -7,7 +7,6 @@ const user = {
   followers: 256,
   following: 180,
   icon: "https://c8.alamy.com/comp/J93J1T/food-aliment-comic-face-eyes-potatoes-cartoon-potato-plant-potatoe-J93J1T.jpg",
-  description: "Person living in San Francisco",
   bio: "aspiring designer and video editor",
   pronouns: "He/Him",
 };
@@ -60,7 +59,7 @@ const Card: React.FC<{ data: any; type: 'post' | 'liked' }> = ({ data, type }) =
       <img src={data.imageUrl} alt={data.name} className="w-full h-48 object-cover rounded-md mb-2" />
     </div>
     <h3 className="font-bold text-sm text-white">{data.name}</h3>
-    <p className="text-xs text-white opacity-70 truncate">{data.description}</p>
+    {/* Removed description from here */}
     {type === 'post' && (
       <div className="absolute bottom-2 right-2 text-xs text-white">
         <span>{data.likedByUser ? '❤️' : '🤍'}</span>
@@ -69,7 +68,6 @@ const Card: React.FC<{ data: any; type: 'post' | 'liked' }> = ({ data, type }) =
     )}
   </a>
 );
-
 
 // Main User Page Component
 const UserPage: React.FC = () => {
@@ -100,7 +98,7 @@ const UserPage: React.FC = () => {
           {/* User Info */}
           <div className="flex flex-col items-center mt-16">
             <h1 className="text-xl font-bold">{user.username}</h1>
-            <p className="text-gray-500 text-sm">{user.description}</p>
+            {/* Removed the description */}
             <p className="italic text-gray-400">{user.bio}</p>
             <p className="text-gray-500 text-sm">{user.pronouns}</p>
           </div>
