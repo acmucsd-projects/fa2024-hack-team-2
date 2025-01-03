@@ -50,19 +50,8 @@ const liked = [
   },
 ];
 
-const wishlist = [
-  {
-    id: 2,
-    name: "Blue Hoodie",
-    description: "Comfy and cozy hoodie for all occasions.",
-    likes: 7,
-    likedByUser: false,
-    imageUrl: "https://media.istockphoto.com/id/1319572197/photo/mens-hooded-jacket-for-your-design-mockup-for-print.jpg?s=612x612&w=0&k=20&c=c3n5O6D_gKpiX7zrN-K2wvDBYNuf9VMwUUysBg3TjkU=",
-  },
-];
-
 // Card Component
-const Card: React.FC<{ data: any; type: 'post' | 'liked' | 'wishlist' }> = ({ data, type }) => (
+const Card: React.FC<{ data: any; type: 'post' | 'liked' }> = ({ data, type }) => (
   <a
     href={type === 'post' ? '#' : undefined}  // Use '#' for posts, or undefined for others
     className={`relative block p-2 rounded-lg shadow-md ${type === 'post' ? 'bg-gradient-to-b from-[#7390fb] via-[#7390fb] to-black rounded-2xl border border-gray-300' : 'bg-gradient-to-b from-[#8B0000] via-[#8B0000] to-black rounded-2xl border border-gray-300'}`}
@@ -84,7 +73,7 @@ const Card: React.FC<{ data: any; type: 'post' | 'liked' | 'wishlist' }> = ({ da
 
 // Main User Page Component
 const UserPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"posts" | "liked" | "wishlist">("posts");
+  const [activeTab, setActiveTab] = useState<"posts" | "liked">("posts");
 
   return (
     <div className="relative w-full">
@@ -117,14 +106,15 @@ const UserPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Posts, Liked, Wishlist Box */}
+        {/* Posts, Liked Box */}
         <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
+          
           {/* Tabs */}
           <div className="flex border-b text-center mb-4">
-            {["posts", "liked", "wishlist"].map((tab) => (
+            {["posts", "liked"].map((tab) => (
               <div
                 key={tab}
-                onClick={() => setActiveTab(tab as "posts" | "liked" | "wishlist")}
+                onClick={() => setActiveTab(tab as "posts" | "liked")}
                 className={`flex-1 py-2 cursor-pointer ${activeTab === tab ? "border-b-2 border-black font-semibold" : "text-gray-400"}`}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -136,7 +126,6 @@ const UserPage: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {activeTab === "posts" && posts.map((post) => <Card key={post.id} data={post} type="post" />)}
             {activeTab === "liked" && liked.map((post) => <Card key={post.id} data={post} type="liked" />)}
-            {activeTab === "wishlist" && wishlist.map((post) => <Card key={post.id} data={post} type="wishlist" />)}
           </div>
         </div>
       </div>
