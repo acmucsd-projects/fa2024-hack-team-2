@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
-import User from '../models/User';
+import { User, IUser } from '../models/User';
 
 const router = express.Router();
 
@@ -33,6 +33,7 @@ router.post('/users', async (req: Request, res: Response) => {
       bio,
       pronouns,
       tags,
+      followList: [],
       followers: 0,
       following: 0,
       wishlist: [],
@@ -47,6 +48,57 @@ router.post('/users', async (req: Request, res: Response) => {
     res.status(201).json(savedUser);
   } catch (error) {
     res.status(400).json({ error: 'Error creating user', details: error });
+  }
+});
+
+// POST: Follow user
+router.post('/follow', async (req: Request, res: Response) => {
+  // Get IDs from req
+  const currUser = (req.user as IUser).user_id;
+  const { follow_user_id } = req.body;
+
+  // Find users from database using IDs
+  const user_to_follow = await User.findOne({user_id: follow_user_id });
+  const user = await User.findOne({ user_id: currUser });
+
+  // If either user doesn't exist, send an error
+  if(!user){
+    res.status(404).json({ message: `Curr user not found: ${currUser}` });
+    return;
+  }
+
+  if (!user_to_follow){
+    res.status(404).json({ message: `User to follow not found: ${follow_user_id}`});
+    return;
+  }
+
+  try {
+    // If user already follows, then unfollow
+    if(user.followList.includes(follow_user_id)){
+      // Remove the followed user from follow list
+      const updatedList = user.followList.filter(id => id !== follow_user_id);
+      
+      // Update fields accordingly
+      await user.updateOne({$set:{followList: updatedList}});
+      await user.updateOne({ $inc: {following: -1 }});
+      await user_to_follow.updateOne({ $inc: {followers: -1 }});
+      console.log('unfollowed:', user.followList);
+    } else {
+      // If user isn't following, then follow
+      await user.updateOne({ $inc: {following: 1} });
+      await user_to_follow?.updateOne({ $inc : {followers: 1} });
+      
+      // Add user to follow to the follow list
+      await user.followList.push(follow_user_id);
+      console.log('followed:', user.followList);
+    }
+
+    // Save the new information of both users
+    await user.save(), user_to_follow.save()
+    
+    res.status(200).json({ message: `Followed successfully. User's follows: ${user.following}. User to follow's followers: ${user_to_follow.followers}`});
+  } catch (err){
+    res.status(500).json({ message: 'Following error occurred:', err});
   }
 });
 

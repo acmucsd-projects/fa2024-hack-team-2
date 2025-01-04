@@ -14,15 +14,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const Post_1 = __importDefault(require("../models/Post"));
+const User_1 = require("../models/User");
+const mongoose_1 = __importDefault(require("mongoose"));
 const router = express_1.default.Router();
 // Test route
 router.get('/posts/test', (req, res) => {
     res.send('posts route is working');
 });
 // GET: Retrieve a post by its _id
-router.get('/posts/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const post = yield Post_1.default.findById(req.params.id); // Find post by MongoDB's ObjectId
+        const post = yield Post_1.default.findById(req.body.post_id); // Find post by MongoDB's ObjectId
         if (!post) {
             res.status(404).json({ error: 'Post not found' });
             return;
@@ -35,7 +37,7 @@ router.get('/posts/:id', (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 }));
 // GET: Retrieve all posts by a specific author (user_id)
-router.get('/posts/author/:user_id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/author/:user_id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const posts = yield Post_1.default.find({ author: req.params.user_id }); // Find all posts by author
         res.status(200).json(posts);
@@ -45,19 +47,61 @@ router.get('/posts/author/:user_id', (req, res) => __awaiter(void 0, void 0, voi
         res.status(500).json({ error: 'Error fetching posts by author' });
     }
 }));
-// POST: Create a new post
-router.post('/posts', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Post: Liking a post
+router.post('/like', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { title, product_details, material, brand, cost, likes, numStores, author, available_stores, image, } = req.body;
+        console.log("request body:", req.body);
+        const post_id = new mongoose_1.default.Types.ObjectId(req.body.post_id);
+        const user_id = req.user.user_id;
+        // Validate user_id and post_id
+        if (!mongoose_1.default.Types.ObjectId.isValid(post_id)) {
+            res.status(400).json({ error: 'Invalid post_id format' });
+            return;
+        }
+        const post = yield Post_1.default.findById(post_id);
+        if (!post) {
+            res.status(404).json({ error: 'Post not found' });
+            return;
+        }
+        const user = yield User_1.User.findById(user_id);
+        if (!user) {
+            res.status(404).json({ error: 'User not found' });
+            return;
+        }
+        const index = user.liked.indexOf(post_id.toString());
+        if (index !== -1) {
+            user.liked.splice(index, 1);
+            post.likes--;
+        }
+        else {
+            user.liked.push(post_id.toString());
+            post.likes++;
+        }
+        yield user.save();
+        yield post.save();
+        res.status(200).json({ message: 'Post liked successfully', post });
+    }
+    catch (error) {
+        console.error('Error liking post:', error);
+        res.status(500).json({ error: 'Error liking post' });
+    }
+}));
+// POST: Create a new post
+router.post('/create', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.user) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+    }
+    try {
+        const { title, product_details, material, brand, cost, numStores, available_stores, image, } = req.body;
         const newPost = new Post_1.default({
             title,
             product_details,
             material,
             brand,
             cost,
-            likes,
             numStores,
-            author,
+            author: req.user.user_id,
             available_stores,
             image,
         });

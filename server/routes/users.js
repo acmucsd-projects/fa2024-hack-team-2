@@ -32,6 +32,7 @@ router.get('/all', (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         console.log("currentser", currentUser);
         if (!currentUser) {
             res.status(401).json({ error: 'Unauthorized' });
+            return;
         }
         // Query to fetch all users excluding the current authenticated user
         const users = yield User_1.User.find({ user_id: { $ne: currentUser === null || currentUser === void 0 ? void 0 : currentUser.user_id } });

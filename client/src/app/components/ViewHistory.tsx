@@ -28,6 +28,7 @@ const dummyUsers = [
   { id: 10, name: "Sophia Blue", description: "Loves minimalist and functional clothing.", likes: 18, imageUrl: "https://via.placeholder.com/200x200/0000FF/FFFFFF?text=Sophia+Blue" },
 ];
 
+
 const ITEMS_PER_PAGE = 5;
 
 // card component
@@ -45,7 +46,7 @@ const Card: React.FC<{ data: any; type: 'post' | 'user' }> = ({ data, type, onCl
       <img
         src={data.imageUrl}
         alt={data.name}
-        className="w-full object-cover rounded-md mb-2 h-[25vh]" 
+        className="w-full object-cover rounded-md mb-2 h-48" 
       />
     </div>
     <div className="flex justify-between items-start mb-2">
@@ -64,8 +65,7 @@ const Card: React.FC<{ data: any; type: 'post' | 'user' }> = ({ data, type, onCl
   </a>
 );
 
-
-// takes data and displays it
+// ViewHistory component
 const ViewHistory: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showPosts, setShowPosts] = useState(true);
@@ -94,68 +94,63 @@ const ViewHistory: React.FC = () => {
   return (
     <>
       {/* Main Content */}
-      <div className="fixed inset-0 flex justify-center items-center z-50">
-        <div className="w-[90vw] h-[90vh] bg-white border border-gray-300 shadow-2xl overflow-hidden rounded-lg p-6 flex flex-col">
-        <div className="absolute top-4% left-1/2 transform -translate-x-1/2">
-  <h1 className="text-2xl font-bold text-center">View History</h1>
-</div>
+      <div className="main-content p-8 pt-16">
 
-
-          {/* Buttons */}
-          <div className="flex justify-center gap-4 mb-4 mt-[5%]">
+        {/* Buttons */}
+        <div className="flex justify-center gap-4 mb-4 mt-[5%]">
           <button
-              onClick={() => setShowPosts(true)}
-              className={`text-sm sm:text-base font-semibold ${
-                showPosts ? 'text-blue-600' : 'text-gray-500'
-              }`}
-            >
-              Posts
-            </button>
-            <button
-              onClick={() => setShowPosts(false)}
-              className={`text-sm sm:text-base font-semibold ${
-                !showPosts ? 'text-blue-600' : 'text-gray-500'
-              }`}
-            >
-              Users
-            </button>
-          </div>
+            onClick={() => setShowPosts(true)}
+            className={`text-sm sm:text-base font-semibold ${
+              showPosts ? 'text-blue-600' : 'text-gray-500'
+            }`}
+          >
+            Posts
+          </button>
+          <button
+            onClick={() => setShowPosts(false)}
+            className={`text-sm sm:text-base font-semibold ${
+              !showPosts ? 'text-blue-600' : 'text-gray-500'
+            }`}
+          >
+            Users
+          </button>
+        </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 overflow-y-auto flex-grow mt-[5%]">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 overflow-y-auto flex-grow mt-[5%]">
           {currentData.slice(
-              (currentPage - 1) * ITEMS_PER_PAGE,
-              currentPage * ITEMS_PER_PAGE
-            ).map((item) => (
-              <Card
-                key={item.id}
-                data={item}
-                type={showPosts ? 'post' : 'user'}
-                onClick={showPosts ? () => handlePostClick(item.id) : () => handleUserClick(item.id)}
-              />
-            ))}
-          </div>
-
-          {/* pages */}
-          <div className="flex justify-center items-center gap-4 mt-6">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <span>Page {currentPage} of {totalPages}</span>
-            <button
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
+            (currentPage - 1) * ITEMS_PER_PAGE,
+            currentPage * ITEMS_PER_PAGE
+          ).map((item) => (
+            <Card
+              key={item.id}
+              data={item}
+              type={showPosts ? 'post' : 'user'}
+              onClick={showPosts ? () => handlePostClick(item.id) : () => handleUserClick(item.id)}
+            />
+          ))}
         </div>
       </div>
 
+      {/* Fixed Pagination */}
+      <div className="fixed bottom-4 left-0 right-0 flex justify-center items-center gap-4 z-10 bg-white py-4">
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <span>Page {currentPage} of {totalPages}</span>
+        <button
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+
+      {/* Modal for post/user details */}
       {isModalOpen && (
         <div className="fixed inset-0 flex justify-center items-center z-50">
           <div className="w-[90vw] h-[90vh] bg-white border border-gray-300 shadow-2xl overflow-hidden rounded-lg p-6 flex flex-col">

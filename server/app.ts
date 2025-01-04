@@ -56,7 +56,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
 app.use('/api', userRoutes);
-app.use('/api', postRoutes);
+app.use('/posts', postRoutes);
 app.use('/api', messageRoutes);
 
 

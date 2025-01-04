@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import NavBarLink from "./NavBarLink.tsx";
+import NavBarLink from "./NavBarLink";
 import Image from "next/image";
 import Link from "next/link";
 import createIcon from "/public/images/circle-plus-solid.svg";
@@ -10,16 +10,22 @@ import historyIcon from "/public/images/clock-solid.svg";
 import leaderboardIcon from "/public/images/award-solid.svg";
 import tempPFP from "/public/images/circle-solid.svg";
 import searchIcon from "/public/images/magnifying-glass-solid.svg";
+import ViewHistory from "./ViewHistory";
+import Leaderboard from "./Leaderboard";
 
-interface MyComponentProps {}
+interface NavBarProps {
+  handleComponentChange: (component: string) => void;
+}
 
-const NavBar: React.FC<MyComponentProps> = ({}) => {
+const NavBar: React.FC<NavBarProps> = ({ handleComponentChange }) => {
   const [PFP, setPFP] = useState<string>("");
   const [username, setUsername] = useState<string>("");
 
   // Dropdown state
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+ 
 
   // TODO: Get data from BE
   const fetchData = () => {
@@ -87,6 +93,7 @@ const NavBar: React.FC<MyComponentProps> = ({}) => {
         <Link
           href="/"
           className="ml-2 flex flex-shrink-0 items-center justify-center p-1 text-[20px] font-bold text-blue-500 transition hover:scale-105 hover:opacity-90 active:opacity-80 lg:mr-4 lg:p-2 lg:text-[24px]"
+          onClick={() => handleComponentChange("cards")}
         >
           Swipe Style
         </Link>
@@ -94,16 +101,13 @@ const NavBar: React.FC<MyComponentProps> = ({}) => {
         <div
           className={`flex ${isMobileShowNav && window.innerWidth < 1024 ? "hidden" : ""}`}
         >
-          <NavBarLink image={createIcon} imageAlt={"Create"}></NavBarLink>
-          <NavBarLink image={historyIcon} imageAlt={"History"}></NavBarLink>
-          <NavBarLink image={messagesIcon} imageAlt={"Messages"}></NavBarLink>
-          <NavBarLink
-            image={leaderboardIcon}
-            imageAlt={"Leaderboard"}
-          ></NavBarLink>
+          <NavBarLink image={createIcon} imageAlt={"Create"} ></NavBarLink>
+          <NavBarLink image={historyIcon} imageAlt={"History"} onClick={() => handleComponentChange("history")}></NavBarLink>
+          <NavBarLink image={messagesIcon} imageAlt={"Messages"} linkAddress="/messages"></NavBarLink>
+          <NavBarLink image={leaderboardIcon} imageAlt={"Leaderboard"} onClick={() => handleComponentChange("leaderboard")}></NavBarLink>
         </div>
       </div>
-
+      
       {/* Search Bar */}
       <div
         ref={searchBarRef}
