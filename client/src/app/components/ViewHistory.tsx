@@ -186,6 +186,7 @@ const dummyUsers = [
   },
 ];
 
+
 const ITEMS_PER_PAGE = 5;
 
 // card component
@@ -330,6 +331,26 @@ const ViewHistory: React.FC = () => {
         </div>
       </div>
 
+      {/* Fixed Pagination */}
+      <div className="fixed bottom-4 left-0 right-0 flex justify-center items-center gap-4 z-10 bg-white py-4">
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <span>Page {currentPage} of {totalPages}</span>
+        <button
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+
+      {/* Modal for post/user details */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="flex h-[90vh] w-[90vw] flex-col overflow-hidden rounded-lg border border-gray-300 bg-white p-6 shadow-2xl">

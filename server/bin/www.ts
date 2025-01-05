@@ -28,11 +28,18 @@ const server = http.createServer(app);
  * Connect to MongoDB
  */
 
-mongoose.connect('mongodb://127.0.0.1:27017/Users').then(() =>{
-  console.log('connected to mongodb');
-}).catch((err) => {
-  console.error('error connecting to mongodb', err);
-});
+// const mongoURI = process.env.MONGO_URI;
+
+// if (!mongoURI) {
+//   console.error('MONGO_URI is not defined in the environment variables.');
+//   process.exit(1); // Exit the process with a failure
+// }
+
+// mongoose.connect(mongoURI).then(() => {
+//   console.log('Connected to MongoDB');
+// }).catch((err) => {
+//   console.error('Error connecting to MongoDB:', err);
+// });
 
 /**
  * Create SocketIO server
