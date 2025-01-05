@@ -14,6 +14,7 @@ import authRouter from './routes/auth';
 import userRoutes from './routes/user';
 import postRoutes from './routes/post';
 import messageRoutes from './routes/message';
+import searchRouter from './routes/search';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -56,6 +57,7 @@ app.use('/auth', authRouter);
 app.use('/user', userRoutes);
 app.use('/posts', postRoutes);
 app.use('/api', messageRoutes);
+app.use('/search', searchRouter);
 
 
 // catch 404 and forward to error handler

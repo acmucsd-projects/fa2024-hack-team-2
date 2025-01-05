@@ -10,8 +10,8 @@ interface IPost {
   likes: number;
   numStores?: number;
   author: string; // user_id of the post author
-  available_stores?: string[];
-  image: string; // assuming that image will be a URL
+  available_stores: string[];
+  image: string; 
 }
 
 const postSchema = new Schema<IPost>({
