@@ -2,10 +2,10 @@ import Link from "next/link";
 
 const NavBar = () => {
   return (
-    <div className="bg-white flex flex-col items-center justify-center w-full">
+    <div className="bg-white border flex flex-col items-center justify-center w-full h-[10%]">
       {/* Navigation Bar */}
-      <nav className="bg-white fixed top-0 w-full flex justify-between items-center px-12 max-w-[1920px] h-24 shadow-md">
-        <div className="flex items-center gap-8">
+      <nav className="bg-white fixed top-0 w-full flex justify-between items-center px-12 max-w-full h-[10%] shadow-md">
+        <div className="flex justify-center items-center gap-8">
           {/* Logo */}
           <Link
             href="/"
@@ -27,7 +27,7 @@ const NavBar = () => {
             About Us
           </Link>
         </div>
-        <div className="flex items-center gap-6">
+        <div className="flex justify-center items-center gap-6">
           {/* Login Button */}
           <Link
             href="/login"

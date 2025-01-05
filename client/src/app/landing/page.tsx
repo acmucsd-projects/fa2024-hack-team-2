@@ -8,12 +8,12 @@ import Footer from "./footer.section";
 
 const LandingPage = () => {
   return (
-    <div>
+    <div className="flex h-screen w-screen flex-col justify-center items-center">
       {/* Navigation Bar */}
       <NavBar />
 
       {/* Content Sections */}
-      <div className="relative mt-96 lg:mt-[98rem]"> {/* Push the main section down */}
+      <div className="overflow-y-scroll w-full h-[90%]"> {/* Push the main section down */}
         <MainSection />
         <FeaturesSection />
         <AboutUs />
