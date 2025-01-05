@@ -10,7 +10,6 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 
 import indexRouter from './routes/index';
-import usersRouter from './routes/users';
 import authRouter from './routes/auth';
 import userRoutes from './routes/user';
 import postRoutes from './routes/post';
