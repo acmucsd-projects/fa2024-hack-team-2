@@ -12,6 +12,8 @@ interface IPost {
   author: string; // user_id of the post author
   available_stores?: string[];
   image: string; // assuming that image will be a URL
+  tags: string[];
+  date_created: string; // MM-DD-YYYY
 }
 
 const postSchema = new Schema<IPost>({
@@ -25,6 +27,8 @@ const postSchema = new Schema<IPost>({
   author: { type: String, required: true },
   available_stores: { type: [String], default: [] },
   image: { type: String, required: true },
+  tags: { type: [String], default: [] },
+  date_created: { type: String, required: true },
 });
 
 const Post: Model<IPost> = mongoose.model<IPost>('Post', postSchema);

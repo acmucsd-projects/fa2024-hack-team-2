@@ -83,7 +83,7 @@ router.post('/follow', (req, res) => __awaiter(void 0, void 0, void 0, function*
             // Remove the followed user from follow list
             const updatedList = user.followList.filter(id => id !== follow_user_id);
             // Update fields accordingly
-            yield user.updateOne({ followList: updatedList });
+            yield user.updateOne({ $set: { followList: updatedList } });
             yield user.updateOne({ $inc: { following: -1 } });
             yield user_to_follow.updateOne({ $inc: { followers: -1 } });
             console.log('unfollowed:', user.followList);
