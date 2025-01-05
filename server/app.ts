@@ -10,7 +10,6 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 
 import indexRouter from './routes/index';
-import usersRouter from './routes/users';
 import authRouter from './routes/auth';
 import userRoutes from './routes/user';
 import postRoutes from './routes/post';
@@ -53,9 +52,8 @@ app.use(passport.session());
 
 // Routes
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 app.use('/auth', authRouter);
-app.use('/api', userRoutes);
+app.use('/user', userRoutes);
 app.use('/posts', postRoutes);
 app.use('/api', messageRoutes);
 

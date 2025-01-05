@@ -13,7 +13,6 @@ const express_session_1 = __importDefault(require("express-session"));
 const db_1 = __importDefault(require("./db"));
 const cors_1 = __importDefault(require("cors"));
 const index_1 = __importDefault(require("./routes/index"));
-const users_1 = __importDefault(require("./routes/users"));
 const auth_1 = __importDefault(require("./routes/auth"));
 const user_1 = __importDefault(require("./routes/user"));
 const post_1 = __importDefault(require("./routes/post"));
@@ -46,9 +45,8 @@ app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());
 // Routes
 app.use('/', index_1.default);
-app.use('/users', users_1.default);
 app.use('/auth', auth_1.default);
-app.use('/api', user_1.default);
+app.use('/user', user_1.default);
 app.use('/posts', post_1.default);
 app.use('/api', message_1.default);
 // catch 404 and forward to error handler

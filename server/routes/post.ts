@@ -49,6 +49,7 @@ router.post("/", async (req: Request, res: Response) => {
       tags,
     } = req.body;
 
+
     const newPost = new Post({
       title,
       product_details,
