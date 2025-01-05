@@ -145,6 +145,7 @@ router.post('/follow', async (req: Request, res: Response) => {
  * 
  * Responses:
  * - 200: The profile was updated successfully.
+ * - 400: Username was taken.
  * - 401: Unauthorized.
  * - 404: The user was not found.
  * - 500: Internal server error.
@@ -161,6 +162,10 @@ router.patch('/profile', async (req, res) => {
     const user_id = (req.user as IUser).user_id;
     const user = await User.findOne({user_id: user_id});
 
+    if (await User.findOne({username: username, user_id: {$ne: user_id}})){
+      res.status(400).json({message: `Username taken: ${username}`});
+      return;
+    };
     if(!user){
       res.status(404).json({message: `User not found: ${user_id}`});
       return;
