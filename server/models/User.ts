@@ -21,7 +21,7 @@ interface IUser {
 }
 
 interface MinUser {
-  user_id: String;
+  user_id?: string;
 };
 
 const userSchema = new Schema<IUser>({
@@ -48,7 +48,7 @@ const userSchema = new Schema<IUser>({
 const User: Model<IUser> = mongoose.model<IUser>('User', userSchema);
 
 interface AuthenticatedSocket extends Socket{
-  user?: MinUser;
+  user: MinUser;
 };
 
 export { User, IUser, AuthenticatedSocket };

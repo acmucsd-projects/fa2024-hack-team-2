@@ -50,7 +50,7 @@ io.use(async (socket, next) => {
   const token = socket.handshake.auth.token;
 
   if (!token){
-    return next(new Error("Auth token required"));
+    return new Error("Auth token required");
   }
 
   try {
@@ -65,11 +65,10 @@ io.use(async (socket, next) => {
     }
     
     let user = await User.findOne({ user_id: payload.sub });
-    
-    (socket as AuthenticatedSocket).user = {
-      user_id: user?.id
-    };
 
+    (socket as AuthenticatedSocket).user = {
+      user_id: user?.user_id
+    };
     next();
   } catch (error) {
     console.error("Authentication error:", error);

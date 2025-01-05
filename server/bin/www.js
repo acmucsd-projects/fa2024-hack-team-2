@@ -45,12 +45,15 @@ const io = new socket_io_1.Server(server, {
         credentials: true, // Allow cookies to be sent with requests
     }
 });
+/**
+ * Check if user has been verified through Google
+ */
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const client = new google_auth_library_1.OAuth2Client(CLIENT_ID);
 io.use((socket, next) => __awaiter(void 0, void 0, void 0, function* () {
     const token = socket.handshake.auth.token;
     if (!token) {
-        return next(new Error("Auth token required"));
+        return new Error("Auth token required");
     }
     try {
         const ticket = yield client.verifyIdToken({
@@ -63,8 +66,9 @@ io.use((socket, next) => __awaiter(void 0, void 0, void 0, function* () {
         }
         let user = yield User_1.User.findOne({ user_id: payload.sub });
         socket.user = {
-            user_id: user === null || user === void 0 ? void 0 : user.id
+            user_id: user === null || user === void 0 ? void 0 : user.user_id
         };
+        console.log('Authenticated user:', socket.user);
         next();
     }
     catch (error) {

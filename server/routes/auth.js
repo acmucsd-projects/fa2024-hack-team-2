@@ -38,6 +38,7 @@ router.get('/google/callback', passport_1.default.authenticate('google', { failu
 router.get('/protected', isLoggedIn, (req, res) => {
     res.send('protected route');
 });
+// Get token route
 router.get('/get-token', isLoggedIn, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user_id = req.user.user_id;
