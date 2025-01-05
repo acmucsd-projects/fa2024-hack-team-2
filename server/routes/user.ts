@@ -112,7 +112,7 @@ router.patch('/profile', async (req, res) => {
   }
   try {
     // Get profile fields from request
-    const {bio, pronouns, tags, picture, settings} = req.body;
+    const {username, bio, tags, pronouns, picture, settings} = req.body;
 
     // Find user in database
     const user_id = (req.user as IUser).user_id;
@@ -125,17 +125,52 @@ router.patch('/profile', async (req, res) => {
     // Update user's profile fields to request values
     const updatedUser = await User.findOneAndUpdate({user_id: user_id}, {
       $set: {
+        username: username,
         bio: bio,
         pronouns: pronouns,
-        tags: tags,
         picture: picture,
         settings: settings
+      },
+      $push: {
+        tags: { $each: [tags]}
       }
     }, {new: true});
     res.status(200).json(updatedUser);
   } catch (err){
     res.status(500).json({error: 'Error editing profile'});
   }
-})
+});
+
+// GET: Get current user's information
+router.get('/self', async (req: Request, res: Response, next: NextFunction) => {
+  if (req.user) {
+    const user = await User.findOne({ user_id: (req.user as IUser).user_id});
+    res.json(user);  // Send the user's name (or 'username' field)
+  } else {
+    res.status(401).send('Unauthorized');
+  }
+});
+
+// GET: Get all user informatione except self
+router.get('/all', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // Check if the user is authenticated
+    const currentUser = req.user as IUser | undefined;
+    console.log("currentser", currentUser)
+
+    if (!currentUser) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    // Query to fetch all users excluding the current authenticated user
+    const users = await User.find({ user_id: { $ne: currentUser?.user_id } });
+
+    // Respond with the list of users excluding the current user
+    res.json(users);
+  } catch (error) {
+    next(error);  // Pass the error to the global error handler
+  }
+});
 
 export default router;

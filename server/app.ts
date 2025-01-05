@@ -53,9 +53,8 @@ app.use(passport.session());
 
 // Routes
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 app.use('/auth', authRouter);
-app.use('/api', userRoutes);
+app.use('/user', userRoutes);
 app.use('/posts', postRoutes);
 app.use('/api', messageRoutes);
 
