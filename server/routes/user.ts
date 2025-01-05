@@ -122,19 +122,29 @@ router.patch('/profile', async (req, res) => {
       res.status(404).json({message: `User not found: ${user_id}`});
       return;
     }
+
+    if (tags){
+      if(user.tags.includes(tags)){
+        await User.findOneAndUpdate({user_id: user_id},{
+          $pull: {tags: tags}
+        }, {new: true});
+      } else{
+        await User.findOneAndUpdate({user_id: user_id},{
+          $push: {tags: {$each: [tags]}}
+        }, {new: true})
+      }
+    }
     // Update user's profile fields to request values
-    const updatedUser = await User.findOneAndUpdate({user_id: user_id}, {
+    const updatedUser = await User.findOneAndUpdate({user_id: user_id},{
       $set: {
         username: username,
         bio: bio,
         pronouns: pronouns,
         picture: picture,
         settings: settings
-      },
-      $push: {
-        tags: { $each: [tags]}
       }
     }, {new: true});
+
     res.status(200).json(updatedUser);
   } catch (err){
     res.status(500).json({error: 'Error editing profile'});

@@ -121,6 +121,18 @@ router.patch('/profile', (req, res) => __awaiter(void 0, void 0, void 0, functio
             res.status(404).json({ message: `User not found: ${user_id}` });
             return;
         }
+        if (tags) {
+            if (user.tags.includes(tags)) {
+                yield User_1.User.findOneAndUpdate({ user_id: user_id }, {
+                    $pull: { tags: tags }
+                }, { new: true });
+            }
+            else {
+                yield User_1.User.findOneAndUpdate({ user_id: user_id }, {
+                    $push: { tags: { $each: [tags] } }
+                }, { new: true });
+            }
+        }
         // Update user's profile fields to request values
         const updatedUser = yield User_1.User.findOneAndUpdate({ user_id: user_id }, {
             $set: {
@@ -129,9 +141,6 @@ router.patch('/profile', (req, res) => __awaiter(void 0, void 0, void 0, functio
                 pronouns: pronouns,
                 picture: picture,
                 settings: settings
-            },
-            $push: {
-                tags: { $each: [tags] }
             }
         }, { new: true });
         res.status(200).json(updatedUser);
