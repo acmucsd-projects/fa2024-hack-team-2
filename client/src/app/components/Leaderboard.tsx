@@ -18,34 +18,38 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ users }) => {
     "https://cdn.builder.io/api/v1/image/assets/TEMP/e57ce0fb4d7e6f9d8ae6cf2dda741add41521ccec68798186f13f301773163b5?placeholderIfAbsent=true";
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-white">
+    <div className="flex min-h-screen items-center justify-center bg-white">
       <div className="w-full max-w-4xl p-8">
         {/* Top 3 Section */}
-        <div className="flex items-end justify-center gap-16 mb-12 relative">
+        <div className="relative mb-12 flex items-end justify-center gap-16">
           {/* Crown */}
           <img
             src={crownIcon}
             alt="Crown"
-            className="absolute -top-16 left-1/2 transform -translate-x-1/2 w-16"
+            className="absolute -top-16 left-1/2 w-16 -translate-x-1/2 transform"
           />
 
           {/* Second Place */}
           {users[1] && (
-            <div className="flex flex-col items-center w-1/3">
-              <h2 className="text-2xl font-extrabold text-gray-800 mb-4">2nd</h2>
+            <div className="flex w-1/3 flex-col items-center">
+              <h2 className="mb-4 text-2xl font-extrabold text-gray-800">
+                2nd
+              </h2>
               <div
                 className={clsx(
-                  "w-28 h-28 rounded-full flex items-center justify-center bg-blue-400 shadow-md"
+                  "flex h-28 w-28 items-center justify-center rounded-full bg-blue-400 shadow-md",
                 )}
               >
                 <img
                   src={users[1].profilePicture}
                   alt="Second place"
-                  className="w-24 h-24 rounded-full"
+                  className="h-24 w-24 rounded-full"
                 />
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-gray-700 font-bold text-lg">{users[1].likes}</span>
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-lg font-bold text-gray-700">
+                  {users[1].likes}
+                </span>
                 <HeartIcon size="lg" />
               </div>
             </div>
@@ -53,22 +57,24 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ users }) => {
 
           {/* First Place */}
           {users[0] && (
-            <div className="flex flex-col items-center w-1/3">
+            <div className="flex w-1/3 flex-col items-center">
               <div className="relative">
                 <div
                   className={clsx(
-                    "w-36 h-36 rounded-full flex items-center justify-center bg-blue-500 shadow-lg"
+                    "flex h-36 w-36 items-center justify-center rounded-full bg-blue-500 shadow-lg",
                   )}
                 >
                   <img
                     src={users[0].profilePicture}
                     alt="First place"
-                    className="w-32 h-32 rounded-full"
+                    className="h-32 w-32 rounded-full"
                   />
                 </div>
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-gray-700 font-bold text-lg">{users[0].likes}</span>
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-lg font-bold text-gray-700">
+                  {users[0].likes}
+                </span>
                 <HeartIcon size="lg" />
               </div>
             </div>
@@ -76,21 +82,25 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ users }) => {
 
           {/* Third Place */}
           {users[2] && (
-            <div className="flex flex-col items-center w-1/3">
-              <h2 className="text-2xl font-extrabold text-gray-800 mb-4">3rd</h2>
+            <div className="flex w-1/3 flex-col items-center">
+              <h2 className="mb-4 text-2xl font-extrabold text-gray-800">
+                3rd
+              </h2>
               <div
                 className={clsx(
-                  "w-28 h-28 rounded-full flex items-center justify-center bg-blue-400 shadow-md"
+                  "flex h-28 w-28 items-center justify-center rounded-full bg-blue-400 shadow-md",
                 )}
               >
                 <img
                   src={users[2].profilePicture}
                   alt="Third place"
-                  className="w-24 h-24 rounded-full"
+                  className="h-24 w-24 rounded-full"
                 />
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-gray-700 font-bold text-lg">{users[2].likes}</span>
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-lg font-bold text-gray-700">
+                  {users[2].likes}
+                </span>
                 <HeartIcon size="lg" />
               </div>
             </div>
@@ -103,24 +113,24 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ users }) => {
             <li
               key={user.id}
               className={clsx(
-                "flex items-center justify-between p-4 border rounded-full shadow-md bg-white",
-                "border-black"
+                "flex items-center justify-between rounded-full border bg-white p-4 shadow-md",
+                "border-black",
               )}
             >
               <div className="flex items-center gap-4">
-                <div
-                  className="flex items-center justify-center w-10 h-10 rounded-full border border-black"
-                >
+                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-black">
                   <img
                     src={user.profilePicture}
                     alt={`${user.name}'s avatar`}
-                    className="w-6 h-6"
+                    className="h-6 w-6"
                   />
                 </div>
                 <p className="font-medium text-gray-800">{`${index + 1}. ${user.name}`}</p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-gray-700 font-semibold">{user.likes}</span>
+                <span className="font-semibold text-gray-700">
+                  {user.likes}
+                </span>
                 <HeartIcon />
               </div>
             </li>

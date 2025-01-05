@@ -6,6 +6,7 @@ interface IUser {
   bio?: string;
   pronouns?: string;
   tags: string[];
+  followList: string[];
   followers: number;
   following: number;
   wishlist: string[];
@@ -24,6 +25,7 @@ const userSchema = new Schema<IUser>({
   bio: { type: String },
   pronouns: { type: String },
   tags: { type: [String], default: [] },
+  followList: { type: [String], default: []},
   followers: { type: Number, default: 0 },
   following: { type: Number, default: 0 },
   wishlist: { type: [String], default: [] },
@@ -40,4 +42,4 @@ const userSchema = new Schema<IUser>({
 
 const User: Model<IUser> = mongoose.model<IUser>('User', userSchema);
 
-export default User;
+export { User, IUser };

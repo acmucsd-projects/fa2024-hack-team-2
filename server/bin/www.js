@@ -21,7 +21,6 @@ const app_1 = __importDefault(require("../app"));
 const debug_1 = __importDefault(require("debug"));
 const http_1 = __importDefault(require("http"));
 const socket_io_1 = require("socket.io");
-const mongoose_1 = __importDefault(require("mongoose"));
 /**
  * Get port from environment and store in Express.
  */
@@ -35,11 +34,16 @@ exports.server = server;
 /**
  * Connect to MongoDB
  */
-mongoose_1.default.connect('mongodb://127.0.0.1:27017/Users').then(() => {
-    console.log('connected to mongodb');
-}).catch((err) => {
-    console.error('error connecting to mongodb', err);
-});
+// const mongoURI = process.env.MONGO_URI;
+// if (!mongoURI) {
+//   console.error('MONGO_URI is not defined in the environment variables.');
+//   process.exit(1); // Exit the process with a failure
+// }
+// mongoose.connect(mongoURI).then(() => {
+//   console.log('Connected to MongoDB');
+// }).catch((err) => {
+//   console.error('Error connecting to MongoDB:', err);
+// });
 /**
  * Create SocketIO server
  */
