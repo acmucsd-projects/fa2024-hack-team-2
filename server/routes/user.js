@@ -81,20 +81,17 @@ router.post('/follow', (req, res) => __awaiter(void 0, void 0, void 0, function*
         // If user already follows, then unfollow
         if (user.followList.includes(follow_user_id)) {
             // Remove the followed user from follow list
-            const updatedList = user.followList.filter(id => id !== follow_user_id);
+            yield user.updateOne({ $set: { followList: user.followList.filter(id => id !== follow_user_id) } });
             // Update fields accordingly
-            yield user.updateOne({ followList: updatedList });
             yield user.updateOne({ $inc: { following: -1 } });
             yield user_to_follow.updateOne({ $inc: { followers: -1 } });
-            console.log('unfollowed:', user.followList);
         }
         else {
             // If user isn't following, then follow
             yield user.updateOne({ $inc: { following: 1 } });
             yield (user_to_follow === null || user_to_follow === void 0 ? void 0 : user_to_follow.updateOne({ $inc: { followers: 1 } }));
             // Add user to follow to the follow list
-            yield user.followList.push(follow_user_id);
-            console.log('followed:', user.followList);
+            user.followList.push(follow_user_id);
         }
         // Save the new information of both users
         yield user.save(), user_to_follow.save();
@@ -102,6 +99,31 @@ router.post('/follow', (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
     catch (err) {
         res.status(500).json({ message: 'Following error occurred:', err });
+    }
+}));
+// PATCH: Edit profile 
+router.patch('/profile', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { bio, pronouns, tags, picture, settings } = req.body;
+        const user_id = req.user.user_id;
+        const user = yield User_1.User.findOne({ user_id: user_id });
+        if (!user) {
+            res.status(404).json({ message: `User not found: ${user_id}` });
+            return;
+        }
+        const updatedUser = yield User_1.User.findOneAndUpdate({ user_id: user_id }, {
+            $set: {
+                bio: bio,
+                pronouns: pronouns,
+                tags: tags,
+                picture: picture,
+                settings: settings
+            }
+        }, { new: true });
+        res.status(200).json(updatedUser);
+    }
+    catch (err) {
+        res.status(500).json({ error: 'Error editing profile' });
     }
 }));
 exports.default = router;

@@ -53,44 +53,46 @@ router.post('/users', async (req: Request, res: Response) => {
 
 // POST: Follow user
 router.post('/follow', async (req: Request, res: Response) => {
-  // Get IDs from req
-  const currUser = (req.user as IUser).user_id;
-  const { follow_user_id } = req.body;
-
-  // Find users from database using IDs
-  const user_to_follow = await User.findOne({user_id: follow_user_id });
-  const user = await User.findOne({ user_id: currUser });
-
-  // If either user doesn't exist, send an error
-  if(!user){
-    res.status(404).json({ message: `Curr user not found: ${currUser}` });
+  if(!req.user){
+    res.status(401).json({message: `Unauthorized`});
     return;
   }
-
-  if (!user_to_follow){
-    res.status(404).json({ message: `User to follow not found: ${follow_user_id}`});
-    return;
-  }
-
   try {
+    // Get IDs from req
+    const currUser = (req.user as IUser).user_id;
+    const { follow_user_id } = req.body;
+
+    // Find users from database using IDs
+    const user_to_follow = await User.findOne({user_id: follow_user_id });
+    const user = await User.findOne({ user_id: currUser });
+
+    // If either user doesn't exist, send an error
+    if(!user){
+      res.status(404).json({ message: `Curr user not found: ${currUser}` });
+      return;
+    }
+
+    if (!user_to_follow){
+      res.status(404).json({ message: `User to follow not found: ${follow_user_id}`});
+      return;
+    }
+
     // If user already follows, then unfollow
     if(user.followList.includes(follow_user_id)){
       // Remove the followed user from follow list
-      const updatedList = user.followList.filter(id => id !== follow_user_id);
-      
+      await user.updateOne({$set:{followList: user.followList.filter(id => id !== follow_user_id)}});
+
       // Update fields accordingly
-      await user.updateOne({$set:{followList: updatedList}});
       await user.updateOne({ $inc: {following: -1 }});
       await user_to_follow.updateOne({ $inc: {followers: -1 }});
-      console.log('unfollowed:', user.followList);
+
     } else {
       // If user isn't following, then follow
       await user.updateOne({ $inc: {following: 1} });
       await user_to_follow?.updateOne({ $inc : {followers: 1} });
       
       // Add user to follow to the follow list
-      await user.followList.push(follow_user_id);
-      console.log('followed:', user.followList);
+      user.followList.push(follow_user_id);
     }
 
     // Save the new information of both users
@@ -101,5 +103,39 @@ router.post('/follow', async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Following error occurred:', err});
   }
 });
+
+// PATCH: Edit profile 
+router.patch('/profile', async (req, res) => {
+  if(!req.user){
+    res.status(401).json({message: `Unauthorized`});
+    return;
+  }
+  try {
+    // Get profile fields from request
+    const {bio, pronouns, tags, picture, settings} = req.body;
+
+    // Find user in database
+    const user_id = (req.user as IUser).user_id;
+    const user = await User.findOne({user_id: user_id});
+
+    if(!user){
+      res.status(404).json({message: `User not found: ${user_id}`});
+      return;
+    }
+    // Update user's profile fields to request values
+    const updatedUser = await User.findOneAndUpdate({user_id: user_id}, {
+      $set: {
+        bio: bio,
+        pronouns: pronouns,
+        tags: tags,
+        picture: picture,
+        settings: settings
+      }
+    }, {new: true});
+    res.status(200).json(updatedUser);
+  } catch (err){
+    res.status(500).json({error: 'Error editing profile'});
+  }
+})
 
 export default router;
