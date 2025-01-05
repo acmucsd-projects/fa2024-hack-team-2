@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
 
-interface TagListProps {
-  title: string;
+interface MyComponentProps {
+  name: string;
   initialTags?: string[];
   onChange?: (tags: string[]) => void;
 }
 
-const TagList: React.FC<TagListProps> = ({
-  title,
+const TagList: React.FC<MyComponentProps> = ({
+  name,
   initialTags = [],
   onChange,
 }) => {
@@ -16,17 +16,17 @@ const TagList: React.FC<TagListProps> = ({
   const tagContainerRef = useRef<HTMLDivElement>(null);
 
   const handleAddTag = () => {
-    if (newTagName.trim() === "") return; // Prevent adding empty tags
+    if (newTagName.trim() === "") return;
     const updatedTags = [...tags, newTagName.trim()];
     setTags(updatedTags);
-    setNewTagName(""); // Clear the input field
-    if (onChange) onChange(updatedTags); // Notify parent
+    setNewTagName("");
+    if (onChange) onChange(updatedTags);
   };
 
   const handleDeleteTag = (index: number) => {
     const updatedTags = tags.filter((_, i) => i !== index);
     setTags(updatedTags);
-    if (onChange) onChange(updatedTags); // Notify parent
+    if (onChange) onChange(updatedTags);
   };
 
   useEffect(() => {
@@ -37,10 +37,10 @@ const TagList: React.FC<TagListProps> = ({
   }, [tags]);
 
   return (
-    <div className="w-[28rem] rounded-lg bg-white p-4 shadow-xl">
-      {/* title Row */}
+    <div className="w-full rounded-lg bg-white p-4 shadow-md md:w-[28rem]">
+      {/* title row */}
       <div className="mb-2 flex items-center justify-between">
-        <p className="text-lg font-bold text-gray-700">{title}</p>
+        <p className="font-bold text-gray-700">{name}</p>
         <div className="flex items-center gap-2">
           <input
             type="text"
@@ -58,7 +58,7 @@ const TagList: React.FC<TagListProps> = ({
         </div>
       </div>
 
-      {/* Tags */}
+      {/* tags */}
       <div
         ref={tagContainerRef}
         className="scrollbar-hide flex gap-2 overflow-x-auto whitespace-nowrap"

@@ -148,14 +148,14 @@ const CreatePostMaterialBox: React.FC<MyComponentProps> = ({
       updatedRows[index].material = selectedMaterial;
     }
     setRows(updatedRows);
-    updateParent(updatedRows); // Notify parent with hashmap
+    updateParent(updatedRows);
   };
 
   const handleAddRow = () => {
     if (rows.reduce((sum, row) => sum + row.percentage, 0) < 100) {
       const newRows = [...rows, { percentage: 0, material: "" }];
       setRows(newRows);
-      updateParent(newRows); // Notify parent with hashmap
+      updateParent(newRows);
     }
   };
 
@@ -163,12 +163,12 @@ const CreatePostMaterialBox: React.FC<MyComponentProps> = ({
 
   return (
     <div className={`relative ${totalPercentage === 100 ? "" : "mb-8"}`}>
-      <span className="mt-2 flex max-h-36 flex-col overflow-y-scroll rounded border px-2">
+      <span className="mt-2 flex max-h-36 flex-col overflow-y-scroll rounded px-2 shadow-md">
         <label
           htmlFor={name}
           className="mb-0 mt-2 text-left font-bold text-gray-600"
         >
-          {name.charAt(0).toUpperCase() + name.slice(1)}
+          {name.charAt(0).toUpperCase() + name.slice(1)} (optional)
         </label>
         {rows.map((row, index) => (
           <span key={index} className="mt-2 flex flex-row gap-2">

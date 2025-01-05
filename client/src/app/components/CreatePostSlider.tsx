@@ -33,7 +33,7 @@ const Slider: React.FC<SliderProps> = ({
         htmlFor={name}
         className="mb-10 mt-2 block text-left font-bold text-gray-600"
       >
-        {name.charAt(0).toUpperCase() + name.slice(1)}
+        {name.charAt(0).toUpperCase() + name.slice(1)} (optional)
       </label>
 
       {/* Cost Bubble */}
@@ -59,7 +59,7 @@ const Slider: React.FC<SliderProps> = ({
         onChange={handleChange}
       />
 
-      {/* Endpoints */}
+      {/* endpoints */}
       <div className="mt-1 flex justify-between text-sm text-gray-600">
         <span>${min}</span>
         <span>${max}</span>

@@ -120,7 +120,7 @@ const CreatePostBrandBox: React.FC<MyComponentProps> = ({ name, onChange }) => {
         htmlFor={name}
         className="mb-1 mt-2 text-left font-bold text-gray-600"
       >
-        {name.charAt(0).toUpperCase() + name.slice(1)}
+        {name.charAt(0).toUpperCase() + name.slice(1)} (optional)
       </label>
       <select
         name={name}
