@@ -203,7 +203,7 @@ const CreatePostMaterialBox: React.FC<MyComponentProps> = ({
           </span>
         ))}
         <p
-          className="mb-1 mt-2 cursor-pointer text-left text-sm text-gray-500 hover:text-gray-700"
+          className="mb-1 mt-2 cursor-pointer text-left text-sm text-blue-500 transition-all hover:text-blue-400"
           onClick={handleAddRow}
         >
           + Add another material

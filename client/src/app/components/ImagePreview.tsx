@@ -22,7 +22,7 @@ const ImagePreview: React.FC<MyComponentProps> = ({ images }) => {
         height="1000"
         width="1000"
         alt={`Uploaded file ${currentImageIndex + 1}`}
-        className="h-[24rem] w-[24rem] object-contain"
+        className="h-[28rem] w-[28rem] object-contain"
       />
       {images.length > 1 && (
         <>
