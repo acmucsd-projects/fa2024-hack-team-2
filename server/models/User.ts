@@ -13,6 +13,8 @@ interface IUser {
   posts: string[];
   liked: string[];
   disliked: string[];
+  viewedPosts: mongoose.Schema.Types.ObjectId[];
+  viewedUsers: string[],
   picture?: string; // Assuming a profile picture URL
   settings: {
     privateAccount: boolean;
@@ -32,6 +34,8 @@ const userSchema = new Schema<IUser>({
   posts: { type: [String], default: [] },
   liked: { type: [String], default: [] },
   disliked: { type: [String], default: [] },
+  viewedPosts: { type: [mongoose.Schema.Types.ObjectId] },
+  viewedUsers: { type: [String], default: [] },
   picture: { type: String },
   settings: {
     privateAccount: { type: Boolean, default: false },

@@ -8,10 +8,10 @@ const router = express.Router();
  * @desc Get user information
  * @access Private
  * 
- * This endpoint allows an authenticated user to view a user's information.
+ * This endpoint allows a user to view another user's information.
  * 
  * Request Body:
- * - user_id: The ID of the user. (required)
+ * - user_id: The ID of the user to view. (required)
  * 
  * Response:
  * - 200: The user was successfully found and their information was retrieved.
@@ -21,10 +21,27 @@ const router = express.Router();
 
 router.get('/', async (req: Request, res: Response) => {
     try {
-      const user = await User.findOne({ user_id: req.body.user_id }); 
+      const user_id = req.body.user_id;
+      const user = await User.findOne({ user_id: user_id }); 
       if (!user) {
         res.status(404).json({ error: 'User not found' });
         return;
+      }
+
+      if(req.user){
+        const currUser = await User.findOne({user_id: (req.user as IUser).user_id});
+
+        await currUser?.updateOne(
+          {$pull: {viewedUsers: user_id}}
+        )
+
+        await currUser?.updateOne(
+          {$push: {
+            viewedUsers: {$each: [user_id], $position: 0}
+          }}
+        );
+
+        await currUser?.save();
       }
       res.status(200).json(user);
     } catch (error) {
@@ -66,7 +83,7 @@ router.post('/new', async (req: Request, res: Response) => {
 });
 
 /**
- * @route POST /follow
+ * @route PATCH /follow
  * @desc Follow a user
  * @access Private
  * 
@@ -85,7 +102,7 @@ router.post('/new', async (req: Request, res: Response) => {
  * - 404: Error finding a user.
  * - 500: Internal server error.
  */
-router.post('/follow', async (req: Request, res: Response) => {
+router.patch('/follow', async (req: Request, res: Response) => {
   if(!req.user){
     res.status(401).json({message: `Unauthorized`});
     return;
@@ -253,5 +270,92 @@ router.get('/all', async (req: Request, res: Response, next: NextFunction) => {
     next(error); 
   }
 });
+
+/**
+ * @route GET /history
+ * @desc View user's history
+ * @access Private
+ * 
+ * Allows an authenticated user to view their viewed user history.
+ * 
+ * Request User:
+ * - req.user.user_id: The user's user ID
+ * 
+ * Response:
+ * - 200: Retrieved history data successfully.
+ * - 400: No users were found in history.
+ * - 401: Unauthorized
+ * - 404: User not found
+ * - 500: Internal server error
+ */
+
+router.get('/history', async(req, res) => {
+  if (!req.user){
+    res.status(401).json({error: 'Unauthorized'});
+  }
+
+  try {
+    const user = await User.findOne({user_id: (req.user as IUser).user_id});
+    if(!user){
+      res.status(401).json({message: "User not found"});
+      return;
+    }
+    const history = user?.viewedUsers;
+
+    if(!history[0]){
+      res.status(400).json({message: "No recently viewed users found"});
+      return;
+    }
+
+    const viewedUsers = await Promise.all(
+      history.map(user_id => {return User.findOne({user_id: user_id})})
+    )
+
+    res.status(200).json(viewedUsers);
+  } catch (err){
+    res.status(500).json({err: "Error fetching user history"});
+  }
+})
+
+/**
+ * @route PATCH /history/clear
+ * @desc Allows user to clear history
+ * @access Private
+ * 
+ * This endpoint allows an authenticated user to clear their viewed user history.
+ * 
+ * Request User:
+ * - req.user.user_id: The user's user ID.
+ * 
+ * Response:
+ * - 200: The post history was clear successfully.
+ * - 401: Unauthorized.
+ * - 404: User was not found.
+ * - 500: Internal server error
+ */
+
+router.patch('/history/clear', async(req, res) => {
+  if (!req.user){
+    res.status(401).json({message: "Not authorized"});
+    return;
+  }
+
+  try{
+    const user_id = (req.user as IUser).user_id;
+    const result = await User.findOneAndUpdate(
+      {user_id: user_id},
+      {$set: {viewedUsers: []}},
+      {new: true}
+    );
+
+    if(!result){
+      res.status(404).json({message: "User not found"});
+      return;
+    }
+    res.status(200).json({message: "User history cleared successfully"});
+  } catch (error){
+    res.status(500).json({error: "Error clearing user history"});
+  }
+})
 
 export default router;

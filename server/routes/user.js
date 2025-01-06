@@ -20,10 +20,10 @@ const router = express_1.default.Router();
  * @desc Get user information
  * @access Private
  *
- * This endpoint allows an authenticated user to view a user's information.
+ * This endpoint allows a user to view another user's information.
  *
  * Request Body:
- * - user_id: The ID of the user. (required)
+ * - user_id: The ID of the user to view. (required)
  *
  * Response:
  * - 200: The user was successfully found and their information was retrieved.
@@ -32,10 +32,19 @@ const router = express_1.default.Router();
  */
 router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield User_1.User.findOne({ user_id: req.body.user_id });
+        const user_id = req.body.user_id;
+        const user = yield User_1.User.findOne({ user_id: user_id });
         if (!user) {
             res.status(404).json({ error: 'User not found' });
             return;
+        }
+        if (req.user) {
+            const currUser = yield User_1.User.findOne({ user_id: req.user.user_id });
+            yield (currUser === null || currUser === void 0 ? void 0 : currUser.updateOne({ $pull: { viewedUsers: user_id } }));
+            yield (currUser === null || currUser === void 0 ? void 0 : currUser.updateOne({ $push: {
+                    viewedUsers: { $each: [user_id], $position: 0 }
+                } }));
+            yield (currUser === null || currUser === void 0 ? void 0 : currUser.save());
         }
         res.status(200).json(user);
     }
@@ -74,7 +83,7 @@ router.post('/new', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 }));
 /**
- * @route POST /follow
+ * @route PATCH /follow
  * @desc Follow a user
  * @access Private
  *
@@ -93,7 +102,7 @@ router.post('/new', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
  * - 404: Error finding a user.
  * - 500: Internal server error.
  */
-router.post('/follow', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.patch('/follow', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.user) {
         res.status(401).json({ message: `Unauthorized` });
         return;
@@ -128,7 +137,6 @@ router.post('/follow', (req, res) => __awaiter(void 0, void 0, void 0, function*
         res.status(500).json({ message: 'Following error occurred:', err });
     }
 }));
-
 /**
  * @route PATCH /profile
  * @desc Edit profile
@@ -146,6 +154,7 @@ router.post('/follow', (req, res) => __awaiter(void 0, void 0, void 0, function*
  *
  * Responses:
  * - 200: The profile was updated successfully.
+ * - 400: Username was taken.
  * - 401: Unauthorized.
  * - 404: The user was not found.
  * - 500: Internal server error.
@@ -247,6 +256,48 @@ router.get('/all', (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     }
     catch (error) {
         next(error);
+    }
+}));
+// GET: View user history
+router.get('/history', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.user) {
+        res.status(401).json({ error: 'Unauthorized' });
+    }
+    try {
+        const user = yield User_1.User.findOne({ user_id: req.user.user_id });
+        if (!user) {
+            res.status(401).json({ message: "User not found" });
+            return;
+        }
+        const history = user === null || user === void 0 ? void 0 : user.viewedUsers;
+        if (!history[0]) {
+            res.status(400).json({ message: "No recently viewed users found" });
+            return;
+        }
+        const viewedUsers = yield Promise.all(history.map(user_id => { return User_1.User.findOne({ user_id: user_id }); }));
+        res.status(200).json(viewedUsers);
+    }
+    catch (err) {
+        res.status(500).json({ err: "Error fetching user history" });
+    }
+}));
+// PATCH: clear history
+router.patch('/history/clear', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.user) {
+        res.status(401).json({ message: "Not authorized" });
+        return;
+    }
+    try {
+        const user_id = req.user.user_id;
+        const result = yield User_1.User.findOneAndUpdate({ user_id: user_id }, { $set: { viewedUsers: [] } }, { new: true });
+        if (!result) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+        res.status(200).json({ message: "User history cleared successfully" });
+    }
+    catch (error) {
+        res.status(500).json({ error: "Error clearing user history" });
     }
 }));
 exports.default = router;

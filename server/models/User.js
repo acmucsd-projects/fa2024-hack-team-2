@@ -38,6 +38,8 @@ const userSchema = new mongoose_1.Schema({
     posts: { type: [String], default: [] },
     liked: { type: [String], default: [] },
     disliked: { type: [String], default: [] },
+    viewedPosts: { type: [mongoose_1.default.Schema.Types.ObjectId] },
+    viewedUsers: { type: [String], default: [] },
     picture: { type: String },
     settings: {
         privateAccount: { type: Boolean, default: false },

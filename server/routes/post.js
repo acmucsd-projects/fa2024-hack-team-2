@@ -16,8 +16,6 @@ const express_1 = __importDefault(require("express"));
 const Post_1 = __importDefault(require("../models/Post"));
 const User_1 = require("../models/User");
 const mongoose_1 = __importDefault(require("mongoose"));
-const User_1 = require("../models/User");
-const mongoose_1 = __importDefault(require("mongoose"));
 const router = express_1.default.Router();
 /**
  * @route POST /
@@ -59,7 +57,6 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             cost,
             numStores,
             author: req.user.user_id,
-            author: req.user.user_id,
             available_stores,
             image,
             tags,
@@ -99,6 +96,16 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         if (!post) {
             res.status(404).json({ error: "Post not found" });
             return;
+        }
+        if (req.user) {
+            const user = yield User_1.User.findOne({ user_id: req.user.user_id });
+            yield (user === null || user === void 0 ? void 0 : user.updateOne({ $pull: { viewedPosts: post_id } }));
+            yield (user === null || user === void 0 ? void 0 : user.updateOne({
+                $push: {
+                    viewedPosts: { $each: [post_id], $position: 0 }
+                }
+            }));
+            yield (user === null || user === void 0 ? void 0 : user.save());
         }
         res.status(200).json(post);
     }
@@ -316,4 +323,48 @@ router.patch("/like", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         res.status(500).json({ error: "Error liking post" });
     }
 }));
+// GET: View post history
+router.get('/history', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.user) {
+        res.status(401).json({ message: "User not authenticated" });
+        return;
+    }
+    try {
+        const user = yield User_1.User.findOne({ user_id: req.user.user_id });
+        if (!user) {
+            res.status(404).json({ message: 'user not found' });
+            return;
+        }
+        const history = user.viewedPosts;
+        if (!history[0]) {
+            res.status(400).json({ message: 'No recently viewed posts found' });
+            return;
+        }
+        const posts = yield Promise.all(history.map(post_id => { return Post_1.default.findById(post_id); }));
+        res.status(200).json(posts);
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error retrieving post history" });
+    }
+}));
+router.patch('/history/clear', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.user) {
+        res.status(401).json({ message: "User not authenticated" });
+        return;
+    }
+    try {
+        const user_id = req.user.user_id;
+        const result = yield User_1.User.findOneAndUpdate({ user_id: user_id }, { $set: { viewedPosts: [] } }, { new: true });
+        if (!result) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+        res.status(200).json({ message: "Post history successfully cleared" });
+    }
+    catch (error) {
+        res.status(500).json({ error: "Error clearing post history" });
+    }
+}));
+// Export the router
 exports.default = router;
