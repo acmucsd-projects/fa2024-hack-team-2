@@ -9,7 +9,6 @@ import debug from 'debug';
 import http from 'http';
 import { Socket, Server} from 'socket.io';
 import { OAuth2Client } from 'google-auth-library';
-import dotenv from 'dotenv';
 import { User, AuthenticatedSocket } from '../models/User';
 
 /**
@@ -47,6 +46,7 @@ const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const client = new OAuth2Client(CLIENT_ID);
 
 io.use(async (socket, next) => {
+  // Get ID token from authorization handshake
   const token = socket.handshake.auth.token;
 
   if (!token){
@@ -54,6 +54,7 @@ io.use(async (socket, next) => {
   }
 
   try {
+    // Use the OAuth client to verify the token.
     const ticket = await client.verifyIdToken({
       idToken: token,
       audience: CLIENT_ID,
@@ -64,11 +65,14 @@ io.use(async (socket, next) => {
       return next(new Error("Invalid token payload"));
     }
     
+    // Use the payload to find the user in the database.
     let user = await User.findOne({ user_id: payload.sub });
 
+    // Store the user's ID inside the socket object.
     (socket as AuthenticatedSocket).user = {
       user_id: user?.user_id
     };
+
     next();
   } catch (error) {
     console.error("Authentication error:", error);

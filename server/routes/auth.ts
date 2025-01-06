@@ -39,7 +39,21 @@ router.get('/protected', isLoggedIn, (req: Request, res: Response) => {
   res.send('protected route');
 });
 
-// Get token route
+/**
+ * @route /get-token
+ * @desc Gets the user's ID token
+ * @access Private
+ * 
+ * This endpoint retrieves the authenticated user's ID token from the database.
+ * 
+ * Request User:
+ * - req.user.user_id: The user's user ID.
+ * 
+ * Response:
+ * - 200: Token was sent successfully.
+ * - 404: User was not found in the database.
+ * - 500: Internal server error.
+ */
 router.get('/get-token', isLoggedIn, async (req, res) => {
     try {
         const user_id = (req.user as IUser).user_id;
@@ -49,7 +63,7 @@ router.get('/get-token', isLoggedIn, async (req, res) => {
             res.sendStatus(404);
             return;
         }
-        res.json({token: user.token });
+        res.status(200).json({token: user.token });
     } catch (err){
         console.error(err);
         res.sendStatus(500);
