@@ -43,7 +43,7 @@ const MainSection = () => {
   return (
     <section className="flex justify-center items-center h-full w-full gap-14">
       {/* Text Section */}
-      <div className="flex flex-col justify-center items-center space-y-4 md:space-y-6 mr-8">
+      <div className="flex flex-col justify-center items-center space-y-4">
         <h1 className="flex justify-center items-center text-5xl font-bold text-blue-600">
           Swipe Style
         </h1>

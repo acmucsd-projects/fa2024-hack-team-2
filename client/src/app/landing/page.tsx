@@ -13,9 +13,9 @@ const LandingPage = () => {
       <NavBar />
 
       {/* Content Sections */}
-      <div className="overflow-y-scroll w-full h-[90%]"> {/* Push the main section down */}
+      <div className="overflow-y-scroll w-[85%] h-[90%]"> {/* Push the main section down */}
         <MainSection />
-        <FeaturesSection />
+        {/* <FeaturesSection /> */}
         <AboutUs />
         <Footer />
       </div>
