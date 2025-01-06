@@ -32,6 +32,7 @@
     "express-session": "^1.18.1",
     "google-auth-library": "^9.15.0",
     "googleapis": "^144.0.0",
+    "levenshtein-edit-distance": "^3.0.1",
     "mongodb": "^6.12.0",
     "mongoose": "^8.9.2",
     "morgan": "^1.10.0",

@@ -342,4 +342,5 @@ router.patch("/like", async (req: Request, res: Response) => {
   }
 });
 
+// Export the router
 export default router;
