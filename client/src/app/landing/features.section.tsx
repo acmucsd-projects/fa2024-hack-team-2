@@ -54,7 +54,9 @@ const FeaturesSection = () => {
   };
 
   return (
-    <main className="flex h-screen w-screen flex-col">
+    <section 
+    id = "features"
+    className="flex h-screen w-screen flex-col">
       {/* Content */}
       <div className="mb-8 flex flex-1 flex-col items-center justify-center lg:flex-row lg:items-center lg:justify-center">
         {/* Left Side */}
@@ -223,7 +225,7 @@ const FeaturesSection = () => {
           </div>
         </div>
       </div>
-    </main>
+    </section>
   );
 };
 
