@@ -34,9 +34,6 @@ app_1.default.set('port', port);
 const server = http_1.default.createServer(app_1.default);
 exports.server = server;
 /**
- * Connect to MongoDB
- */
-/**
  * Create SocketIO server
  */
 const io = new socket_io_1.Server(server, {
@@ -51,11 +48,13 @@ const io = new socket_io_1.Server(server, {
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const client = new google_auth_library_1.OAuth2Client(CLIENT_ID);
 io.use((socket, next) => __awaiter(void 0, void 0, void 0, function* () {
+    // Get ID token from authorization handshake
     const token = socket.handshake.auth.token;
     if (!token) {
         return new Error("Auth token required");
     }
     try {
+        // Use the OAuth client to verify the token.
         const ticket = yield client.verifyIdToken({
             idToken: token,
             audience: CLIENT_ID,
@@ -64,11 +63,12 @@ io.use((socket, next) => __awaiter(void 0, void 0, void 0, function* () {
         if (!payload) {
             return next(new Error("Invalid token payload"));
         }
+        // Use the payload to find the user in the database.
         let user = yield User_1.User.findOne({ user_id: payload.sub });
+        // Store the user's ID inside the socket object.
         socket.user = {
             user_id: user === null || user === void 0 ? void 0 : user.user_id
         };
-        console.log('Authenticated user:', socket.user);
         next();
     }
     catch (error) {
