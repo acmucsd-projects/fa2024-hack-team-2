@@ -15,13 +15,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const User_1 = require("../models/User");
 const router = express_1.default.Router();
-router.get('/users/test', (req, res, next) => {
-    res.send('users route');
-});
-// Find user by user_id
-router.get('/users/:user_id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+/**
+ * @route GET /
+ * @desc Get user information
+ * @access Private
+ *
+ * This endpoint allows an authenticated user to view a user's information.
+ *
+ * Request Body:
+ * - user_id: The ID of the user. (required)
+ *
+ * Response:
+ * - 200: The user was successfully found and their information was retrieved.
+ * - 404: The specified user was not found.
+ * - 500: Internal server error.
+ */
+router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield User_1.User.findOne({ user_id: req.params.user_id }); // Use findOne for custom user_id
+        const user = yield User_1.User.findOne({ user_id: req.body.user_id });
         if (!user) {
             res.status(404).json({ error: 'User not found' });
             return;
@@ -33,8 +44,10 @@ router.get('/users/:user_id', (req, res) => __awaiter(void 0, void 0, void 0, fu
         res.status(500).json({ error: 'Error fetching user' });
     }
 }));
-// POST: Create a new user
-router.post('/users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+/**
+ * WIP
+ */
+router.post('/new', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { user_id, username, bio, pronouns, tags, picture, settings } = req.body;
         const newUser = new User_1.User({
@@ -60,20 +73,36 @@ router.post('/users', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         res.status(400).json({ error: 'Error creating user', details: error });
     }
 }));
-// POST: Follow user
+/**
+ * @route POST /follow
+ * @desc Follow a user
+ * @access Private
+ *
+ * This endpoint allows authenticated users to follow other users on the site. If they
+ * are already following the user, it will allow them to unfollow.
+ *
+ * Request Body:
+ * - follow_user_id: The desired user's ID.
+ *
+ * Request User:
+ * - req.user.user_id: The current user's ID.
+ *
+ * Response:
+ * - 200: The user followed/unfollowed successfully.
+ * - 401: Unauthorized
+ * - 404: Error finding a user.
+ * - 500: Internal server error.
+ */
 router.post('/follow', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.user) {
         res.status(401).json({ message: `Unauthorized` });
         return;
     }
     try {
-        // Get IDs from req
         const currUser = req.user.user_id;
         const { follow_user_id } = req.body;
-        // Find users from database using IDs
         const user_to_follow = yield User_1.User.findOne({ user_id: follow_user_id });
         const user = yield User_1.User.findOne({ user_id: currUser });
-        // If either user doesn't exist, send an error
         if (!user) {
             res.status(404).json({ message: `Curr user not found: ${currUser}` });
             return;
@@ -82,41 +111,60 @@ router.post('/follow', (req, res) => __awaiter(void 0, void 0, void 0, function*
             res.status(404).json({ message: `User to follow not found: ${follow_user_id}` });
             return;
         }
-        // If user already follows, then unfollow
         if (user.followList.includes(follow_user_id)) {
-            // Remove the followed user from follow list
             yield user.updateOne({ $set: { followList: user.followList.filter(id => id !== follow_user_id) } });
-            // Update fields accordingly
             yield user.updateOne({ $inc: { following: -1 } });
             yield user_to_follow.updateOne({ $inc: { followers: -1 } });
         }
         else {
-            // If user isn't following, then follow
             yield user.updateOne({ $inc: { following: 1 } });
             yield (user_to_follow === null || user_to_follow === void 0 ? void 0 : user_to_follow.updateOne({ $inc: { followers: 1 } }));
-            // Add user to follow to the follow list
             user.followList.push(follow_user_id);
         }
-        // Save the new information of both users
         yield user.save(), user_to_follow.save();
-        res.status(200).json({ message: `Followed successfully. User's follows: ${user.following}. User to follow's followers: ${user_to_follow.followers}` });
+        res.status(200).json({ user, user_to_follow });
     }
     catch (err) {
         res.status(500).json({ message: 'Following error occurred:', err });
     }
 }));
-// PATCH: Edit profile 
+
+/**
+ * @route PATCH /profile
+ * @desc Edit profile
+ * @access Private
+ *
+ * This endpoint allows the user to edit their profile.
+ *
+ * Request Body:
+ * - username: The user's desired username. (required)
+ * - bio: The user's biography. (optional)
+ * - tags: Categories the user is interested in. (optional)
+ * - pronouns: The user's pronouns. (optional)
+ * - picture: The user's profile picture. (optional)
+ * - settings The user's desired account settings. (optional)
+ *
+ * Responses:
+ * - 200: The profile was updated successfully.
+ * - 401: Unauthorized.
+ * - 404: The user was not found.
+ * - 500: Internal server error.
+ *
+ */
 router.patch('/profile', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.user) {
         res.status(401).json({ message: `Unauthorized` });
         return;
     }
     try {
-        // Get profile fields from request
         const { username, bio, tags, pronouns, picture, settings } = req.body;
-        // Find user in database
         const user_id = req.user.user_id;
         const user = yield User_1.User.findOne({ user_id: user_id });
+        if (yield User_1.User.findOne({ username: username, user_id: { $ne: user_id } })) {
+            res.status(400).json({ message: `Username taken: ${username}` });
+            return;
+        }
+        ;
         if (!user) {
             res.status(404).json({ message: `User not found: ${user_id}` });
             return;
@@ -133,7 +181,6 @@ router.patch('/profile', (req, res) => __awaiter(void 0, void 0, void 0, functio
                 }, { new: true });
             }
         }
-        // Update user's profile fields to request values
         const updatedUser = yield User_1.User.findOneAndUpdate({ user_id: user_id }, {
             $set: {
                 username: username,
@@ -149,33 +196,57 @@ router.patch('/profile', (req, res) => __awaiter(void 0, void 0, void 0, functio
         res.status(500).json({ error: 'Error editing profile' });
     }
 }));
-// GET: Get current user's information
+/**
+ * @route GET /self
+ * @desc Get the user's information
+ * @access Private
+ *
+ * This endpoint allows an authorized user to obtain their information
+ *
+ * Request User:
+ * - req.user.user_id: The current user's user ID.
+ *
+ * Response:
+ * - 200: User information was retrieved successfully.
+ * - 401: Unauthorized.
+ */
 router.get('/self', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.user) {
         const user = yield User_1.User.findOne({ user_id: req.user.user_id });
-        res.json(user); // Send the user's name (or 'username' field)
+        res.status(200).json(user);
     }
     else {
         res.status(401).send('Unauthorized');
     }
 }));
-// GET: Get all user informatione except self
+/**
+ * @route GET /all
+ * @desc Get all user's information except self
+ * @access Private
+ *
+ * This endpoint allows an authorized user to retrieve information of all users except self by
+ * querying the users in the database.
+ *
+ * Request User:
+ * - currentUser: The user of the request
+ *
+ * Responses:
+ * - 200: All user information retrieved successfully.
+ * - 401: Unauthorized.
+ */
 router.get('/all', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // Check if the user is authenticated
         const currentUser = req.user;
         console.log("currentser", currentUser);
         if (!currentUser) {
             res.status(401).json({ error: 'Unauthorized' });
             return;
         }
-        // Query to fetch all users excluding the current authenticated user
         const users = yield User_1.User.find({ user_id: { $ne: currentUser === null || currentUser === void 0 ? void 0 : currentUser.user_id } });
-        // Respond with the list of users excluding the current user
-        res.json(users);
+        res.status(200).json(users);
     }
     catch (error) {
-        next(error); // Pass the error to the global error handler
+        next(error);
     }
 }));
 exports.default = router;

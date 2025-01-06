@@ -12,7 +12,8 @@ module.exports = {
       gray: colors.gray,
       blue: colors.blue,  // remove later
       green: colors.green,
-      'facebook' : '#415ca0'
+      'facebook' : '#415ca0', 
+      transparent: colors.transparent
     }
   },
   plugins: [],
