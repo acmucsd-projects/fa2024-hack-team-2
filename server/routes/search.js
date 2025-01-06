@@ -33,10 +33,15 @@ const router = express_1.default.Router();
  *
  * Response:
  * - 200: Search was successfully completed and retrieved posts.
- * - 400: No post was found with the desired inputs.
+ * - 400: No post was found with the desired inputs or no search specified.
  * - 500: Internal server error.
  */
 router.get('/posts', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.query.query) {
+        res.status(400).json({ message: 'Search not specified' });
+        return;
+    }
+    ;
     try {
         const query = req.query.query;
         const tags = req.query.tags ? req.query.tags.split(',') : null;
@@ -79,13 +84,13 @@ router.get('/posts', (req, res) => __awaiter(void 0, void 0, void 0, function* (
                     }
                 },
                 {
-                    $sort: Object.assign(Object.assign({}, (relevance && relevance in sortOptions
+                    $sort: Object.assign({ matchCount: -1 }, (relevance && relevance in sortOptions
                         ? sortOptions[relevance]
-                        : { likes: -1 })), { matchCount: -1 })
+                        : { likes: -1 }))
                 },
                 {
                     $project: {
-                        matchingTagsCount: 0
+                        matchCount: 0
                     }
                 }
             ]);
@@ -95,7 +100,7 @@ router.get('/posts', (req, res) => __awaiter(void 0, void 0, void 0, function* (
         }
         if (query) {
             results = results === null || results === void 0 ? void 0 : results.filter(post => {
-                return (0, levenshtein_edit_distance_1.levenshteinEditDistance)(query, post.title) <= 2;
+                return (0, levenshtein_edit_distance_1.levenshteinEditDistance)(query, post.title) <= 4;
             });
         }
         ;
@@ -120,10 +125,15 @@ router.get('/posts', (req, res) => __awaiter(void 0, void 0, void 0, function* (
  *
  * Response:
  * - 200: Search was successful.
- * - 400: No user found.
+ * - 400: No user found or no search specified.
  * - 500: Internal server error.
  */
 router.get('/users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.query.query) {
+        res.status(400).json({ message: 'Search not specified' });
+        return;
+    }
+    ;
     try {
         const allUsers = yield User_1.User.find().sort({ followers: -1 });
         if (!req.query.query) {

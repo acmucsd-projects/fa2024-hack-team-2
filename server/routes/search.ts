@@ -21,11 +21,15 @@ const router = express.Router();
  * 
  * Response:
  * - 200: Search was successfully completed and retrieved posts.
- * - 400: No post was found with the desired inputs.
+ * - 400: No post was found with the desired inputs or no search specified.
  * - 500: Internal server error.
  */
 
 router.get('/posts', async (req, res) => {
+    if(!req.query.query){
+        res.status(400).json({message: 'Search not specified'});
+        return;
+    };
     try {
         const query = req.query.query;
         const tags = req.query.tags ? (req.query.tags as string).split(','):null;
@@ -73,16 +77,17 @@ router.get('/posts', async (req, res) => {
                 },
                 {
                     $sort:{
+                        matchCount: -1,
                         ...(relevance && relevance in sortOptions
                             ? sortOptions[relevance]
                             : {likes: -1}
-                        ),
-                        matchCount: -1,
+                        )
+                        
                     }
                 },
                 {
                     $project: {
-                        matchingTagsCount: 0
+                        matchCount: 0
                     }
                 }
             ]);
@@ -92,7 +97,7 @@ router.get('/posts', async (req, res) => {
 
         if (query){
             results = results?.filter(post => {
-                return levenshteinEditDistance(query as string, post.title) <= 2;
+                return levenshteinEditDistance(query as string, post.title) <= 4;
             });
         };
         
@@ -118,13 +123,16 @@ router.get('/posts', async (req, res) => {
  * 
  * Response:
  * - 200: Search was successful.
- * - 400: No user found.
+ * - 400: No user found or no search specified.
  * - 500: Internal server error.
  */
 
 router.get('/users', async(req, res) => {
+    if(!req.query.query){
+        res.status(400).json({message: 'Search not specified'});
+        return;
+    };
     try {
-  
         const allUsers = await User.find().sort({followers: -1});
 
         if(!req.query.query){
