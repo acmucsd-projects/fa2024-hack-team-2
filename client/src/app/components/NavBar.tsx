@@ -10,8 +10,6 @@ import historyIcon from "/public/images/clock-solid.svg";
 import leaderboardIcon from "/public/images/award-solid.svg";
 import tempPFP from "/public/images/circle-solid.svg";
 import searchIcon from "/public/images/magnifying-glass-solid.svg";
-import ViewHistory from "./ViewHistory";
-import Leaderboard from "./Leaderboard";
 
 interface NavBarProps {
   handleComponentChange: (component: string) => void;
@@ -101,7 +99,7 @@ const NavBar: React.FC<NavBarProps> = ({ handleComponentChange }) => {
         <div
           className={`flex ${isMobileShowNav && window.innerWidth < 1024 ? "hidden" : ""}`}
         >
-          <NavBarLink image={createIcon} imageAlt={"Create"} ></NavBarLink>
+          <NavBarLink image={createIcon} imageAlt={"PostCreation"} onClick={() => handleComponentChange("PostCreation")}></NavBarLink>
           <NavBarLink image={historyIcon} imageAlt={"History"} onClick={() => handleComponentChange("history")}></NavBarLink>
           <NavBarLink image={messagesIcon} imageAlt={"Messages"} linkAddress="/messages"></NavBarLink>
           <NavBarLink image={leaderboardIcon} imageAlt={"Leaderboard"} onClick={() => handleComponentChange("leaderboard")}></NavBarLink>
