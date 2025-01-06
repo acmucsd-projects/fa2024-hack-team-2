@@ -23,9 +23,6 @@ app.set('port', port);
  */
 
 const server = http.createServer(app);
-/**
- * Connect to MongoDB
- */
 
 /**
  * Create SocketIO server
