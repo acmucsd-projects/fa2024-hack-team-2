@@ -13,7 +13,6 @@ const Chatlog = () => {
     const { username } = useUserContext();
     const [currentUserId, setCurrentUserId] = useState<string>("");
     const [conversationId, setConversationId] = useState<string>("");
-    const [loading, setLoading] = useState(false);
     const chatContainerRef = useRef<HTMLDivElement>(null); // Ref to the chat container
 
     const fetchUserData = async () => {
@@ -28,10 +27,13 @@ const Chatlog = () => {
         }
     };
 
+    // Load messages based on conversation ID
     const loadMessages = async (conversationId: string) => {
         try {
-            setLoading(true);
+            // Get conversation's messages from backend
             const response = await backendConnection.get(`/api/messages/${conversationId}`);
+
+            // Create array of the retrieved messages
             const messages = response.data.map((msg:any) => ({
                 sender: msg.user_id === currentUserId ? "user" : "other",
                 text: msg.message,
@@ -40,9 +42,7 @@ const Chatlog = () => {
             setMessages(messages);
         } catch (error){
             console.error("Error loading messages", error);
-        } finally{
-            setLoading(false);
-        }
+        } 
     }
 
     useEffect(() => {
