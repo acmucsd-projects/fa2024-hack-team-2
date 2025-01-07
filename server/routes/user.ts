@@ -215,8 +215,7 @@ router.patch('/profile', async (req, res) => {
 
 router.get('/self', async (req: Request, res: Response, next: NextFunction) => {
   if (req.user) {
-    const user = await User.findOne({ user_id: (req.user as IUser).user_id});
-    res.status(200).json(user);  
+    res.status(200).json((req.user as IUser).user_id);  
   } else {
     res.status(401).send('Unauthorized');
   }

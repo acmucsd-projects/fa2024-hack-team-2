@@ -128,7 +128,6 @@ router.post('/follow', (req, res) => __awaiter(void 0, void 0, void 0, function*
         res.status(500).json({ message: 'Following error occurred:', err });
     }
 }));
-
 /**
  * @route PATCH /profile
  * @desc Edit profile
@@ -146,6 +145,7 @@ router.post('/follow', (req, res) => __awaiter(void 0, void 0, void 0, function*
  *
  * Responses:
  * - 200: The profile was updated successfully.
+ * - 400: Username was taken.
  * - 401: Unauthorized.
  * - 404: The user was not found.
  * - 500: Internal server error.
@@ -212,8 +212,7 @@ router.patch('/profile', (req, res) => __awaiter(void 0, void 0, void 0, functio
  */
 router.get('/self', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.user) {
-        const user = yield User_1.User.findOne({ user_id: req.user.user_id });
-        res.status(200).json(user);
+        res.status(200).json(req.user.user_id);
     }
     else {
         res.status(401).send('Unauthorized');

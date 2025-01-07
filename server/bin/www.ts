@@ -9,7 +9,7 @@ import debug from 'debug';
 import http from 'http';
 import { Socket, Server} from 'socket.io';
 import mongoose from 'mongoose';
-import { Message } from '../models/messageSchema';
+import Message from '../models/Message';
 import { v4 as uuidv4} from 'uuid';
 
 /**
@@ -24,22 +24,6 @@ app.set('port', port);
  */
 
 const server = http.createServer(app);
-/**
- * Connect to MongoDB
- */
-
-// const mongoURI = process.env.MONGO_URI;
-
-// if (!mongoURI) {
-//   console.error('MONGO_URI is not defined in the environment variables.');
-//   process.exit(1); // Exit the process with a failure
-// }
-
-// mongoose.connect(mongoURI).then(() => {
-//   console.log('Connected to MongoDB');
-// }).catch((err) => {
-//   console.error('Error connecting to MongoDB:', err);
-// });
 
 /**
  * Create SocketIO server
@@ -77,13 +61,20 @@ io.on('connection', (socket: Socket) => {
 
   socket.on('send_message', async (data) => {
     const { message, user_id } = data;
-
+    const newMessage = new Message({
+      message: message,
+      user_id: user_id,
+      timestamp: new Date(),
+      conversation_id: conversation_id
+    })
     try {
-  // Broadcast the message to the unique chat room
+      // Broadcast the message to the unique chat room
       io.to(conversation_id).emit('receive_message', { message, user_id });
 
       // Optionally, acknowledge the sender that the message was sent
       socket.emit('message_sent', { success: true, message });
+
+      await newMessage.save();
     } catch (error) {
       console.error('Error sending message:', error);
       socket.emit('error_message', { error: 'Failed to send message' });

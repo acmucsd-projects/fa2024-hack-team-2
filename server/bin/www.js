@@ -21,6 +21,7 @@ const app_1 = __importDefault(require("../app"));
 const debug_1 = __importDefault(require("debug"));
 const http_1 = __importDefault(require("http"));
 const socket_io_1 = require("socket.io");
+const Message_1 = __importDefault(require("../models/Message"));
 /**
  * Get port from environment and store in Express.
  */
@@ -31,19 +32,6 @@ app_1.default.set('port', port);
  */
 const server = http_1.default.createServer(app_1.default);
 exports.server = server;
-/**
- * Connect to MongoDB
- */
-// const mongoURI = process.env.MONGO_URI;
-// if (!mongoURI) {
-//   console.error('MONGO_URI is not defined in the environment variables.');
-//   process.exit(1); // Exit the process with a failure
-// }
-// mongoose.connect(mongoURI).then(() => {
-//   console.log('Connected to MongoDB');
-// }).catch((err) => {
-//   console.error('Error connecting to MongoDB:', err);
-// });
 /**
  * Create SocketIO server
  */
@@ -72,11 +60,18 @@ io.on('connection', (socket) => {
     });
     socket.on('send_message', (data) => __awaiter(void 0, void 0, void 0, function* () {
         const { message, user_id } = data;
+        const newMessage = new Message_1.default({
+            message: message,
+            user_id: user_id,
+            timestamp: new Date(),
+            conversation_id: conversation_id
+        });
         try {
             // Broadcast the message to the unique chat room
             io.to(conversation_id).emit('receive_message', { message, user_id });
             // Optionally, acknowledge the sender that the message was sent
             socket.emit('message_sent', { success: true, message });
+            yield newMessage.save();
         }
         catch (error) {
             console.error('Error sending message:', error);

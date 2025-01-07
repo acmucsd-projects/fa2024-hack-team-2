@@ -16,8 +16,6 @@ const express_1 = __importDefault(require("express"));
 const Post_1 = __importDefault(require("../models/Post"));
 const User_1 = require("../models/User");
 const mongoose_1 = __importDefault(require("mongoose"));
-const User_1 = require("../models/User");
-const mongoose_1 = __importDefault(require("mongoose"));
 const router = express_1.default.Router();
 /**
  * @route POST /
@@ -58,7 +56,6 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             brand,
             cost,
             numStores,
-            author: req.user.user_id,
             author: req.user.user_id,
             available_stores,
             image,
@@ -316,4 +313,5 @@ router.patch("/like", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         res.status(500).json({ error: "Error liking post" });
     }
 }));
+// Export the router
 exports.default = router;

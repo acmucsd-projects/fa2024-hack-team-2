@@ -12,11 +12,13 @@ const Chatlog = () => {
     const { selectedUserId } = useUserContext(); // Access the selectedUserId from context
     const { username } = useUserContext();
     const [currentUserId, setCurrentUserId] = useState<string>("");
+    const [conversationId, setConversationId] = useState<string>("");
+    const [loading, setLoading] = useState(false);
     const chatContainerRef = useRef<HTMLDivElement>(null); // Ref to the chat container
 
     const fetchUserData = async () => {
         try {
-            const response = await backendConnection.get("users/self", { withCredentials: true })
+            const response = await backendConnection.get("user/self", { withCredentials: true })
                 .then((res) => res.data)
                 .then((data) => {
                     setCurrentUserId(data);
@@ -26,10 +28,35 @@ const Chatlog = () => {
         }
     };
 
+    const loadMessages = async (conversationId: string) => {
+        try {
+            setLoading(true);
+            const response = await backendConnection.get(`/api/messages/${conversationId}`);
+            const messages = response.data.map((msg:any) => ({
+                sender: msg.user_id === currentUserId ? "user" : "other",
+                text: msg.message,
+                timestamp: new Date(msg.timestamp).toLocaleTimeString,
+            }));
+            setMessages(messages);
+        } catch (error){
+            console.error("Error loading messages", error);
+        } finally{
+            setLoading(false);
+        }
+    }
+
     useEffect(() => {
         if (selectedUserId) {
+            const newConversationId = currentUserId > selectedUserId 
+                ? `${currentUserId}${selectedUserId}` 
+                : `${selectedUserId}${currentUserId}`;
+            
+            setConversationId(newConversationId);
+
             // Emit 'join_chat' event to the server
             socket.emit("join_chat", currentUserId, selectedUserId);
+
+            loadMessages(newConversationId);
 
             // Listen for new messages
             socket.on("receive_message", (data) => {
@@ -48,9 +75,12 @@ const Chatlog = () => {
                 socket.off("receive_message");
             };
         }
-        fetchUserData();
     }, [selectedUserId, currentUserId]);
 
+
+    useEffect(() => {
+        fetchUserData();
+    }, []);
     // Scroll to the newest message when `messages` updates
     useEffect(() => {
         if (chatContainerRef.current) {

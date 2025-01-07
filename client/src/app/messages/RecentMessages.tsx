@@ -11,7 +11,7 @@ const RecentMessages: React.FC = () => {
 
     // For now the "recent messages" are jsut going to be all users until we can estabilsh saving messages in database
     const fetchRecentMessages = async () => {
-        const response = await backendConnection.get('users/all', { withCredentials: true })
+        const response = await backendConnection.get('user/all', { withCredentials: true })
             .then((res) => res.data)
             .then((data) => {
                 console.log("users")
