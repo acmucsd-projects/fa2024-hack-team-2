@@ -145,6 +145,7 @@ router.post('/follow', (req, res) => __awaiter(void 0, void 0, void 0, function*
  *
  * Responses:
  * - 200: The profile was updated successfully.
+ * - 400: Username was taken.
  * - 401: Unauthorized.
  * - 404: The user was not found.
  * - 500: Internal server error.

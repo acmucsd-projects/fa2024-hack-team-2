@@ -8,6 +8,7 @@ interface IPost {
   brand?: string;
   cost?: number;
   likes: number;
+  likesList: String[];
   numStores?: number;
   author: string; // user_id of the post author
   available_stores?: string[];
@@ -29,6 +30,7 @@ const postSchema = new Schema<IPost>({
   image: { type: String, required: true },
   tags: { type: [String], default: [] },
   date_created: { type: String, required: true },
+  likesList: { type: [String], default: [] },
 });
 
 const Post: Model<IPost> = mongoose.model<IPost>('Post', postSchema);

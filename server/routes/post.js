@@ -16,10 +16,6 @@ const express_1 = __importDefault(require("express"));
 const Post_1 = __importDefault(require("../models/Post"));
 const User_1 = require("../models/User");
 const mongoose_1 = __importDefault(require("mongoose"));
-const User_1 = require("../models/User");
-const mongoose_1 = __importDefault(require("mongoose"));
-const User_1 = require("../models/User");
-const mongoose_1 = __importDefault(require("mongoose"));
 const router = express_1.default.Router();
 /**
  * @route POST /
@@ -52,6 +48,11 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return;
     }
     try {
+        const author = yield User_1.User.findOne({ user_id: req.user.user_id });
+        if (!author) {
+            res.status(404).json({ error: "User not found" });
+            return;
+        }
         const { title, product_details, material, brand, cost, numStores, available_stores, image, tags, } = req.body;
         const newPost = new Post_1.default({
             title,
@@ -60,7 +61,6 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             brand,
             cost,
             numStores,
-            author: req.user.user_id,
             author: req.user.user_id,
             available_stores,
             image,
@@ -71,8 +71,11 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 day: "2-digit",
             }),
         });
+        // adding post to the author's list of posts
+        author.posts.push(new mongoose_1.default.Types.ObjectId(newPost._id));
         const savedPost = yield newPost.save();
-        res.status(201).json(savedPost);
+        yield author.save();
+        res.status(201).json({ "message": "Post created successfully", savedPost });
     }
     catch (error) {
         console.error("Error creating post:", error);
@@ -114,7 +117,8 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
  * @desc Delete a post by its _id
  * @access Private
  *
- * This endpoint allows an authenticated user to delete a post.
+ * This endpoint allows an authenticated user to delete a post. The post is deleted from the user's posts
+ * and the totalLikes of the author is decreased by the number of likes the post has.
  *
  * Request body:
  * - post_id: The ID of the post to be deleted. (required)
@@ -143,6 +147,22 @@ router.delete("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             res.status(401).json({ error: "Unauthorized" });
             return;
         }
+        const author = yield User_1.User.findOne({ user_id: user_id });
+        if (!author) {
+            console.log("Author not found");
+            throw new Error("Author not found");
+        }
+        // Deleting the post from the author's list of posts
+        author.posts = author.posts.filter(postId => (postId.toString() !== post_id.toString()));
+        author.totalLikes -= post.likes;
+        // Deleting the post from the liked user's list of liked posts
+        const likedUser = yield User_1.User.find({ user_id: { $in: post.likesList } });
+        likedUser.forEach((likedUser) => __awaiter(void 0, void 0, void 0, function* () {
+            likedUser.liked = likedUser.liked.filter(likedPostId => likedPostId.toString() !== post_id.toString());
+            yield likedUser.save();
+        }));
+        // Saving the author changes since we are deleting post and decreasing the totalLikes
+        yield author.save();
         yield Post_1.default.deleteOne({ _id: post_id });
         res.status(200).json({ message: "Post deleted successfully" });
     }
@@ -247,7 +267,12 @@ router.patch("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
  */
 router.get("/author", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const posts = yield Post_1.default.find({ author: req.body.user_id }); // Find all posts by author
+        const user = yield User_1.User.findOne({ user_id: req.body.user_id });
+        if (!user) {
+            res.status(404).json({ error: "User not found" });
+            return;
+        }
+        const posts = yield Post_1.default.find({ _id: { $in: user.posts } });
         res.status(200).json(posts);
     }
     catch (error) {
@@ -263,6 +288,8 @@ router.get("/author", (req, res) => __awaiter(void 0, void 0, void 0, function* 
  * This endpoint allows an authenticated user to like or unlike a post.
  * If the user has already liked the post, it will be unliked.
  * If the user has not liked the post, it will be liked.
+ * The totalLikes of the post and the author will be updated accordingly.
+ * The user's liked posts list will also be updated.
  *
  * Request body:
  * - post_id: The ID of the post to be liked or unliked.
@@ -280,38 +307,45 @@ router.patch("/like", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         return;
     }
     try {
-        console.log("request body:", req.body);
-        const post_id = new mongoose_1.default.Types.ObjectId(req.body.post_id);
+        const post_id = req.body.post_id;
         const user_id = req.user.user_id;
-        console.log("This is the user id: ", user_id);
         // Validate post_id
         if (!mongoose_1.default.Types.ObjectId.isValid(post_id)) {
             res.status(400).json({ error: "Invalid post_id format" });
-            return;
         }
         const post = yield Post_1.default.findById(post_id);
         if (!post) {
             res.status(404).json({ error: "Post not found" });
             return;
         }
-        console.log("Fetched post:", post);
-        const user = yield User_1.User.findOne({ user_id: user_id });
+        const [author, user] = yield Promise.all([
+            User_1.User.findOne({ user_id: post.author }),
+            User_1.User.findOne({ user_id: user_id })
+        ]);
+        if (!author) {
+            res.status(404).json({ error: "Author not found" });
+            return;
+        }
         if (!user) {
             res.status(404).json({ error: "User not found" });
             return;
         }
-        const index = user.liked.indexOf(post_id.toString());
+        const postObjectId = new mongoose_1.default.Types.ObjectId(post_id);
+        const index = user.liked.indexOf(postObjectId);
         if (index !== -1) {
             user.liked.splice(index, 1);
             post.likes--;
+            author.totalLikes--;
+            post.likesList = post.likesList.filter(id => id.toString() !== user_id);
         }
         else {
-            user.liked.push(post_id.toString());
+            user.liked.push(postObjectId);
             post.likes++;
+            author.totalLikes++;
+            post.likesList.push(user_id);
         }
-        yield user.save();
-        yield post.save();
-        res.status(200).json({ message: "Post liked/unliked successfully", post });
+        yield Promise.all([user.save(), post.save(), author.save()]);
+        res.status(200).json({ message: "Post liked/unliked successfully" });
     }
     catch (error) {
         console.error("Error liking post:", error);

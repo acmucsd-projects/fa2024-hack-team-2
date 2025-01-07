@@ -47,6 +47,7 @@ const postSchema = new mongoose_1.Schema({
     image: { type: String, required: true },
     tags: { type: [String], default: [] },
     date_created: { type: String, required: true },
+    likesList: { type: [String], default: [] },
 });
 const Post = mongoose_1.default.model('Post', postSchema);
 exports.default = Post;

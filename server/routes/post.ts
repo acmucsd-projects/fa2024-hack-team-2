@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import Post from "../models/Post";
 import { User, IUser } from "../models/User";
-import mongoose from "mongoose";
+import mongoose, { Mongoose } from "mongoose";
 
 const router = express.Router();
 
@@ -37,6 +37,13 @@ router.post("/", async (req: Request, res: Response) => {
   }
 
   try {
+    const author = await User.findOne({ user_id: (req.user as IUser).user_id });
+
+    if (!author) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
     const {
       title,
       product_details,
@@ -67,9 +74,13 @@ router.post("/", async (req: Request, res: Response) => {
         day: "2-digit",
       }),
     });
-
+    
+    // adding post to the author's list of posts
+    author.posts.push(new mongoose.Types.ObjectId(newPost._id));
     const savedPost = await newPost.save();
-    res.status(201).json(savedPost);
+    await author.save();
+
+    res.status(201).json({"message": "Post created successfully", savedPost});
   } catch (error) {
     console.error("Error creating post:", error);
     res.status(400).json({ error: "Error creating post", details: error });
@@ -111,7 +122,9 @@ router.get("/", async (req: Request, res: Response) => {
  * @desc Delete a post by its _id
  * @access Private
  *
- * This endpoint allows an authenticated user to delete a post.
+ * This endpoint allows an authenticated user to delete a post. The post is deleted from the user's posts 
+ * and the totalLikes of the author is decreased by the number of likes the post has.
+ * This allow deletes the post from the liked user's list of liked posts.
  *
  * Request body:
  * - post_id: The ID of the post to be deleted. (required)
@@ -144,6 +157,25 @@ router.delete("/", async (req: Request, res: Response) => {
       return;
     }
 
+    const author = await User.findOne({user_id: user_id});
+    if(!author){
+      console.log("Author not found");
+      throw new Error("Author not found");
+    }
+
+    // Deleting the post from the author's list of posts
+    author.posts = author.posts.filter(postId => (postId.toString() !== post_id.toString()));
+    author.totalLikes -= post.likes;
+    
+    // Deleting the post from the liked user's list of liked posts
+    const likedUser = await User.find({user_id: {$in: post.likesList}});
+    likedUser.forEach(async (likedUser) => {
+      likedUser.liked = likedUser.liked.filter(likedPostId => likedPostId.toString() !== post_id.toString());
+      await likedUser.save();
+    });
+
+    // Saving the author changes since we are deleting post and decreasing the totalLikes
+    await author.save();
     await Post.deleteOne({ _id: post_id });
     res.status(200).json({ message: "Post deleted successfully" });
   } catch (error) {
@@ -264,7 +296,13 @@ router.patch("/", async (req: Request, res: Response) => {
  */
 router.get("/author", async (req: Request, res: Response) => {
   try {
-    const posts = await Post.find({ author: req.body.user_id }); // Find all posts by author
+    const user = await User.findOne({ user_id: req.body.user_id });
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    const posts = await Post.find({ _id: { $in: user.posts } });
     res.status(200).json(posts);
   } catch (error) {
     console.error("Error fetching posts by author:", error);
@@ -280,6 +318,8 @@ router.get("/author", async (req: Request, res: Response) => {
  * This endpoint allows an authenticated user to like or unlike a post.
  * If the user has already liked the post, it will be unliked.
  * If the user has not liked the post, it will be liked.
+ * The totalLikes of the post and the author will be updated accordingly.
+ * The user's liked posts list will also be updated.
  *
  * Request body:
  * - post_id: The ID of the post to be liked or unliked.
@@ -298,15 +338,12 @@ router.patch("/like", async (req: Request, res: Response) => {
   }
 
   try {
-    console.log("request body:", req.body);
-    const post_id = new mongoose.Types.ObjectId(req.body.post_id);
+    const post_id = req.body.post_id;
     const user_id = (req.user as IUser).user_id;
-    console.log("This is the user id: ", user_id);
 
     // Validate post_id
     if (!mongoose.Types.ObjectId.isValid(post_id)) {
       res.status(400).json({ error: "Invalid post_id format" });
-      return;
     }
 
     const post = await Post.findById(post_id);
@@ -315,27 +352,38 @@ router.patch("/like", async (req: Request, res: Response) => {
       return;
     }
 
-    console.log("Fetched post:", post);
+    const [author, user] = await Promise.all([
+      User.findOne({ user_id: post.author }),
+      User.findOne({ user_id: user_id })
+    ]);
 
-    const user = await User.findOne({ user_id: user_id });
+    if (!author) {
+      res.status(404).json({ error: "Author not found" });
+      return;
+    }
+
     if (!user) {
       res.status(404).json({ error: "User not found" });
       return;
     }
 
-    const index = user.liked.indexOf(post_id.toString());
+    const postObjectId = new mongoose.Types.ObjectId(post_id);
+    const index = user.liked.indexOf(postObjectId);
+
     if (index !== -1) {
       user.liked.splice(index, 1);
       post.likes--;
+      author.totalLikes--;
+      post.likesList = post.likesList.filter(id => id.toString() !== user_id);
     } else {
-      user.liked.push(post_id.toString());
+      user.liked.push(postObjectId);
       post.likes++;
+      author.totalLikes++;
+      post.likesList.push(user_id);
     }
 
-    await user.save();
-    await post.save();
-
-    res.status(200).json({ message: "Post liked/unliked successfully", post });
+    await Promise.all([user.save(), post.save(), author.save()]);
+    res.status(200).json({ message: "Post liked/unliked successfully"});
   } catch (error) {
     console.error("Error liking post:", error);
     res.status(500).json({ error: "Error liking post" });
