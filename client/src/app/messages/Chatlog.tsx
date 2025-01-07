@@ -47,6 +47,7 @@ const Chatlog = () => {
 
     useEffect(() => {
         if (selectedUserId) {
+            // Create the conversation ID (same logic as backend)
             const newConversationId = currentUserId > selectedUserId 
                 ? `${currentUserId}${selectedUserId}` 
                 : `${selectedUserId}${currentUserId}`;
@@ -56,6 +57,7 @@ const Chatlog = () => {
             // Emit 'join_chat' event to the server
             socket.emit("join_chat", currentUserId, selectedUserId);
 
+            // Call load messages to load the messages associated with the conversation ID
             loadMessages(newConversationId);
 
             // Listen for new messages
