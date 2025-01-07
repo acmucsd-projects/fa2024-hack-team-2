@@ -48,7 +48,7 @@ router.get('/', async (req: Request, res: Response) => {
       console.error('Error fetching user:', error);
       res.status(500).json({ error: 'Error fetching user' });
     }
-  });
+});
   
 /**
  * WIP
@@ -292,6 +292,7 @@ router.get('/all', async (req: Request, res: Response, next: NextFunction) => {
 router.get('/history', async(req, res) => {
   if (!req.user){
     res.status(401).json({error: 'Unauthorized'});
+    return;
   }
 
   try {

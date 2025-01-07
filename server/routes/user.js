@@ -258,10 +258,27 @@ router.get('/all', (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         next(error);
     }
 }));
-// GET: View user history
+/**
+ * @route GET /history
+ * @desc View user's history
+ * @access Private
+ *
+ * Allows an authenticated user to view their viewed user history.
+ *
+ * Request User:
+ * - req.user.user_id: The user's user ID
+ *
+ * Response:
+ * - 200: Retrieved history data successfully.
+ * - 400: No users were found in history.
+ * - 401: Unauthorized
+ * - 404: User not found
+ * - 500: Internal server error
+ */
 router.get('/history', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.user) {
         res.status(401).json({ error: 'Unauthorized' });
+        return;
     }
     try {
         const user = yield User_1.User.findOne({ user_id: req.user.user_id });
@@ -281,7 +298,22 @@ router.get('/history', (req, res) => __awaiter(void 0, void 0, void 0, function*
         res.status(500).json({ err: "Error fetching user history" });
     }
 }));
-// PATCH: clear history
+/**
+ * @route PATCH /history/clear
+ * @desc Allows user to clear history
+ * @access Private
+ *
+ * This endpoint allows an authenticated user to clear their viewed user history.
+ *
+ * Request User:
+ * - req.user.user_id: The user's user ID.
+ *
+ * Response:
+ * - 200: The post history was clear successfully.
+ * - 401: Unauthorized.
+ * - 404: User was not found.
+ * - 500: Internal server error
+ */
 router.patch('/history/clear', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.user) {
         res.status(401).json({ message: "Not authorized" });
