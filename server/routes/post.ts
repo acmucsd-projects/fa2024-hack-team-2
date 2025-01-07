@@ -1,9 +1,12 @@
 import express, { Request, Response } from "express";
 import Post from "../models/Post";
 import { User, IUser } from "../models/User";
-import mongoose, { Mongoose } from "mongoose";
+import mongoose from "mongoose";
+import multer from "multer";
 
 const router = express.Router();
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 /**
  * @route POST /
@@ -20,72 +23,91 @@ const router = express.Router();
  * - cost: The cost of the product. (optional)
  * - numStores: The number of stores where the product is available. (optional)
  * - available_stores: The list of available stores. (optional)
- * - image: The image URL of the product. (required)
  * - tags: The list of tags associated with the post. (optional)
- * - date_created: The date the post was created. (automatically generated)
+ * - images: Array of image files. (required, up to 3 images)
  *
  * Response:
  * - 201: Post created successfully.
  * - 400: Error creating post.
  * - 401: Unauthorized (if the user is not authenticated).
+ * - 404: User not found.
  * - 500: Internal server error.
  */
-router.post("/", async (req: Request, res: Response) => {
-  if (!req.user) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
-
-  try {
-    const author = await User.findOne({ user_id: (req.user as IUser).user_id });
-
-    if (!author) {
-      res.status(404).json({ error: "User not found" });
+router.post(
+  "/",
+  upload.array("images", 3),
+  async (req: Request, res: Response) => {
+    if (!req.user) {
+      res.status(401).json({ error: "Unauthorized" });
       return;
     }
 
-    const {
-      title,
-      product_details,
-      material,
-      brand,
-      cost,
-      numStores,
-      available_stores,
-      image,
-      tags,
-    } = req.body;
+    try {
+      const author = await User.findOne({
+        user_id: (req.user as IUser).user_id,
+      });
 
+      if (!author) {
+        res.status(404).json({ error: "User not found" });
+        return;
+      }
 
-    const newPost = new Post({
-      title,
-      product_details,
-      material,
-      brand,
-      cost,
-      numStores,
-      author: (req.user as IUser).user_id,
-      available_stores,
-      image,
-      tags,
-      date_created: new Date().toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      }),
-    });
-    
-    // adding post to the author's list of posts
-    author.posts.push(new mongoose.Types.ObjectId(newPost._id));
-    const savedPost = await newPost.save();
-    await author.save();
+      const {
+        title,
+        product_details,
+        material,
+        brand,
+        cost,
+        numStores,
+        available_stores,
+        tags,
+      } = req.body;
 
-    res.status(201).json({"message": "Post created successfully", savedPost});
-  } catch (error) {
-    console.error("Error creating post:", error);
-    res.status(400).json({ error: "Error creating post", details: error });
+      const images = req.files
+        ? (req.files as Express.Multer.File[]).map((file) => ({
+            data: file.buffer,
+            contentType: file.mimetype,
+          }))
+        : [];
+
+      // Debug statements for images
+      console.log(`Number of images uploaded: ${images.length}`);
+      images.forEach((image, index) => {
+        console.log(`Image ${index + 1}:`);
+        console.log(`- Content Type: ${image.contentType}`);
+        console.log(`- Size: ${image.data.length} bytes`);
+      });
+
+      const newPost = new Post({
+        title,
+        product_details,
+        material,
+        brand,
+        cost,
+        numStores,
+        author: (req.user as IUser).user_id,
+        available_stores,
+        images,
+        tags,
+        date_created: new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }),
+      });
+
+      // adding post to the author's list of posts
+      author.posts.push(new mongoose.Types.ObjectId(newPost._id));
+      const savedPost = await newPost.save();
+      await author.save();
+
+      res.status(201).json({ message: "Post created successfully", savedPost });
+    } catch (error) {
+      console.error("Error creating post:", error);
+      res.status(400).json({ error: "Error creating post", details: error });
+    }
   }
-});
+);
 
 /**
  * @route GET /
@@ -99,6 +121,7 @@ router.post("/", async (req: Request, res: Response) => {
  *
  * Response:
  * - 200: Post retrieved successfully.
+ *   - The response includes the post details along with base64-encoded image data.
  * - 404: Post not found.
  * - 500: Internal server error.
  */
@@ -110,7 +133,17 @@ router.get("/", async (req: Request, res: Response) => {
       res.status(404).json({ error: "Post not found" });
       return;
     }
-    res.status(200).json(post);
+
+    // Convert image data to base64-encoded strings
+    const postWithBase64Images = {
+      ...post.toObject(),
+      images: post.images.map(image => ({
+        contentType: image.contentType,
+        data: image.data.toString('base64')
+      }))
+    };
+
+    res.status(200).json(postWithBase64Images);
   } catch (error) {
     console.error("Error fetching post:", error);
     res.status(500).json({ error: "Error fetching post" });
@@ -122,7 +155,7 @@ router.get("/", async (req: Request, res: Response) => {
  * @desc Delete a post by its _id
  * @access Private
  *
- * This endpoint allows an authenticated user to delete a post. The post is deleted from the user's posts 
+ * This endpoint allows an authenticated user to delete a post. The post is deleted from the user's posts
  * and the totalLikes of the author is decreased by the number of likes the post has.
  * This allow deletes the post from the liked user's list of liked posts.
  *
@@ -157,20 +190,24 @@ router.delete("/", async (req: Request, res: Response) => {
       return;
     }
 
-    const author = await User.findOne({user_id: user_id});
-    if(!author){
+    const author = await User.findOne({ user_id: user_id });
+    if (!author) {
       console.log("Author not found");
       throw new Error("Author not found");
     }
 
     // Deleting the post from the author's list of posts
-    author.posts = author.posts.filter(postId => (postId.toString() !== post_id.toString()));
+    author.posts = author.posts.filter(
+      (postId) => postId.toString() !== post_id.toString()
+    );
     author.totalLikes -= post.likes;
-    
+
     // Deleting the post from the liked user's list of liked posts
-    const likedUser = await User.find({user_id: {$in: post.likesList}});
+    const likedUser = await User.find({ user_id: { $in: post.likesList } });
     likedUser.forEach(async (likedUser) => {
-      likedUser.liked = likedUser.liked.filter(likedPostId => likedPostId.toString() !== post_id.toString());
+      likedUser.liked = likedUser.liked.filter(
+        (likedPostId) => likedPostId.toString() !== post_id.toString()
+      );
       await likedUser.save();
     });
 
@@ -200,8 +237,8 @@ router.delete("/", async (req: Request, res: Response) => {
  * - cost: The cost of the product. (optional)
  * - numStores: The number of stores where the product is available. (optional)
  * - available_stores: The list of available stores. (optional)
- * - image: The image URL of the product. (optional)
  * - tags: The list of tags associated with the post. (optional)
+ * - images: Array of image files. (optional, up to 3 images)
  *
  * Response:
  * - 200: Post updated successfully.
@@ -210,74 +247,84 @@ router.delete("/", async (req: Request, res: Response) => {
  * - 404: Post not found.
  * - 500: Internal server error.
  */
-router.patch("/", async (req: Request, res: Response) => {
-  if (!req.user) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
-
-  try {
-    const post_id = new mongoose.Types.ObjectId(req.body.post_id);
-    const user_id = (req.user as IUser).user_id;
-
-    const post = await Post.findById(post_id);
-    if (!post) {
-      res.status(404).json({ error: "Post not found" });
-      return;
-    }
-
-    if (post.author !== user_id) {
+router.patch(
+  "/",
+  upload.array("images", 3),
+  async (req: Request, res: Response) => {
+    if (!req.user) {
       res.status(401).json({ error: "Unauthorized" });
       return;
     }
 
-    const {
-      title,
-      product_details,
-      material,
-      brand,
-      cost,
-      numStores,
-      available_stores,
-      image,
-      tags,
-    } = req.body;
+    try {
+      const post_id = new mongoose.Types.ObjectId(req.body.post_id);
+      const user_id = (req.user as IUser).user_id;
 
-    if (title) {
-      post.title = title;
-    }
-    if (product_details) {
-      post.product_details = product_details;
-    }
-    if (material) {
-      post.material = material;
-    }
-    if (brand) {
-      post.brand = brand;
-    }
-    if (cost) {
-      post.cost = cost;
-    }
-    if (numStores) {
-      post.numStores = numStores;
-    }
-    if (available_stores) {
-      post.available_stores = available_stores;
-    }
-    if (image) {
-      post.image = image;
-    }
-    if (tags) {
-      post.tags = tags;
-    }
+      const post = await Post.findById(post_id);
+      if (!post) {
+        res.status(404).json({ error: "Post not found" });
+        return;
+      }
 
-    await post.save();
-    res.status(200).json({ message: "Post updated successfully", post });
-  } catch (error) {
-    console.error("Error updating post:", error);
-    res.status(500).json({ error: "Error updating post" });
+      if (post.author !== user_id) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+
+      const {
+        title,
+        product_details,
+        material,
+        brand,
+        cost,
+        numStores,
+        available_stores,
+        image,
+        tags,
+      } = req.body;
+
+      if (title) {
+        post.title = title;
+      }
+      if (product_details) {
+        post.product_details = product_details;
+      }
+      if (material) {
+        post.material = material;
+      }
+      if (brand) {
+        post.brand = brand;
+      }
+      if (cost) {
+        post.cost = cost;
+      }
+      if (numStores) {
+        post.numStores = numStores;
+      }
+      if (available_stores) {
+        post.available_stores = available_stores;
+      }
+      if (tags) {
+        post.tags = tags;
+      }
+
+      if (Array.isArray(req.files) && req.files.length > 0) {
+        const images = (req.files as Express.Multer.File[]).map(file => ({
+          data: file.buffer,
+          contentType: file.mimetype,
+        }));
+  
+        post.images = images;
+      }
+
+      await post.save();
+      res.status(200).json({ message: "Post updated successfully", post });
+    } catch (error) {
+      console.error("Error updating post:", error);
+      res.status(500).json({ error: "Error updating post" });
+    }
   }
-});
+);
 
 /**
  * @route GET /author
@@ -291,6 +338,7 @@ router.patch("/", async (req: Request, res: Response) => {
  *
  * Response:
  * - 200: Posts retrieved successfully.
+ *   - The response includes the post details along with base64-encoded image data for each post.
  * - 404: No posts found for the given author.
  * - 500: Internal server error.
  */
@@ -303,7 +351,17 @@ router.get("/author", async (req: Request, res: Response) => {
     }
 
     const posts = await Post.find({ _id: { $in: user.posts } });
-    res.status(200).json(posts);
+
+    // Convert image data to base64-encoded strings for each post
+    const postsWithBase64Images = posts.map(post => ({
+      ...post.toObject(),
+      images: post.images.map(image => ({
+        contentType: image.contentType,
+        data: image.data.toString('base64')
+      }))
+    }));
+
+    res.status(200).json(postsWithBase64Images);
   } catch (error) {
     console.error("Error fetching posts by author:", error);
     res.status(500).json({ error: "Error fetching posts by author" });
@@ -354,7 +412,7 @@ router.patch("/like", async (req: Request, res: Response) => {
 
     const [author, user] = await Promise.all([
       User.findOne({ user_id: post.author }),
-      User.findOne({ user_id: user_id })
+      User.findOne({ user_id: user_id }),
     ]);
 
     if (!author) {
@@ -374,7 +432,7 @@ router.patch("/like", async (req: Request, res: Response) => {
       user.liked.splice(index, 1);
       post.likes--;
       author.totalLikes--;
-      post.likesList = post.likesList.filter(id => id.toString() !== user_id);
+      post.likesList = post.likesList.filter((id) => id.toString() !== user_id);
     } else {
       user.liked.push(postObjectId);
       post.likes++;
@@ -383,7 +441,7 @@ router.patch("/like", async (req: Request, res: Response) => {
     }
 
     await Promise.all([user.save(), post.save(), author.save()]);
-    res.status(200).json({ message: "Post liked/unliked successfully"});
+    res.status(200).json({ message: "Post liked/unliked successfully" });
   } catch (error) {
     console.error("Error liking post:", error);
     res.status(500).json({ error: "Error liking post" });

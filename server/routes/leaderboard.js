@@ -17,7 +17,7 @@ const User_1 = require("../models/User");
 const router = express_1.default.Router();
 router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const leaderboard = yield User_1.User.find({}).sort({ totalLikes: -1 }).limit(10);
+        const leaderboard = yield User_1.User.find({}).sort({ totalLikes: -1 }).limit(7);
         res.json(leaderboard);
     }
     catch (error) {

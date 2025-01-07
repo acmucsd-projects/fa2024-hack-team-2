@@ -34,6 +34,10 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
+const imageSchema = new mongoose_1.Schema({
+    data: { type: Buffer, required: true },
+    contentType: { type: String, required: true },
+});
 const postSchema = new mongoose_1.Schema({
     title: { type: String, required: true },
     product_details: { type: String },
@@ -44,7 +48,7 @@ const postSchema = new mongoose_1.Schema({
     numStores: { type: Number },
     author: { type: String, required: true },
     available_stores: { type: [String], default: [] },
-    image: { type: String, required: true },
+    images: { type: [imageSchema], required: true }, // Array of image schemas
     tags: { type: [String], default: [] },
     date_created: { type: String, required: true },
     likesList: { type: [String], default: [] },

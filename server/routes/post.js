@@ -16,7 +16,10 @@ const express_1 = __importDefault(require("express"));
 const Post_1 = __importDefault(require("../models/Post"));
 const User_1 = require("../models/User");
 const mongoose_1 = __importDefault(require("mongoose"));
+const multer_1 = __importDefault(require("multer"));
 const router = express_1.default.Router();
+const storage = multer_1.default.memoryStorage();
+const upload = (0, multer_1.default)({ storage: storage });
 /**
  * @route POST /
  * @desc Create a new post
@@ -42,18 +45,33 @@ const router = express_1.default.Router();
  * - 401: Unauthorized (if the user is not authenticated).
  * - 500: Internal server error.
  */
-router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/", upload.array("images", 3), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.user) {
         res.status(401).json({ error: "Unauthorized" });
         return;
     }
     try {
-        const author = yield User_1.User.findOne({ user_id: req.user.user_id });
+        const author = yield User_1.User.findOne({
+            user_id: req.user.user_id,
+        });
         if (!author) {
             res.status(404).json({ error: "User not found" });
             return;
         }
-        const { title, product_details, material, brand, cost, numStores, available_stores, image, tags, } = req.body;
+        const { title, product_details, material, brand, cost, numStores, available_stores, tags, } = req.body;
+        const images = req.files
+            ? req.files.map((file) => ({
+                data: file.buffer,
+                contentType: file.mimetype,
+            }))
+            : [];
+        // Debug statements for images
+        console.log(`Number of images uploaded: ${images.length}`);
+        images.forEach((image, index) => {
+            console.log(`Image ${index + 1}:`);
+            console.log(`- Content Type: ${image.contentType}`);
+            console.log(`- Size: ${image.data.length} bytes`);
+        });
         const newPost = new Post_1.default({
             title,
             product_details,
@@ -63,7 +81,7 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             numStores,
             author: req.user.user_id,
             available_stores,
-            image,
+            images,
             tags,
             date_created: new Date().toLocaleDateString("en-US", {
                 year: "numeric",
@@ -75,7 +93,7 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         author.posts.push(new mongoose_1.default.Types.ObjectId(newPost._id));
         const savedPost = yield newPost.save();
         yield author.save();
-        res.status(201).json({ "message": "Post created successfully", savedPost });
+        res.status(201).json({ message: "Post created successfully", savedPost });
     }
     catch (error) {
         console.error("Error creating post:", error);
@@ -105,7 +123,12 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             res.status(404).json({ error: "Post not found" });
             return;
         }
-        res.status(200).json(post);
+        // Convert image data to base64-encoded strings
+        const postWithBase64Images = Object.assign(Object.assign({}, post.toObject()), { images: post.images.map(image => ({
+                contentType: image.contentType,
+                data: image.data.toString('base64')
+            })) });
+        res.status(200).json(postWithBase64Images);
     }
     catch (error) {
         console.error("Error fetching post:", error);
@@ -119,6 +142,7 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
  *
  * This endpoint allows an authenticated user to delete a post. The post is deleted from the user's posts
  * and the totalLikes of the author is decreased by the number of likes the post has.
+ * This allow deletes the post from the liked user's list of liked posts.
  *
  * Request body:
  * - post_id: The ID of the post to be deleted. (required)
@@ -153,12 +177,12 @@ router.delete("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             throw new Error("Author not found");
         }
         // Deleting the post from the author's list of posts
-        author.posts = author.posts.filter(postId => (postId.toString() !== post_id.toString()));
+        author.posts = author.posts.filter((postId) => postId.toString() !== post_id.toString());
         author.totalLikes -= post.likes;
         // Deleting the post from the liked user's list of liked posts
         const likedUser = yield User_1.User.find({ user_id: { $in: post.likesList } });
         likedUser.forEach((likedUser) => __awaiter(void 0, void 0, void 0, function* () {
-            likedUser.liked = likedUser.liked.filter(likedPostId => likedPostId.toString() !== post_id.toString());
+            likedUser.liked = likedUser.liked.filter((likedPostId) => likedPostId.toString() !== post_id.toString());
             yield likedUser.save();
         }));
         // Saving the author changes since we are deleting post and decreasing the totalLikes
@@ -197,7 +221,7 @@ router.delete("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
  * - 404: Post not found.
  * - 500: Internal server error.
  */
-router.patch("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.patch("/", upload.array("images", 3), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.user) {
         res.status(401).json({ error: "Unauthorized" });
         return;
@@ -236,11 +260,15 @@ router.patch("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         if (available_stores) {
             post.available_stores = available_stores;
         }
-        if (image) {
-            post.image = image;
-        }
         if (tags) {
             post.tags = tags;
+        }
+        if (Array.isArray(req.files) && req.files.length > 0) {
+            const images = req.files.map(file => ({
+                data: file.buffer,
+                contentType: file.mimetype,
+            }));
+            post.images = images;
         }
         yield post.save();
         res.status(200).json({ message: "Post updated successfully", post });
@@ -320,7 +348,7 @@ router.patch("/like", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         }
         const [author, user] = yield Promise.all([
             User_1.User.findOne({ user_id: post.author }),
-            User_1.User.findOne({ user_id: user_id })
+            User_1.User.findOne({ user_id: user_id }),
         ]);
         if (!author) {
             res.status(404).json({ error: "Author not found" });
@@ -336,7 +364,7 @@ router.patch("/like", (req, res) => __awaiter(void 0, void 0, void 0, function* 
             user.liked.splice(index, 1);
             post.likes--;
             author.totalLikes--;
-            post.likesList = post.likesList.filter(id => id.toString() !== user_id);
+            post.likesList = post.likesList.filter((id) => id.toString() !== user_id);
         }
         else {
             user.liked.push(postObjectId);
