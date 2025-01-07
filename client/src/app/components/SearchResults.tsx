@@ -21,6 +21,7 @@ const SearchResults: React.FC<MyComponentProps> = ({ searchQuery }) => {
           // Post 1
           id: "emlkYW5l",
           title: "Cool Dress",
+          bio: "testing this",
           product_details: "This is a really cool dress, perfect for summer!",
           material: "Silk",
           brand: "CoolDresses.org",
@@ -30,7 +31,7 @@ const SearchResults: React.FC<MyComponentProps> = ({ searchQuery }) => {
             "https://i.ebayimg.com/images/g/aFwAAOSwE1dkNSfR/s-l1200.jpg",
           ],
           liked: true,  // NOTE: not in post schema
-          tags: ["Blue", "Dress"],
+          tags: ["Blue", "Bluer", "Bluey!", "BlueBlue", "BlueBlueBlue", "Berry Blue"],
           date_created: "2024-01-01"
         },
         {
