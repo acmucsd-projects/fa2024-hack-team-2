@@ -16,6 +16,7 @@ import postRoutes from './routes/post';
 import messageRoutes from './routes/message';
 import searchRouter from './routes/search';
 import dotenv from 'dotenv';
+import leaderborderRoutes from './routes/leaderboard';
 
 dotenv.config();
 
@@ -57,6 +58,7 @@ app.use('/auth', authRouter);
 app.use('/user', userRoutes);
 app.use('/posts', postRoutes);
 app.use('/api', messageRoutes);
+app.use('/leaderboard', leaderborderRoutes)
 app.use('/search', searchRouter);
 
 
