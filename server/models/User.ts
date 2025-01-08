@@ -9,12 +9,12 @@ interface IUser {
   followList: string[];
   followers: number;
   following: number;
-  wishlist: string[];
-  posts: string[];
-  liked: string[];
-  disliked: string[];
   viewedPosts: mongoose.Schema.Types.ObjectId[];
-  viewedUsers: string[],
+  viewedUsers: string[];
+  posts: mongoose.Types.ObjectId[];
+  liked: mongoose.Types.ObjectId[];
+  totalLikes: number;
+  disliked: mongoose.Types.ObjectId[];
   picture?: string; // Assuming a profile picture URL
   settings: {
     privateAccount: boolean;
@@ -30,13 +30,13 @@ const userSchema = new Schema<IUser>({
   followList: { type: [String], default: []},
   followers: { type: Number, default: 0 },
   following: { type: Number, default: 0 },
-  wishlist: { type: [String], default: [] },
-  posts: { type: [String], default: [] },
-  liked: { type: [String], default: [] },
+  posts: { type: [mongoose.Types.ObjectId], default: [] },
+  liked: { type: [mongoose.Types.ObjectId], default: [] },
   disliked: { type: [String], default: [] },
   viewedPosts: { type: [mongoose.Schema.Types.ObjectId] },
   viewedUsers: { type: [String], default: [] },
   picture: { type: String },
+  totalLikes: { type: Number, default: 0 },
   settings: {
     privateAccount: { type: Boolean, default: false },
   },
