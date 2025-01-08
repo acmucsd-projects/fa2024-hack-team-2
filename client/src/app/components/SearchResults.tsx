@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Posts from "./Posts";
+import backendConnection from "../../communication";
 
 interface MyComponentProps {
   searchQuery: string;
@@ -8,113 +9,47 @@ interface MyComponentProps {
 const SearchResults: React.FC<MyComponentProps> = ({ searchQuery }) => {
   const [searchResults, setSearchResults] = useState<any[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isUserSearch, setIsUserSearch] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // TODO: function to send search query to the backend
+  // function to send search query to the backend
   const search = async (query: string) => {
-    // if it starts with @: GET users
-    // else: GET posts
 
-    return {
-      posts: [
-        {
-          // Post 1
-          id: "emlkYW5l",
-          title: "Cool Dress",
-          bio: "testing this",
-          product_details: "This is a really cool dress, perfect for summer!",
-          material: "Silk",
-          brand: "CoolDresses.org",
-          cost: 1000,
-          likes: 999,
-          image: [
-            "https://i.ebayimg.com/images/g/aFwAAOSwE1dkNSfR/s-l1200.jpg",
-          ],
-          liked: true,  // NOTE: not in post schema
-          tags: ["Blue", "Bluer", "Bluey!", "BlueBlue", "BlueBlueBlue", "Berry Blue"],
-          date_created: "2024-01-01"
-        },
-        {
-          // Post 2
-          id: "b3JpZ2FtaQ",
-          title: "Very Very Very Very Very Very Very Cool Dress",
-          product_details: "Yes!",
-          image: [
-            "https://i.ebayimg.com/images/g/aFwAAOSwE1dkNSfR/s-l1200.jpg",
-          ],
-          material: "Silk",
-          brand: "CoolDresses.org",
-          cost: 1000,
-          likes: 999,
-          liked: true, 
-          tags: ["Blue", "Dress"],
-          date_created: "2024-01-01"
-        },
-        {
-          // Post 3
-          id: "YmlyZHM",
-          title: "Running Shoes",
-          product_details: "This is a really cool dress, perfect for summer!",
-          image: [
-            "https://i.ebayimg.com/images/g/aFwAAOSwE1dkNSfR/s-l1200.jpg",
-          ],
-          material: "Silk",
-          brand: "CoolDresses.org",
-          cost: 1000,
-          likes: 999,
-          liked: true, 
-          tags: ["Blue", "Dress"],
-          date_created: "2024-01-01"
-        },
-        {
-          // Post 4
-          id: "YmVlcw",
-          title: "Leather Backpack",
-          product_details: "",
-          image: [
-            "https://i.ebayimg.com/images/g/aFwAAOSwE1dkNSfR/s-l1200.jpg",
-          ],
-          material: "Silk",
-          brand: "CoolDresses.org",
-          cost: 1000,
-          likes: 999,
-          liked: false,
-          tags: ["Blue", "Dress"],
-          date_created: "2024-01-01"
-        },
-        {
-          // Post 5
-          id: "d2h5d2h5",
-          title: "Elegant Watch",
-          product_details: "",
-          image: [
-            "https://i.ebayimg.com/images/g/aFwAAOSwE1dkNSfR/s-l1200.jpg",
-          ],
-          material: "Silk",
-          brand: "CoolDresses.org",
-          cost: 1000,
-          likes: 999,
-          liked: false, 
-          tags: ["Blue", "Dress"],
-          date_created: "2024-01-01"        },
-      ],
-    };
+    // user search
+    if (query.startsWith("@")) {
+        setIsUserSearch(true);
+        backendConnection.get("/search/users", 
+          { params: { query: query } 
+        }).then((response) => {
+            // success
+            setSearchResults(response.data);
+        }).catch((error) => {
+            throw new Error(`Failed to get data: ${error}`);
+        });
+    }
+    // posts search
+    else {
+        backendConnection.get("/search/posts", 
+            { params: { query: query } 
+        }).then((response) => {
+            // success
+            setSearchResults(response.data);
+          }).catch((error) => {
+            throw new Error(`Failed to get data: ${error}`);
+        });
+    }
+    setIsLoading(false);
   };
 
   useEffect(() => {
-    // perform the search when the component mounts or `searchQuery` changes
+  
+    // perform the search when `searchQuery` changes
     setIsLoading(true);
     setError(null);
     search(searchQuery)
-      .then((results) => {
-        setSearchResults(results["posts"]);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        setError("Failed to fetch search results.");
-        setIsLoading(false);
-      });
+    
   }, [searchQuery]);
+  
 
   // loading screen
   if (isLoading) {
@@ -158,8 +93,7 @@ const SearchResults: React.FC<MyComponentProps> = ({ searchQuery }) => {
         Search Results for &quot;{searchQuery}&quot;
         {/* NOTE: &quot; is a quotation mark */}
       </p>
-      {/* TODO: edit line below to add user logic */}
-      <Posts posts={searchResults} isUser={false} />
+      <Posts posts={searchResults} isUser={isUserSearch} />
     </div>
   );
 };

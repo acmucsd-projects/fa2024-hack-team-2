@@ -39,15 +39,7 @@ const PostCreation: React.FC<MyComponentProps> = () => {
           .map(([key, value]) => `${value}% ${key}`)
           .join(", ")
       : "";
-    // const json = {
-    //   image: images,
-    //   title: title,
-    //   product_details: description,
-    //   material: materialString,
-    //   brand: brand,
-    //   cost: cost,
-    //   tags: tags,
-    // };
+      
     try {
       // make POST request to the backend
       const numStores = 0
@@ -59,9 +51,9 @@ const PostCreation: React.FC<MyComponentProps> = () => {
         material,
         brand,
         cost,
-        numStores,
-        available_stores,
-        image,
+        // numStores,
+        // available_stores,
+        images,
         tags,
       }).then((response) => {
         // success
@@ -74,7 +66,7 @@ const PostCreation: React.FC<MyComponentProps> = () => {
         setBrand("");
         setCost(0.0);
         setTags([]);
-        //TODO: add code to navigate out of post creation
+        // TODO: add code to navigate out of post creation
       }).catch((error) => {
         throw new Error(`Failed to post data: ${error}`);
       });

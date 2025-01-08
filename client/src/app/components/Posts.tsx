@@ -1,47 +1,108 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import TagList from "./TagList";
 import likeIcon from "/public/images/heart-regular.svg";
 import likedIcon from "/public/images/heart-solid.svg";
+import backendConnection from "../../communication";
 
 interface MyComponentProps {
   posts: {
-    id: string;
+    _id: string;
     image: string[];
     title: string;
     product_details: string;
     bio?: string;
-    liked: boolean;
     likes: number;
-    tags: [];
+    tags: string[];
+    author: string;
+    date_created: string;
   }[];
   isUser: boolean;
 }
 
+interface PostProps {
+  _id: string;
+  title: string;
+  product_details?: string;
+  material?: string;
+  brand?: string;
+  cost?: number;
+  likes: number;
+  author: string;
+  image: string;
+  tags: string[];
+  date_created: string;
+}
+
 const Posts: React.FC<MyComponentProps> = ({ posts, isUser }) => {
-  // TODO: function to send to BE that user has liked post
-  const handleLikeToggle = (post: any) => {};
+  const [user, setUser] = useState<any>(null);
+  const [localPosts, setLocalPosts] = useState(posts); 
+
+  // fetch user data when the component mounts
+  useEffect(() => {
+    backendConnection
+      .get("/user/self")
+      .then((response) => {
+        setUser(response.data);
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error(`Failed to fetch user data: ${error}`);
+      });
+  }, []);
+
+  // tell BE that user has liked post and update local state
+  const handleLikeToggle = async (post: PostProps) => {
+    try {
+      const response = await backendConnection.patch("/posts/like", { post_id: post._id });
+      console.log(response);
+
+      // Update the local state for posts
+      setLocalPosts((prevPosts) =>
+        prevPosts.map((p) =>
+          p._id === post._id
+            ? {
+                ...p,
+                likes: p.likes + (user?.liked.includes(post._id) ? -1 : 1), // Increment or decrement likes
+              }
+            : p
+        )
+      );
+
+      // Update the user's liked posts
+      setUser((prevUser: any) => {
+        if (prevUser?.liked.includes(post._id)) {
+          return { ...prevUser, liked: prevUser.liked.filter((id: string) => id !== post._id) };
+        } else {
+          return { ...prevUser, liked: [...prevUser.liked, post._id] };
+        }
+      });
+    } catch (error) {
+      console.error(`Failed to toggle like: ${error}`);
+    }
+  };
 
   return (
     <div className="flex flex-wrap justify-center gap-6">
       {/* render each post */}
-      {posts.map((post, index) => (
-        <Link href={`/${isUser ? "profile" : "posts"}/${post.id}`} key={index}>
+      {localPosts.map((post, index) => (
+        // TODO: fix link + add pop up
+        <Link href={`/${isUser ? "user" : "posts"}/${post._id}`} key={index}>
           <div
             className="relative rounded-lg bg-white p-4 shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg w-52 md:w-80"
           >
             <div>
               <div className="aspect-w-16 aspect-h-9 relative mb-4">
                 {/* image preview */}
-                <Image
+                {/* <Image
                   src={post.image[0]}
                   alt={post.title}
                   width={400}
                   height={400}
                   objectFit="cover"
                   className="rounded-md"
-                />
+                /> */}
               </div>
             </div>
             {/* post title */}
@@ -54,13 +115,13 @@ const Posts: React.FC<MyComponentProps> = ({ posts, isUser }) => {
                 ? post.bio === undefined || post.bio === "" // for users
                   ? "(no bio)"
                   : post.bio
-                : post.product_details === undefined ||post.product_details === "" // for posts
+                : post.product_details === undefined || post.product_details === "" // for posts
                 ? "(no description)"
                 : post.product_details}
               {/* TagList component */}
               {!isUser && (
                 <div className="mt-2">
-                    <TagList name="Tags" initialTags={post.tags} canEdit={false} />
+                  <TagList name="Tags" initialTags={post.tags} canEdit={false} />
                 </div>
               )}
             </div>
@@ -76,8 +137,12 @@ const Posts: React.FC<MyComponentProps> = ({ posts, isUser }) => {
                   aria-label={`Like ${post.title}`}
                 >
                   <Image
-                    src={post.liked ? likedIcon : likeIcon}
-                    alt={post.liked ? "Liked" : "Not Liked"}
+                    src={
+                      user && user.liked.includes(post._id) ? likedIcon : likeIcon
+                    } // Check if post is liked by the user
+                    alt={
+                      user && user.liked.includes(post._id) ? "Liked" : "Not Liked"
+                    }
                     width={24}
                     height={24}
                     className="cursor-pointer"
