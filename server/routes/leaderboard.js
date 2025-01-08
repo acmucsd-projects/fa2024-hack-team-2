@@ -15,6 +15,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const User_1 = require("../models/User");
 const router = express_1.default.Router();
+/**
+ * @route GET /
+ * @desc Retrieve the leaderboard
+ * @access Public
+ *
+ * This endpoint allows users to retrieve the leaderboard, which lists users (up to 7) sorted by their total likes in descending order.
+ *
+ * Response:
+ * - 200: Leaderboard retrieved successfully.
+ *   - The response includes the list of users sorted by total likes.
+ * - 500: Internal server error.
+ */
 router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const leaderboard = yield User_1.User.find({}).sort({ totalLikes: -1 }).limit(7);
