@@ -554,4 +554,32 @@ router.patch('/history/clear', async(req, res) => {
   }
 })
 
+/**
+ * @route GET /trending
+ * @desc Fetches the top 3 liked posts
+ * @access Public
+ * 
+ * Gets the top 3 liked posts, order from most to least liked.
+ * 
+ * Request:
+ * N/A
+ * 
+ * Response:
+ * - 200: Posts retrieved successfully.
+ * - 400: No trending posts found.
+ * - 500: Internal server error.
+ */
+router.get('/trending', async(req,res) => {
+  try {
+    const posts = await Post.find({}).sort({likes: -1}).limit(3);
+    if (!posts){
+      res.status(400).json({message: "No trending posts found"});
+      return;
+    }
+    res.status(200).json(posts);
+  } catch(error){
+    res.status(500).json({error: "Error fetching trending posts"});
+  }
+})
+
 export default router;

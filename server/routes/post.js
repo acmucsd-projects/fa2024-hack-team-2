@@ -472,4 +472,17 @@ router.patch('/history/clear', (req, res) => __awaiter(void 0, void 0, void 0, f
         res.status(500).json({ error: "Error clearing post history" });
     }
 }));
+router.get('/trending', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const posts = yield Post_1.default.find({}).sort({ likes: -1 }).limit(3);
+        if (!posts) {
+            res.status(400).json({ message: "No trending posts found" });
+            return;
+        }
+        res.status(200).json(posts);
+    }
+    catch (error) {
+        res.status(500).json({ error: "Error fetching trending posts" });
+    }
+}));
 exports.default = router;
