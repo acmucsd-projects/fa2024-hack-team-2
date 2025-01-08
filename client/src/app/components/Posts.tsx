@@ -45,7 +45,6 @@ const Posts: React.FC<MyComponentProps> = ({ posts, isUser }) => {
       .get("/user/self")
       .then((response) => {
         setUser(response.data);
-        console.log(response.data);
       })
       .catch((error) => {
         console.error(`Failed to fetch user data: ${error}`);
@@ -56,7 +55,6 @@ const Posts: React.FC<MyComponentProps> = ({ posts, isUser }) => {
   const handleLikeToggle = async (post: PostProps) => {
     try {
       const response = await backendConnection.patch("/posts/like", { post_id: post._id });
-      console.log(response);
 
       // Update the local state for posts
       setLocalPosts((prevPosts) =>
