@@ -1,18 +1,19 @@
 'use client';
 import React, { useState } from 'react';
+import PostPopUp from './PostPopUp';
 
-// dummy
+// dummy data
 const dummyPosts = [
-  { id: 1, name: "Yonsei Baseball Jacket", description: "A stylish jacket for sports lovers.", likes: 12, likedByUser: true, imageUrl: "https://alexgear.com/cdn/shop/files/Yonsei-University-Baseball-Jacket.jpg?v=1704227559", userId: 1 },
-  { id: 2, name: "Blue Hoodie", description: "Comfy and cozy hoodie for all occasions.", likes: 7, likedByUser: false, imageUrl: "https://media.istockphoto.com/id/1319572197/photo/mens-hooded-jacket-for-your-design-mockup-for-print.jpg?s=612x612&w=0&k=20&c=c3n5O6D_gKpiX7zrN-K2wvDBYNuf9VMwUUysBg3TjkU=", userId: 2 },
-  { id: 3, name: "Black Sneakers", description: "Perfect sneakers for casual outings.", likes: 24, likedByUser: true, imageUrl: "https://www.tukshoes.com/cdn/shop/files/A3226_LEFT_OUTSIDE.jpg?v=1698766343", userId: 3 },
-  { id: 4, name: "Classic T-Shirt", description: "A simple t-shirt for everyday wear.", likes: 15, likedByUser: false, imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjazf4sKrskubw0510UfUT5B0K8eNzw0_q9w&s", userId: 4 },
-  { id: 5, name: "Denim Jeans", description: "Trendy jeans for a modern look.", likes: 10, likedByUser: true, imageUrl: "https://lsco.scene7.com/is/image/lsco/A60810002-front-gstk?fmt=jpeg&qlt=70&resMode=sharp2&fit=crop,1&op_usm=0.6,0.6,8&wid=2000&hei=1840", userId: 5 },
-  { id: 6, name: "Winter Coat", description: "Warm and stylish coat for cold weather.", likes: 20, likedByUser: false, imageUrl: "https://cdni.llbean.net/is/image/wim/520163_699_82?hei=1095&wid=950&resMode=sharp2&defaultImage=llbprod/520163_699_41", userId: 6 },
-  { id: 7, name: "Plaid Shirt", description: "A classic plaid shirt for any occasion.", likes: 30, likedByUser: true, imageUrl: "https://media.istockphoto.com/id/1070699648/vector/shirt.jpg?s=612x612&w=0&k=20&c=rolcUAsd6L6cYpRkVtHTjZvsR9YHQEam0kuNXjBLQAc=", userId: 7 },
-  { id: 8, name: "Leather Boots", description: "Durable and stylish leather boots.", likes: 18, likedByUser: false, imageUrl: "https://gt.atitlanleather.com/cdn/shop/products/atitlan-leather-boots-women-s-tall-leather-boots-34324884488361_600x.png?v=1678100313", userId: 8 },
-  { id: 9, name: "Graphic Sweatshirt", description: "A fun and bold graphic sweatshirt.", likes: 25, likedByUser: true, imageUrl: "https://gvartwork.com/cdn/shop/files/ClevelandArtworkTshirtBack.jpg?v=1684517332", userId: 9 },
-  { id: 10, name: "Chinos", description: "Perfect pair of chinos for casual and formal wear.", likes: 15, likedByUser: false, imageUrl: "https://img.abercrombie.com/is/image/anf/KIC_123-4016-0072-100_prod2.jpg?policy=product-large", userId: 10 },
+  { id: 1, name: "Yonsei Baseball Jacket", description: "A stylish jacket for sports lovers.", likes: 12, likedByUser: true, price: 99.99, imageUrl: "https://alexgear.com/cdn/shop/files/Yonsei-University-Baseball-Jacket.jpg?v=1704227559", userId: 1 },
+  { id: 2, name: "Blue Hoodie", description: "Comfy and cozy hoodie for all occasions.", likes: 7, likedByUser: false, price: 59.99, imageUrl: "https://media.istockphoto.com/id/1319572197/photo/mens-hooded-jacket-for-your-design-mockup-for-print.jpg?s=612x612&w=0&k=20&c=c3n5O6D_gKpiX7zrN-K2wvDBYNuf9VMwUUysBg3TjkU=", userId: 2 },
+  { id: 3, name: "Black Sneakers", description: "Perfect sneakers for casual outings.", likes: 24, likedByUser: true, price: 129.99, imageUrl: "https://www.tukshoes.com/cdn/shop/files/A3226_LEFT_OUTSIDE.jpg?v=1698766343", userId: 3 },
+  { id: 4, name: "Classic T-Shirt", description: "A simple t-shirt for everyday wear.", likes: 15, likedByUser: false, price: 19.99, imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjazf4sKrskubw0510UfUT5B0K8eNzw0_q9w&s", userId: 4 },
+  { id: 5, name: "Denim Jeans", description: "Trendy jeans for a modern look.", likes: 10, likedByUser: true, price: 89.99, imageUrl: "https://lsco.scene7.com/is/image/lsco/A60810002-front-gstk?fmt=jpeg&qlt=70&resMode=sharp2&fit=crop,1&op_usm=0.6,0.6,8&wid=2000&hei=1840", userId: 5 },
+  { id: 6, name: "Winter Coat", description: "Warm and stylish coat for cold weather.", likes: 20, likedByUser: false, price: 159.99, imageUrl: "https://cdni.llbean.net/is/image/wim/520163_699_82?hei=1095&wid=950&resMode=sharp2&defaultImage=llbprod/520163_699_41", userId: 6 },
+  { id: 7, name: "Plaid Shirt", description: "A classic plaid shirt for any occasion.", likes: 30, likedByUser: true, price: 49.99, imageUrl: "https://media.istockphoto.com/id/1070699648/vector/shirt.jpg?s=612x612&w=0&k=20&c=rolcUAsd6L6cYpRkVtHTjZvsR9YHQEam0kuNXjBLQAc=", userId: 7 },
+  { id: 8, name: "Leather Boots", description: "Durable and stylish leather boots.", likes: 18, likedByUser: false, price: 139.99, imageUrl: "https://gt.atitlanleather.com/cdn/shop/products/atitlan-leather-boots-women-s-tall-leather-boots-34324884488361_600x.png?v=1678100313", userId: 8 },
+  { id: 9, name: "Graphic Sweatshirt", description: "A fun and bold graphic sweatshirt.", likes: 25, likedByUser: true, price: 69.99, imageUrl: "https://gvartwork.com/cdn/shop/files/ClevelandArtworkTshirtBack.jpg?v=1684517332", userId: 9 },
+  { id: 10, name: "Chinos", description: "Perfect pair of chinos for casual and formal wear.", likes: 15, likedByUser: false, price: 79.99, imageUrl: "https://img.abercrombie.com/is/image/anf/KIC_123-4016-0072-100_prod2.jpg?policy=product-large", userId: 10 },
 ];
 
 const dummyUsers = [
@@ -28,10 +29,9 @@ const dummyUsers = [
   { id: 10, name: "Sophia Blue", description: "Loves minimalist and functional clothing.", likes: 18, imageUrl: "https://via.placeholder.com/200x200/0000FF/FFFFFF?text=Sophia+Blue" },
 ];
 
-
 const ITEMS_PER_PAGE = 5;
 
-// card component
+// Card component
 const Card: React.FC<{ data: any; type: 'post' | 'user' }> = ({ data, type, onClick }: any) => (
   <a
     href={type === 'user' ? '#' : data.link}
@@ -91,6 +91,8 @@ const ViewHistory: React.FC = () => {
   const userPosts = selectedUser ? dummyPosts.filter((post) => post.userId === selectedUserId) : [];
   const postUser = selectedPost ? dummyUsers.find((user) => user.id === selectedPost.userId) : null;
 
+  const isPostSelected = selectedPostId !== null;
+
   return (
     <>
       {/* Main Content */}
@@ -132,10 +134,10 @@ const ViewHistory: React.FC = () => {
       </div>
 
       {/* Fixed Pagination */}
-      <div className="fixed bottom-4 left-0 right-0 flex justify-center items-center gap-4 z-10 bg-white py-4">
+      <div className={`fixed bottom-4 left-0 right-0 flex justify-center items-center gap-4 z-10 bg-white py-4 ${isPostSelected ? 'opacity-50 pointer-events-none' : ''}`}>
         <button
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
+          disabled={currentPage === 1 || isPostSelected}
           className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
         >
           Previous
@@ -143,65 +145,25 @@ const ViewHistory: React.FC = () => {
         <span>Page {currentPage} of {totalPages}</span>
         <button
           onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-          disabled={currentPage === totalPages}
+          disabled={currentPage === totalPages || isPostSelected}
           className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
         >
           Next
         </button>
       </div>
 
-      {/* Modal for post/user details */}
-      {isModalOpen && (
-        <div className="fixed inset-0 flex justify-center items-center z-50">
-          <div className="w-[90vw] h-[90vh] bg-white border border-gray-300 shadow-2xl overflow-hidden rounded-lg p-6 flex flex-col">
-            {/* Displaying user details */}
-            {selectedUser && (
-              <div className="flex flex-col items-center mb-4">
-                <img src={selectedUser.imageUrl} alt={selectedUser.name} className="w-32 h-32 rounded-full mb-2" />
-                <h2 className="text-2xl font-bold">{selectedUser.name}</h2>
-                <p className="text-sm text-gray-500">{selectedUser.description}</p>
-              </div>
-            )}
-
-            {/* Displaying post details */}
-            {selectedPost && postUser && (
-              <>
-                <div className="flex flex-col items-center mb-4">
-                  <img
-                    src={selectedPost.imageUrl}
-                    alt={selectedPost.name}
-                    className="w-32 h-32 rounded-md mb-2"
-                  />
-                  <h2 className="text-2xl font-bold">{selectedPost.name}</h2>
-                  <p className="text-sm text-gray-500">{selectedPost.description}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span>{selectedPost.likedByUser ? '❤️' : '🤍'}</span>
-                    <span className="text-xs sm:text-sm">{selectedPost.likes}</span>
-                  </div>
-                </div>
-
-                {/* Display the user who posted */}
-                <div className="flex flex-col items-center mt-4">
-                  <h3 className="text-lg font-semibold">Posted by: {postUser.name}</h3>
-                  <img src={postUser.imageUrl} alt={postUser.name} className="w-20 h-20 rounded-full mt-2" />
-                  <p className="text-sm text-gray-500 mt-2">{postUser.description}</p>
-                </div>
-              </>
-            )}
-
-            {/* Display user's posts if viewing the user */}
-            {selectedUser && userPosts.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-xl font-semibold mb-4">Posts</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {userPosts.map((post) => (
-                    <Card key={post.id} data={post} type="post" />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+      {/* PostPopUp Modal */}
+      {isModalOpen && selectedPost && postUser && (
+        <PostPopUp
+          isOpen={isModalOpen}
+          closeModal={() => setIsModalOpen(false)}
+          name={selectedPost.name}
+          price={selectedPost.likes}
+          description={selectedPost.description}
+          imageUrl={selectedPost.imageUrl}
+          likes={selectedPost.likes}
+          userName={postUser.name}
+        />
       )}
     </>
   );
