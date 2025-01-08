@@ -4,7 +4,7 @@ import NavBar from "./navbar";
 import MainSection from "./main.section";
 import FeaturesSection from "./features.section";
 import AboutUs from "./aboutUs.section";
-import Footer from "./footer.section";
+import EmailSection from "./email.section";
 
 const LandingPage = () => {
   return (
@@ -17,7 +17,7 @@ const LandingPage = () => {
         <MainSection />
         <FeaturesSection />
         <AboutUs />
-        <Footer />
+        <EmailSection />
       </div>
     </div>
   );

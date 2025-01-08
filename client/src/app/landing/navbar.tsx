@@ -1,6 +1,14 @@
 import Link from "next/link";
 
 const NavBar = () => {
+  const handleScroll = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>, targetId: string) => {
+    event.preventDefault();
+    const targetElement = document.getElementById(targetId);
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <div className="bg-white border flex flex-col items-center justify-center w-full h-[10%]">
       {/* Navigation Bar */}
@@ -9,36 +17,45 @@ const NavBar = () => {
           {/* Logo */}
           <Link
             href="/"
-            className="text-blue-500 font-black text-xl hover:text-blue-600 transition duration-200"
+            className="text-blue-500 font-black text-xl hover:text-blue-600 transition duration-300"
           >
             Swipe Style
           </Link>
           {/* Navigation Links */}
-          <Link
+          <a
             href="#features"
-            className="text-black font-medium text-xl hover:text-blue-500 transition duration-200"
+            className="text-black font-medium text-xl hover:text-blue-500 transition duration-300"
+            onClick={(e) => handleScroll(e, "features")}
           >
             Features
-          </Link>
-          <Link
+          </a>
+          <a
             href="#about"
-            className="text-black font-medium text-xl hover:text-blue-500 transition duration-200"
+            className="text-black font-medium text-xl hover:text-blue-500 transition duration-300"
+            onClick={(e) => handleScroll(e, "about")}
           >
             About Us
-          </Link>
+          </a>
+          <a
+            href="#email"
+            className="text-black font-medium text-xl hover:text-blue-500 transition duration-300"
+            onClick={(e) => handleScroll(e, "email")}
+          >
+            Kickstart
+          </a>
         </div>
         <div className="flex justify-center items-center gap-6">
           {/* Login Button */}
           <Link
             href="/login"
-            className="text-black font-medium text-xl hover:text-blue-500 transition duration-200"
+            className="text-black font-medium text-xl hover:text-blue-500 transition duration-300"
           >
             Log In
           </Link>
           {/* Sign Up Button */}
           <Link
             href="/register"
-            className="text-white bg-blue-500 px-6 py-2 rounded-lg font-bold text-xl shadow hover:bg-blue-600 hover:shadow-lg transition duration-200"
+            className="text-white bg-blue-500 px-6 py-2 rounded-lg font-bold text-xl shadow hover:bg-blue-600 hover:shadow-lg transition duration-300"
           >
             Sign Up
           </Link>

@@ -55,8 +55,9 @@ const FeaturesSection = () => {
 
   return (
     <section 
-    id = "features"
-    className="flex h-screen w-screen flex-col">
+      id="features" 
+      className="flex h-screen w-full flex-col overflow-hidden"
+    >
       {/* Content */}
       <div className="mb-8 flex flex-1 flex-col items-center justify-center lg:flex-row lg:items-center lg:justify-center">
         {/* Left Side */}
@@ -87,9 +88,9 @@ const FeaturesSection = () => {
                     <Image
                       src={card}
                       alt={`Background Card ${index + 1}`}
-                      width={6400}
-                      height={9600}
-                      className="h-full w-full object-cover rounded-lg pointer-events-none"
+                      width={640}
+                      height={960}
+                      className="h-full w-full object-cover rounded-lg pointer-events-none max-w-full max-h-full"
                     />
                   </div>
                 ))}
@@ -105,9 +106,9 @@ const FeaturesSection = () => {
                     <Image
                       src={cards[0]}
                       alt="Main Card"
-                      width={6400}
-                      height={9600}
-                      className="pointer-events-none h-full w-full object-cover"
+                      width={640}
+                      height={960}
+                      className="pointer-events-none h-full w-full object-cover max-w-full max-h-full"
                     />
                     <span className="absolute left-3 top-3 z-50 rounded-full bg-gray-50 shadow-lg">
                       <Link href="/">
