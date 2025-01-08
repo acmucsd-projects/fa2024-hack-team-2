@@ -5,11 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const passport_1 = __importDefault(require("passport"));
+const LoginMiddleware_1 = __importDefault(require("../utils/LoginMiddleware"));
 const router = express_1.default.Router();
-function isLoggedIn(req, res, next) {
-    req.user ? next() : res.sendStatus(401);
-}
-router.get('/', (req, res, next) => {
+router.get('/', (req, res) => {
     res.send('auth route');
 });
 // Redirect user to Google OAuth
@@ -25,7 +23,21 @@ router.get('/google/callback', passport_1.default.authenticate('google', { failu
         return res.redirect('/login'); // Fallback if no user object
     }
 });
-router.get('/protected', isLoggedIn, (req, res) => {
+router.get('/protected', LoginMiddleware_1.default, (req, res) => {
     res.send('protected route');
+});
+// Logout route
+router.get('/logout', (req, res) => {
+    req.logout((err) => {
+        if (err) {
+            res.status(500).send('Error logging out');
+        }
+        req.session.destroy((err) => {
+            if (err) {
+                res.status(500).send('Error destroying session');
+            }
+            res.redirect('/'); // Redirect to home page or login page
+        });
+    });
 });
 exports.default = router;
