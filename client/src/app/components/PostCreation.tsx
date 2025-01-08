@@ -6,6 +6,7 @@ import CreatePostMaterialBox from "./CreatePostMaterialBox";
 import CreatePostBrandBox from "./CreatePostBrandBox";
 import CreatePostSlider from "./CreatePostSlider";
 import TagList from "./TagList";
+import backendConnection from "../../communication";
 
 interface MyComponentProps {}
 
@@ -38,38 +39,45 @@ const PostCreation: React.FC<MyComponentProps> = () => {
           .map(([key, value]) => `${value}% ${key}`)
           .join(", ")
       : "";
-    const json = {
-      image: images,
-      title: title,
-      product_details: description,
-      material: materialString,
-      brand: brand,
-      cost: cost,
-      tags: tags,
-    };
+    // const json = {
+    //   image: images,
+    //   title: title,
+    //   product_details: description,
+    //   material: materialString,
+    //   brand: brand,
+    //   cost: cost,
+    //   tags: tags,
+    // };
     try {
       // make POST request to the backend
-      // TODO: change url later?
-      const response = await fetch("http://localhost:3001/api/posts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(json),
+      const numStores = 0
+      const available_stores = [];
+      const image = "https://i.pinimg.com/originals/13/cb/4e/13cb4e45fdc7d4a07b9df3e7f7cf0b31.jpg";
+      backendConnection.post("/posts", {
+        title,
+        description,
+        material,
+        brand,
+        cost,
+        numStores,
+        available_stores,
+        image,
+        tags,
+      }).then((response) => {
+        // success
+        alert("Successfully created post.");
+        // reset form state
+        setImages([]);
+        setTitle("");
+        setDescription("");
+        setMaterial(undefined);
+        setBrand("");
+        setCost(0.0);
+        setTags([]);
+        //TODO: add code to navigate out of post creation
+      }).catch((error) => {
+        throw new Error(`Failed to post data: ${error}`);
       });
-      // handle response
-      if (!response.ok) {
-        throw new Error(`Failed to post data: ${response.statusText}`);
-      }
-      alert("Post created successfully!");
-      // reset form state
-      setImages([]);
-      setTitle("");
-      setDescription("");
-      setMaterial(undefined);
-      setBrand("");
-      setCost(100.0);
-      setTags([]);
     } catch (error) {
       // console.error("Error posting data:", error);
       alert("Failed to create post. Please try again.");
