@@ -9,6 +9,8 @@ interface IUser {
   followList: string[];
   followers: number;
   following: number;
+  viewedPosts: mongoose.Schema.Types.ObjectId[];
+  viewedUsers: string[];
   posts: mongoose.Types.ObjectId[];
   liked: mongoose.Types.ObjectId[];
   totalLikes: number;
@@ -31,6 +33,8 @@ const userSchema = new Schema<IUser>({
   posts: { type: [mongoose.Types.ObjectId], default: [] },
   liked: { type: [mongoose.Types.ObjectId], default: [] },
   disliked: { type: [String], default: [] },
+  viewedPosts: { type: [mongoose.Schema.Types.ObjectId] },
+  viewedUsers: { type: [String], default: [] },
   picture: { type: String },
   totalLikes: { type: Number, default: 0 },
   settings: {

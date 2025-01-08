@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import Post from "../models/Post";
 import { User, IUser } from "../models/User";
 import mongoose from "mongoose";
+import { error } from "console";
 import multer from "multer";
 
 const router = express.Router();
@@ -134,6 +135,20 @@ router.get("/", async (req: Request, res: Response) => {
       return;
     }
 
+    if(req.user){
+      const user = await User.findOne({user_id: (req.user as IUser).user_id});
+
+      await user?.updateOne(
+        {$pull: {viewedPosts: post_id}}
+      );
+
+      await user?.updateOne({
+        $push: {
+          viewedPosts: { $each: [post_id], $position: 0}
+        }
+      });
+      await user?.save();
+    }
     // Convert image data to base64-encoded strings
     const postWithBase64Images = {
       ...post.toObject(),
@@ -447,5 +462,96 @@ router.patch("/like", async (req: Request, res: Response) => {
     res.status(500).json({ error: "Error liking post" });
   }
 });
+
+/**
+ * @route GET /history
+ * @desc View user's history
+ * @access Private
+ * 
+ * Allows an authenticated user to view their viewed post history.
+ * 
+ * Request User:
+ * - req.user.user_id: The user's user ID
+ * 
+ * Response:
+ * - 200: Retrieved history data successfully.
+ * - 400: No posts were found in history.
+ * - 401: Unauthorized
+ * - 404: User not found
+ * - 500: Internal server error
+ */
+
+router.get('/history', async(req, res) => {
+  if(!req.user){
+    res.status(401).json({message: "User not authenticated"});
+    return;
+  }
+
+  try{
+    const user = await User.findOne({user_id: (req.user as IUser).user_id});
+    
+    if(!user){
+      res.status(404).json({message: 'user not found'});
+      return;
+    }
+    const history = user.viewedPosts;
+    if(!history[0]){
+      res.status(400).json({message: 'No recently viewed posts found'});
+      return;
+    }
+    
+    const posts = await Promise.all(
+      history.map(post_id => {return Post.findById(post_id)})
+    );
+    
+    res.status(200).json(posts);
+  } catch(err){
+    console.error(err);
+    res.status(500).json({error: "Error retrieving post history"});
+  }
+  
+})
+
+/**
+ * @route PATCH /history/clear
+ * @desc Allows user to clear history
+ * @access Private
+ * 
+ * This endpoint allows an authenticated user to clear their post history.
+ * 
+ * Request User:
+ * - req.user.user_id: The user's user ID.
+ * 
+ * Response:
+ * - 200: The post history was clear successfully.
+ * - 401: Unauthorized.
+ * - 404: User was not found.
+ * - 500: Internal server error
+ */
+
+router.patch('/history/clear', async(req, res) => {
+  if (!req.user){
+    res.status(401).json({message: "User not authenticated"});
+    return;
+  }
+
+  try {
+    const user_id = (req.user as IUser).user_id;
+    const result = await User.findOneAndUpdate(
+      {user_id: user_id},
+      {$set: {viewedPosts: []}},
+      {new: true}
+    );
+
+    if (!result){
+      res.status(404).json({message: "User not found"});
+      return;
+    }
+
+    res.status(200).json({message: "Post history successfully cleared"});
+  } catch(error){
+    res.status(500).json({error: "Error clearing post history"});
+  }
+})
 
 export default router;

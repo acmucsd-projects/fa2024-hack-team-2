@@ -123,6 +123,17 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             res.status(404).json({ error: "Post not found" });
             return;
         }
+        if (req.user) {
+            const user = yield User_1.User.findOne({ user_id: req.user.user_id });
+            yield (user === null || user === void 0 ? void 0 : user.updateOne({ $pull: { viewedPosts: post_id } }));
+            yield (user === null || user === void 0 ? void 0 : user.updateOne({
+                $push: {
+                    viewedPosts: { $each: [post_id], $position: 0 }
+                }
+            }));
+            yield (user === null || user === void 0 ? void 0 : user.save());
+        }
+        res.status(200).json(post);
         // Convert image data to base64-encoded strings
         const postWithBase64Images = Object.assign(Object.assign({}, post.toObject()), { images: post.images.map(image => ({
                 contentType: image.contentType,
@@ -380,4 +391,80 @@ router.patch("/like", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         res.status(500).json({ error: "Error liking post" });
     }
 }));
+/**
+ * @route GET /history
+ * @desc View user's history
+ * @access Private
+ *
+ * Allows an authenticated user to view their viewed post history.
+ *
+ * Request User:
+ * - req.user.user_id: The user's user ID
+ *
+ * Response:
+ * - 200: Retrieved history data successfully.
+ * - 400: No posts were found in history.
+ * - 401: Unauthorized
+ * - 404: User not found
+ * - 500: Internal server error
+ */
+router.get('/history', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.user) {
+        res.status(401).json({ message: "User not authenticated" });
+        return;
+    }
+    try {
+        const user = yield User_1.User.findOne({ user_id: req.user.user_id });
+        if (!user) {
+            res.status(404).json({ message: 'user not found' });
+            return;
+        }
+        const history = user.viewedPosts;
+        if (!history[0]) {
+            res.status(400).json({ message: 'No recently viewed posts found' });
+            return;
+        }
+        const posts = yield Promise.all(history.map(post_id => { return Post_1.default.findById(post_id); }));
+        res.status(200).json(posts);
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error retrieving post history" });
+    }
+}));
+/**
+ * @route PATCH /history/clear
+ * @desc Allows user to clear history
+ * @access Private
+ *
+ * This endpoint allows an authenticated user to clear their post history.
+ *
+ * Request User:
+ * - req.user.user_id: The user's user ID.
+ *
+ * Response:
+ * - 200: The post history was clear successfully.
+ * - 401: Unauthorized.
+ * - 404: User was not found.
+ * - 500: Internal server error
+ */
+router.patch('/history/clear', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.user) {
+        res.status(401).json({ message: "User not authenticated" });
+        return;
+    }
+    try {
+        const user_id = req.user.user_id;
+        const result = yield User_1.User.findOneAndUpdate({ user_id: user_id }, { $set: { viewedPosts: [] } }, { new: true });
+        if (!result) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+        res.status(200).json({ message: "Post history successfully cleared" });
+    }
+    catch (error) {
+        res.status(500).json({ error: "Error clearing post history" });
+    }
+}));
+// Export the router
 exports.default = router;
