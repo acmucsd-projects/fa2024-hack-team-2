@@ -35,14 +35,14 @@ const upload = (0, multer_1.default)({ storage: storage });
  * - cost: The cost of the product. (optional)
  * - numStores: The number of stores where the product is available. (optional)
  * - available_stores: The list of available stores. (optional)
- * - image: The image URL of the product. (required)
  * - tags: The list of tags associated with the post. (optional)
- * - date_created: The date the post was created. (automatically generated)
+ * - images: Array of image files. (required, up to 3 images)
  *
  * Response:
  * - 201: Post created successfully.
  * - 400: Error creating post.
  * - 401: Unauthorized (if the user is not authenticated).
+ * - 404: User not found.
  * - 500: Internal server error.
  */
 router.post("/", upload.array("images", 3), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -112,6 +112,7 @@ router.post("/", upload.array("images", 3), (req, res) => __awaiter(void 0, void
  *
  * Response:
  * - 200: Post retrieved successfully.
+ *   - The response includes the post details along with base64-encoded image data.
  * - 404: Post not found.
  * - 500: Internal server error.
  */
@@ -133,7 +134,6 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             }));
             yield (user === null || user === void 0 ? void 0 : user.save());
         }
-        res.status(200).json(post);
         // Convert image data to base64-encoded strings
         const postWithBase64Images = Object.assign(Object.assign({}, post.toObject()), { images: post.images.map(image => ({
                 contentType: image.contentType,
@@ -222,8 +222,8 @@ router.delete("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
  * - cost: The cost of the product. (optional)
  * - numStores: The number of stores where the product is available. (optional)
  * - available_stores: The list of available stores. (optional)
- * - image: The image URL of the product. (optional)
  * - tags: The list of tags associated with the post. (optional)
+ * - images: Array of image files. (optional, up to 3 images)
  *
  * Response:
  * - 200: Post updated successfully.
@@ -301,6 +301,7 @@ router.patch("/", upload.array("images", 3), (req, res) => __awaiter(void 0, voi
  *
  * Response:
  * - 200: Posts retrieved successfully.
+ *   - The response includes the post details along with base64-encoded image data for each post.
  * - 404: No posts found for the given author.
  * - 500: Internal server error.
  */
@@ -312,7 +313,12 @@ router.get("/author", (req, res) => __awaiter(void 0, void 0, void 0, function* 
             return;
         }
         const posts = yield Post_1.default.find({ _id: { $in: user.posts } });
-        res.status(200).json(posts);
+        // Convert image data to base64-encoded strings for each post
+        const postsWithBase64Images = posts.map(post => (Object.assign(Object.assign({}, post.toObject()), { images: post.images.map(image => ({
+                contentType: image.contentType,
+                data: image.data.toString('base64')
+            })) })));
+        res.status(200).json(postsWithBase64Images);
     }
     catch (error) {
         console.error("Error fetching posts by author:", error);
@@ -466,5 +472,17 @@ router.patch('/history/clear', (req, res) => __awaiter(void 0, void 0, void 0, f
         res.status(500).json({ error: "Error clearing post history" });
     }
 }));
-// Export the router
+router.get('/trending', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const posts = yield Post_1.default.find({}).sort({ likes: -1 }).limit(3);
+        if (!posts) {
+            res.status(400).json({ message: "No trending posts found" });
+            return;
+        }
+        res.status(200).json(posts);
+    }
+    catch (error) {
+        res.status(500).json({ error: "Error fetching trending posts" });
+    }
+}));
 exports.default = router;
