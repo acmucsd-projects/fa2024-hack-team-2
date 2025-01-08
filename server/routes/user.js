@@ -128,6 +128,7 @@ router.post('/follow', (req, res) => __awaiter(void 0, void 0, void 0, function*
         res.status(500).json({ message: 'Following error occurred:', err });
     }
 }));
+
 /**
  * @route PATCH /profile
  * @desc Edit profile

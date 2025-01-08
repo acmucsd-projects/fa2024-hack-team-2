@@ -17,6 +17,7 @@ const auth_1 = __importDefault(require("./routes/auth"));
 const user_1 = __importDefault(require("./routes/user"));
 const post_1 = __importDefault(require("./routes/post"));
 const message_1 = __importDefault(require("./routes/message"));
+const search_1 = __importDefault(require("./routes/search"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const leaderboard_1 = __importDefault(require("./routes/leaderboard"));
 dotenv_1.default.config();
@@ -51,6 +52,7 @@ app.use('/user', user_1.default);
 app.use('/posts', post_1.default);
 app.use('/api', message_1.default);
 app.use('/leaderboard', leaderboard_1.default);
+app.use('/search', search_1.default);
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
     next((0, http_errors_1.default)(404));
