@@ -7,6 +7,7 @@ import NavBar from "./components/NavBar";
 import Cards from "./components/Cards";
 import ViewHistory from "./components/ViewHistory";
 import Leaderboard from "./components/Leaderboard";
+import PostCreation from "./components/PostCreation";
 
 const Home: React.FC = () => {
 
@@ -42,6 +43,7 @@ const Home: React.FC = () => {
         {currentComponent === "cards" && <Cards />}
         {currentComponent === "history" && <ViewHistory />}
         {currentComponent === "leaderboard" && <Leaderboard users={users} />}
+        {currentComponent === "PostCreation"&& <PostCreation />}
         </div>
     </main>
   );
