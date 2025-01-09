@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-// Card Component
+// ProductCard Component
 const ProductCard: React.FC<{
   name: string;
   price: number;
@@ -8,41 +8,59 @@ const ProductCard: React.FC<{
   imageUrl: string;
   likes: number;
   userName: string;
-}> = ({ name, price, description, imageUrl, likes, userName }) => {
+  tags: string[];
+  material: string;
+  brand: string;
+  cost: number;
+}> = ({ name, price, description, imageUrl, likes, userName, tags, material, brand, cost }) => {
   return (
-    <div className="max-w-lg bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300 flex mx-auto">
+    <div className="max-w-4xl bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300 flex mx-auto">
       {/* Image Section */}
-      <div className="relative w-1/2">
+      <div className="relative flex-1">
         <img
           src={imageUrl}
           alt={name}
-          className="w-full h-72 object-cover"
+          className="w-full h-full object-cover"
         />
-        <div className="absolute bottom-2 right-2 bg-black/50 text-white rounded-full px-2 py-1 text-sm">
-          ❤️ {likes}
+        {/* Tags and Likes */}
+        <div className="absolute bottom-2 left-2 bg-white/75 px-3 py-2 rounded-lg flex justify-between w-[90%] shadow">
+          {/* Tags */}
+          <div className="flex flex-wrap gap-1">
+            {tags.map((tag, index) => (
+              <div
+                key={index}
+                className="bg-gray-200 text-gray-700 rounded-md px-3 py-1 text-xs"
+              >
+                {tag}
+              </div>
+            ))}
+          </div>
+          {/* Likes */}
+          <div className="flex items-center gap-1">
+            <span className="text-red-500 font-semibold text-sm">❤️</span>
+            <span className="text-sm text-gray-700">{likes}</span>
+          </div>
         </div>
       </div>
 
       {/* Details Section */}
-      <div className="p-4 flex flex-col gap-2 w-1/2">
-        <h2 className="text-lg font-bold">{name}</h2>
-        <p className="text-gray-600">${price.toFixed(2)}</p>
-        <div className="border-b border-white my-2"></div> {/* White line below price */}
-        
-        {/* Gray line above product description */}
-        <div className="border-t border-gray-300 my-4"></div> {/* Gray line above description */}
-
-        {/* Product Description Header */}
-        <h3 className="text-xl font-bold">Product Description</h3>
-        <p className="text-sm text-gray-500 mt-2">{description}</p>
-        
-        <div className="flex items-center gap-2 mt-4">
-          <div className="w-8 h-8 bg-blue-300 rounded-full"></div>
-          <div>
-            <p className="text-sm font-medium">{userName}</p>
-            <p className="text-xs text-gray-500">{likes} Likes</p>
-          </div>
-        </div>
+      <div className="p-6 flex flex-col gap-4 flex-1">
+        {/* Title */}
+        <h2 className="text-3xl font-bold">{name}</h2>
+        {/* Price */}
+        <p className="text-xl text-gray-600 font-semibold">${price.toFixed(2)}</p>
+        {/* Description */}
+        <h3 className="text-xl font-bold">Description</h3>
+        <p className="text-lg text-gray-500">{description}</p>
+        {/* Material */}
+        <h3 className="text-xl font-bold">Material</h3>
+        <p className="text-lg text-gray-500">{material}</p>
+        {/* Brand */}
+        <h3 className="text-xl font-bold">Brand</h3>
+        <p className="text-lg text-gray-500">{brand}</p>
+        {/* Cost */}
+        <h3 className="text-xl font-bold">Cost</h3>
+        <p className="text-lg text-gray-500">${cost.toFixed(2)}</p>
       </div>
     </div>
   );
@@ -58,6 +76,10 @@ interface PostPopUpProps {
   imageUrl: string;
   likes: number;
   userName: string;
+  tags: string[];
+  material: string;
+  brand: string;
+  cost: number;
 }
 
 const PostPopUp: React.FC<PostPopUpProps> = ({
@@ -69,8 +91,13 @@ const PostPopUp: React.FC<PostPopUpProps> = ({
   imageUrl,
   likes,
   userName,
+  tags,
+  material,
+  brand,
+  cost,
 }) => {
   if (!isOpen) return null; // Don't render anything if the modal is closed
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
@@ -83,6 +110,7 @@ const PostPopUp: React.FC<PostPopUpProps> = ({
           &times;
         </button>
 
+      <div className="bg-white rounded-lg p-6 relative max-w-5xl w-full">
         {/* Product Details */}
         <ProductCard
           name={name}
@@ -91,6 +119,10 @@ const PostPopUp: React.FC<PostPopUpProps> = ({
           imageUrl={imageUrl}
           likes={likes}
           userName={userName}
+          tags={tags}
+          material={material}
+          brand={brand}
+          cost={cost}
         />
       </div>
     </div>
@@ -113,6 +145,10 @@ const App: React.FC = () => {
     imageUrl: "https://alexgear.com/cdn/shop/files/Yonsei-University-Baseball-Jacket.jpg?v=1704227559",
     likes: 12,
     userName: "Alex Johnson",
+    tags: ["Smart Casual", "All Black"],
+    material: "100% Cotton",
+    brand: "Nike",
+    cost: 79.99,
   };
 
   return (
@@ -126,4 +162,4 @@ const App: React.FC = () => {
   );
 };
 
-export default PostPopUp; 
+export default App;
