@@ -9,13 +9,15 @@ import backendConnection from "../../communication";
 interface MyComponentProps {
   posts: {
     _id: string;
-    image: string[];
     title: string;
-    product_details: string;
-    bio?: string;
+    product_details?: string;
+    material?: string;
+    brand?: string;
+    cost?: number;
     likes: number;
-    tags: string[];
     author: string;
+    image: string;
+    tags: string[];
     date_created: string;
   }[];
   isUser: boolean;
@@ -37,7 +39,7 @@ interface PostProps {
 
 const Posts: React.FC<MyComponentProps> = ({ posts, isUser }) => {
   const [user, setUser] = useState<any>(null);
-  const [localPosts, setLocalPosts] = useState(posts); 
+  const [localPosts, setLocalPosts] = useState(posts);
 
   // fetch user data when the component mounts
   useEffect(() => {
@@ -54,7 +56,9 @@ const Posts: React.FC<MyComponentProps> = ({ posts, isUser }) => {
   // tell BE that user has liked post and update local state
   const handleLikeToggle = async (post: PostProps) => {
     try {
-      const response = await backendConnection.patch("/posts/like", { post_id: post._id });
+      const response = await backendConnection.patch("/posts/like", {
+        post_id: post._id,
+      });
 
       // Update the local state for posts
       setLocalPosts((prevPosts) =>
@@ -64,14 +68,17 @@ const Posts: React.FC<MyComponentProps> = ({ posts, isUser }) => {
                 ...p,
                 likes: p.likes + (user?.liked.includes(post._id) ? -1 : 1), // Increment or decrement likes
               }
-            : p
-        )
+            : p,
+        ),
       );
 
       // Update the user's liked posts
       setUser((prevUser: any) => {
         if (prevUser?.liked.includes(post._id)) {
-          return { ...prevUser, liked: prevUser.liked.filter((id: string) => id !== post._id) };
+          return {
+            ...prevUser,
+            liked: prevUser.liked.filter((id: string) => id !== post._id),
+          };
         } else {
           return { ...prevUser, liked: [...prevUser.liked, post._id] };
         }
@@ -87,9 +94,7 @@ const Posts: React.FC<MyComponentProps> = ({ posts, isUser }) => {
       {localPosts.map((post, index) => (
         // TODO: fix link + add pop up
         <Link href={`/${isUser ? "user" : "posts"}/${post._id}`} key={index}>
-          <div
-            className="relative rounded-lg bg-white p-4 shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg w-52 md:w-80"
-          >
+          <div className="relative w-52 rounded-lg bg-white p-4 shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg md:w-80">
             <div>
               <div className="aspect-w-16 aspect-h-9 relative mb-4">
                 {/* image preview */}
@@ -108,18 +113,23 @@ const Posts: React.FC<MyComponentProps> = ({ posts, isUser }) => {
               {post.title}
             </h3>
             {/* description/bio */}
-            <div className="mx-2 overflow-hidden text-ellipsis whitespace-nowrap text-sm text-gray-500 mr-10 ml-0">
+            <div className="mx-2 ml-0 mr-10 overflow-hidden text-ellipsis whitespace-nowrap text-sm text-gray-500">
               {isUser
                 ? post.bio === undefined || post.bio === "" // for users
                   ? "(no bio)"
                   : post.bio
-                : post.product_details === undefined || post.product_details === "" // for posts
-                ? "(no description)"
-                : post.product_details}
+                : post.product_details === undefined ||
+                    post.product_details === "" // for posts
+                  ? "(no description)"
+                  : post.product_details}
               {/* TagList component */}
               {!isUser && (
                 <div className="mt-2">
-                  <TagList name="Tags" initialTags={post.tags} canEdit={false} />
+                  <TagList
+                    name="Tags"
+                    initialTags={post.tags}
+                    canEdit={false}
+                  />
                 </div>
               )}
             </div>
@@ -136,10 +146,14 @@ const Posts: React.FC<MyComponentProps> = ({ posts, isUser }) => {
                 >
                   <Image
                     src={
-                      user && user.liked.includes(post._id) ? likedIcon : likeIcon
+                      user && user.liked.includes(post._id)
+                        ? likedIcon
+                        : likeIcon
                     } // Check if post is liked by the user
                     alt={
-                      user && user.liked.includes(post._id) ? "Liked" : "Not Liked"
+                      user && user.liked.includes(post._id)
+                        ? "Liked"
+                        : "Not Liked"
                     }
                     width={24}
                     height={24}
@@ -147,7 +161,9 @@ const Posts: React.FC<MyComponentProps> = ({ posts, isUser }) => {
                   />
                 </button>
                 {/* number of likes */}
-                <p className="text-xs text-gray-600 leading-none mt-1">{post.likes}</p>
+                <p className="mt-1 text-xs leading-none text-gray-600">
+                  {post.likes}
+                </p>
               </div>
             )}
           </div>
