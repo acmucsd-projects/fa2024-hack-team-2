@@ -43,13 +43,13 @@ router.get('/google/callback', passport_1.default.authenticate('google', { failu
 router.get('/logout', (req, res) => {
     req.logout((err) => {
         if (err) {
-            res.status(500).send('Error logging out');
+            return res.status(500).send('Error logging out');
         }
         req.session.destroy((err) => {
             if (err) {
-                res.status(500).send('Error destroying session');
+                return res.status(500).send('Error destroying session');
             }
-            res.redirect('http://localhost:3000'); // Correct redirection
+            res.status(200).send('Logged out successfully');
         });
     });
 });

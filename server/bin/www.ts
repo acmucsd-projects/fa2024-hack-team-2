@@ -11,6 +11,7 @@ import { Socket, Server} from 'socket.io';
 import mongoose from 'mongoose';
 import { Message } from '../models/messageSchema';
 import { v4 as uuidv4} from 'uuid';
+import cors from 'cors';
 
 /**
  * Get port from environment and store in Express.
@@ -18,6 +19,7 @@ import { v4 as uuidv4} from 'uuid';
 
 const port = normalizePort(process.env.PORT || '3001');
 app.set('port', port);
+
 
 /**
  * Create HTTP server.

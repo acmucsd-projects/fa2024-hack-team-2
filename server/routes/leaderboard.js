@@ -29,8 +29,8 @@ const router = express_1.default.Router();
  */
 router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const leaderboard = yield User_1.User.find({}).sort({ totalLikes: -1 }).limit(7);
-        res.json(leaderboard);
+        const leaderboard = yield User_1.User.find({}, 'picture user_id username totalLikes').sort({ totalLikes: -1 }).limit(7);
+        res.status(200).json(leaderboard);
     }
     catch (error) {
         console.error('Error fetching leaderboard:', error);

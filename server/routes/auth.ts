@@ -49,15 +49,15 @@ router.get(
  */
 router.get('/logout', (req, res) => {
   req.logout((err) => {
-  if (err) {
-    res.status(500).send('Error logging out');
-  }
-  req.session.destroy((err) => {
     if (err) {
-    res.status(500).send('Error destroying session');
+      return res.status(500).send('Error logging out');
     }
-    res.redirect('http://localhost:3000');  // Correct redirection
-  });
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).send('Error destroying session');
+      }
+      res.status(200).send('Logged out successfully');
+    });
   });
 });
 
