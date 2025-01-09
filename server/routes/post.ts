@@ -442,8 +442,15 @@ router.patch("/like", async (req: Request, res: Response) => {
 
     const postObjectId = new mongoose.Types.ObjectId(post_id);
     const index = user.liked.indexOf(postObjectId);
+    const dislikeIndex = user.disliked.indexOf(postObjectId);
 
-    if (index !== -1) {
+    if(dislikeIndex !== -1){
+      user.disliked.splice(dislikeIndex, 1);
+      post.likes++;
+      author.totalLikes++;
+      post.likesList.push(user_id);
+      user.liked.push(postObjectId);
+    }else if(index !== -1) {
       user.liked.splice(index, 1);
       post.likes--;
       author.totalLikes--;
@@ -463,6 +470,58 @@ router.patch("/like", async (req: Request, res: Response) => {
   }
 });
 
+router.patch('/dislike', async (req, res) => {
+  if (!req.user){
+    res.status(401).json({ error: "Unauthorized"});
+    return;
+  }
+  try {
+    const user_id = (req.user as IUser).user_id;
+    const post_id = req.body.post_id;
+
+    if (!mongoose.Types.ObjectId.isValid(post_id)) {
+      res.status(400).json({ error: "Invalid post_id format" });
+    }
+
+    const post = await Post.findById(post_id);
+    if (!post) {
+      res.status(404).json({ error: "Post not found" });
+      return;
+    }
+
+    const [author, user] = await Promise.all([
+      User.findOne({ user_id: post.author }),
+      User.findOne({ user_id: user_id }),
+    ]);
+
+    if (!author) {
+      res.status(404).json({ error: "Author not found" });
+      return;
+    }
+
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    if (user.liked.includes(post_id)){
+      await user.updateOne({$pull: {liked: post_id}});
+      await user.updateOne({$push: {disliked: post_id}});
+
+      await post.updateOne({$inc: {likes: -1}});
+      await post.updateOne({$pull: {likesList: user_id}});
+    } else if(user.disliked.includes(post_id)){
+      await user.updateOne({$pull: {disliked: post_id}});
+    } else{
+      await user.updateOne({$push: {disliked: post_id}});
+    }
+
+    await user.save(), author.save(), post.save();
+    res.status(200).json({ message: "Disliked successfully"});
+  } catch (error){
+    res.status(500).json({error: "Error dislking post"});
+  }
+})
 /**
  * @route GET /history
  * @desc View user's history
