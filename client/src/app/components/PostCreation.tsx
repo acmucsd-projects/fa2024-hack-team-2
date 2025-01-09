@@ -6,6 +6,7 @@ import CreatePostMaterialBox from "./CreatePostMaterialBox";
 import CreatePostBrandBox from "./CreatePostBrandBox";
 import CreatePostSlider from "./CreatePostSlider";
 import TagList from "./TagList";
+import backendConnection from "@/communication";
 
 interface MyComponentProps {}
 
@@ -49,27 +50,31 @@ const PostCreation: React.FC<MyComponentProps> = () => {
     };
     try {
       // make POST request to the backend
-      // TODO: change url later?
-      const response = await fetch("http://localhost:3001/api/posts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(json),
+      backendConnection.post("/posts", {
+        title,
+        description,
+        material,
+        brand,
+        cost,
+        // numStores,
+        // available_stores,
+        images,
+        tags,
+      }).then((response) => {
+        // success
+        alert("Successfully created post.");
+        // reset form state
+        setImages([]);
+        setTitle("");
+        setDescription("");
+        setMaterial(undefined);
+        setBrand("");
+        setCost(0.0);
+        setTags([]);
+        // TODO: add code to navigate out of post creation
+      }).catch((error) => {
+        throw new Error(`Failed to post data: ${error}`);
       });
-      // handle response
-      if (!response.ok) {
-        throw new Error(`Failed to post data: ${response.statusText}`);
-      }
-      alert("Post created successfully!");
-      // reset form state
-      setImages([]);
-      setTitle("");
-      setDescription("");
-      setMaterial(undefined);
-      setBrand("");
-      setCost(100.0);
-      setTags([]);
     } catch (error) {
       // console.error("Error posting data:", error);
       alert("Failed to create post. Please try again.");

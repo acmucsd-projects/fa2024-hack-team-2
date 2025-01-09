@@ -25,7 +25,7 @@ dotenv_1.default.config();
 const app = (0, express_1.default)();
 const corsOptions = {
     origin: 'http://localhost:3000', // Allow requests from frontend (React app)
-    methods: 'GET,POST,PUT,DELETE', // Allow these HTTP methods
+    methods: 'GET,POST,PATCH,PUT,DELETE', // Allow these HTTP methods
     credentials: true, // Allow cookies to be sent with the request
 };
 app.use((0, cors_1.default)(corsOptions)); // Enable CORS with the configured options
@@ -48,9 +48,9 @@ app.use(passport_1.default.session());
 // Routes
 app.use('/', index_1.default);
 app.use('/auth', auth_1.default);
-app.use('/user', user_1.default);
+app.use('/users', user_1.default);
 app.use('/posts', post_1.default);
-app.use('/api', message_1.default);
+app.use('/messages', message_1.default);
 app.use('/leaderboard', leaderboard_1.default);
 app.use('/search', search_1.default);
 // catch 404 and forward to error handler

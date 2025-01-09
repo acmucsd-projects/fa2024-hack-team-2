@@ -25,7 +25,7 @@ const app = express();
 
 const corsOptions = {
   origin: 'http://localhost:3000',  // Allow requests from frontend (React app)
-  methods: 'GET,POST,PUT,DELETE',  // Allow these HTTP methods
+  methods: 'GET,POST,PATCH,PUT,DELETE',  // Allow these HTTP methods
   credentials: true,  // Allow cookies to be sent with the request
 };
 

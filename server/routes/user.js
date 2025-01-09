@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const User_1 = require("../models/User");
+const Post_1 = __importDefault(require("../models/Post"));
 const router = express_1.default.Router();
 /**
  * @route GET /
@@ -32,7 +33,7 @@ const router = express_1.default.Router();
  */
 router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user_id = req.body.user_id;
+        const user_id = req.params.user_id;
         const user = yield User_1.User.findOne({ user_id: user_id });
         if (!user) {
             res.status(404).json({ error: 'User not found' });
@@ -221,7 +222,7 @@ router.patch('/profile', (req, res) => __awaiter(void 0, void 0, void 0, functio
  */
 router.get('/self', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.user) {
-        const user = yield User_1.User.findOne({ user_id: req.user.user_id });
+        const user = yield req.user.user_id;
         res.status(200).json(user);
     }
     else {
@@ -330,6 +331,52 @@ router.patch('/history/clear', (req, res) => __awaiter(void 0, void 0, void 0, f
     }
     catch (error) {
         res.status(500).json({ error: "Error clearing user history" });
+    }
+}));
+/**
+ * @route GET /feed
+ * @desc Create feed for the user.
+ * @access Private
+ *
+ * This endpoint creates a randomized feed for the user. If the user views a post, it will
+ * not show up in the feed.
+ *
+ * Request:
+ * - user: The authenticated user.
+ * - user.user_id: The ID of the authenticated user.
+ *
+ * Response:
+ * - 200: Successfully retrieved the next random post.
+ * - 201: No unseen posts were found.
+ * - 401: Not authenticated.
+ * - 500: Internal server error.
+ */
+router.get('/feed', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.user) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+    }
+    try {
+        const user_id = req.user.user_id;
+        const user = yield User_1.User.findOne({ user_id: user_id });
+        const randomPost = yield Post_1.default.aggregate([
+            {
+                $match: {
+                    _id: { $in: user === null || user === void 0 ? void 0 : user.viewedPosts } // temporarily editing this for testing purposes
+                }
+            },
+            { $sample: { size: 1 } }
+        ]);
+        if (!randomPost[0]) {
+            res.status(201).json({ message: "No unseen posts found" });
+            return;
+        }
+        ``;
+        yield User_1.User.findOneAndUpdate({ user_id: user_id }, { $push: { viewedPosts: randomPost[0]._id } });
+        res.status(200).json(randomPost[0]);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Error retrieving post feed" });
     }
 }));
 exports.default = router;

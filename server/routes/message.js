@@ -15,12 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const Message_1 = __importDefault(require("../models/Message"));
 const router = express_1.default.Router();
-// Test route
-router.get('/messages/test', (req, res) => {
-    res.send('Messages route is working');
-});
 // GET: Fetch all messages in a conversation
-router.get('/messages/:conversation_id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/:conversation_id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { conversation_id } = req.params;
         const messages = yield Message_1.default.find({ conversation_id }).sort({ timestamp: 1 });
@@ -32,7 +28,7 @@ router.get('/messages/:conversation_id', (req, res) => __awaiter(void 0, void 0,
     }
 }));
 // POST: Send a new message
-router.post('/messages', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { conversation_id, user_id, timestamp, message } = req.body;
         const newMessage = new Message_1.default({

@@ -128,7 +128,7 @@ router.post(
  */
 router.get("/", async (req: Request, res: Response) => {
   try {
-    const post_id = new mongoose.Types.ObjectId(req.body.post_id); // Convert post_id to ObjectId
+    const post_id = new mongoose.Types.ObjectId(req.params.post_id); // Convert post_id to ObjectId
     const post = await Post.findById(post_id); // Find post by MongoDB's ObjectId
     if (!post) {
       res.status(404).json({ error: "Post not found" });
@@ -359,7 +359,7 @@ router.patch(
  */
 router.get("/author", async (req: Request, res: Response) => {
   try {
-    const user = await User.findOne({ user_id: req.body.user_id });
+    const user = await User.findOne({ user_id: req.params.user_id });
     if (!user) {
       res.status(404).json({ error: "User not found" });
       return;
@@ -417,6 +417,7 @@ router.patch("/like", async (req: Request, res: Response) => {
     // Validate post_id
     if (!mongoose.Types.ObjectId.isValid(post_id)) {
       res.status(400).json({ error: "Invalid post_id format" });
+      return;
     }
 
     const post = await Post.findById(post_id);
