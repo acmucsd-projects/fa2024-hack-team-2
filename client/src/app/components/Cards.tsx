@@ -54,9 +54,13 @@ const Cards: React.FC<MyComponentProps> = ({}) => {
 
   // get post from BE
   const fetchData = async () => {    
-    const response = await backendConnection.get("/users/feed");
-    console.log(response.data);
-    return response.data;
+    try {
+      const response = await backendConnection.get("/users/feed");
+      return response.data;
+    }
+    catch (error) {
+      console.log("Error fetching data: ", error);
+    }
   };
 
   // Fetch data after interest/disinterest buttons are cålicked
@@ -71,40 +75,44 @@ const Cards: React.FC<MyComponentProps> = ({}) => {
     }
     // get data
     const data:any = await fetchData();
-    if (data.message && data.message === "No unseen posts found") {
-        setNoMorePosts(true);
-        return;
+    try {
+        if (data.message && data.message === "No unseen posts found") {
+          setNoMorePosts(true);
+          return;
+      }
+      setNoMorePosts(false);
+      postIdRef.current = data._id; 
+      setCards(data.images);
+      // NOTE: image has 3 properties: contentType, data, _id
+      setCardDetails({
+        title: data.title,
+        description: data.product_details,
+        stores: data.available_stores,
+        likeCount: data.likes,
+        material: data.material || "",
+        brand: data.brand || "",
+        cost: data.cost || 0
+      }
+      );
+      // TODO: 
+      // get the author from the BE
+      // set the author's pfp to the picture
+      // const response = await backendConnection.get("/users", 
+      //   {params: {user_id: data.author}}
+      // );
+      // console.log(response);
+
+      // setAuthorPFP(response.data["picture"]);
+
+      // card rotations
+      const newRotations = data.images.slice(1).map(() => getRandomRotation());
+      const newOpacities = data.images.slice(1).map(() => getRandomOpacity());
+      setRotations(newRotations);
+      setOpacities(newOpacities);
     }
-    setNoMorePosts(false);
-    postIdRef.current = data._id; 
-    setCards(data.images);
-    // NOTE: image has 3 properties: contentType, data, _id
-    setCardDetails({
-      title: data.title,
-      description: data.product_details,
-      stores: data.available_stores,
-      likeCount: data.likes,
-      material: data.material || "",
-      brand: data.brand || "",
-      cost: data.cost || 0
+    catch (error) {
+      console.log("Error fetching data: ", error);
     }
-    );
-
-    // TODO: 
-    // get the author from the BE
-    // set the author's pfp to the picture
-    // const response = await backendConnection.get("/users", 
-    //   {params: {user_id: data.author}}
-    // );
-    // console.log(response);
-
-    // setAuthorPFP(response.data["picture"]);
-
-    // card rotations
-    const newRotations = data.images.slice(1).map(() => getRandomRotation());
-    const newOpacities = data.images.slice(1).map(() => getRandomOpacity());
-    setRotations(newRotations);
-    setOpacities(newOpacities);
   };
 
   // Initial fetch

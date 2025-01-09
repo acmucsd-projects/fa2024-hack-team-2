@@ -11,32 +11,56 @@ import leaderboardIcon from "/public/images/award-solid.svg";
 import tempPFP from "/public/images/circle-solid.svg";
 import searchIcon from "/public/images/magnifying-glass-solid.svg";
 import backendConnection from "../../communication";
+import {LoginPopup} from "./LoginPopup";
+
 
 interface NavBarProps {
   handleComponentChange: (component: string) => void;
 }
+  
+interface IUser {
+  user_id: string;
+  username: string;
+  bio?: string;
+  pronouns: string;
+  tags: string[];
+  followers: number;
+  following: number;
+  liked: [];
+  picture: string; // Assuming a profile picture URL
+  settings: {
+    privateAccount: boolean;
+  };
+  posts?: [],
+}
 
 const NavBar: React.FC<NavBarProps> = ({ handleComponentChange }) => {
+  const [notAuthenticated, setNotAuthenticated] = useState<boolean>(false);
   const [PFP, setPFP] = useState<string>("");
   const [username, setUsername] = useState<string>("");
-    
+  
   // Dropdown state
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
+    
   // TODO: Get data from BE
-  const fetchData = () => {
-    return {
-      PFP: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
-      username: "ORIGAMI",
-    };
+  const fetchData = async () => {
+    try {
+      const response = await backendConnection.get("/users/self");
+        setUsername(response.data.username);
+        setPFP(response.data.picture);
+        console.log(response.data);
+        setNotAuthenticated(false);
+    }
+    catch (error) {
+      console.log("Failed to fetch user data:", error);
+      setNotAuthenticated(true);
+    }
   };
 
   // Initial fetch
   useEffect(() => {
-    const data = fetchData();
-    setPFP(data.PFP);
-    setUsername(data.username);
+    fetchData();
   }, []);
 
   // State to toggle the search bar in mobile view
@@ -81,6 +105,13 @@ const NavBar: React.FC<NavBarProps> = ({ handleComponentChange }) => {
       document.removeEventListener("mousedown", handleOutsideClick);
     };
   }, []);
+
+
+  if (notAuthenticated) {
+    return <div className="h-screen w-screen absolute bg-gray-50 z-10">
+      <LoginPopup />
+    </div>;
+  }
 
   return (
     <div className="mt-4 flex h-10 w-10/12 items-center justify-between gap-1 rounded bg-white outline outline-gray-300">
@@ -154,7 +185,7 @@ const NavBar: React.FC<NavBarProps> = ({ handleComponentChange }) => {
             onMouseLeave={() => setIsDropdownOpen(false)}
           >
             <Link
-              href="/profile"
+              href={`/profile?username=${username}`}
               className="rounded bg-white px-4 py-2 text-gray-800 hover:bg-gray-200"
             >
               Profile
@@ -164,7 +195,7 @@ const NavBar: React.FC<NavBarProps> = ({ handleComponentChange }) => {
               onClick={async () => {
                 try {
                   await backendConnection.get("/auth/logout");
-                  window.location.href = "/landing";
+                  window.location.href = "/welcome";
                 } catch (error) {
                   console.error("Logout failed:", error);
                 }
