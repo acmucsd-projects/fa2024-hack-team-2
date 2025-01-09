@@ -7,6 +7,7 @@ import NavBar from "./components/NavBar";
 import Cards from "./components/Cards";
 import ViewHistory from "./components/ViewHistory";
 import Leaderboard from "./components/Leaderboard";
+import PostCreation from "./components/PostCreation";
 
 const Home: React.FC = () => {
 
@@ -41,7 +42,8 @@ const Home: React.FC = () => {
       <div className="flex justify-center mt-4">
         {currentComponent === "cards" && <Cards />}
         {currentComponent === "history" && <ViewHistory />}
-        {currentComponent === "leaderboard" && <Leaderboard users={users} />}
+        {currentComponent === "leaderboard" && <Leaderboard/>}
+        {currentComponent === "PostCreation"&& <PostCreation />}
         </div>
     </main>
   );

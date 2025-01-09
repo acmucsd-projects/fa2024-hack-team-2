@@ -10,8 +10,7 @@ import historyIcon from "/public/images/clock-solid.svg";
 import leaderboardIcon from "/public/images/award-solid.svg";
 import tempPFP from "/public/images/circle-solid.svg";
 import searchIcon from "/public/images/magnifying-glass-solid.svg";
-import ViewHistory from "./ViewHistory";
-import Leaderboard from "./Leaderboard";
+import backendConnection from "../../communication";
 
 interface NavBarProps {
   handleComponentChange: (component: string) => void;
@@ -20,12 +19,10 @@ interface NavBarProps {
 const NavBar: React.FC<NavBarProps> = ({ handleComponentChange }) => {
   const [PFP, setPFP] = useState<string>("");
   const [username, setUsername] = useState<string>("");
-
+    
   // Dropdown state
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
- 
 
   // TODO: Get data from BE
   const fetchData = () => {
@@ -101,21 +98,20 @@ const NavBar: React.FC<NavBarProps> = ({ handleComponentChange }) => {
         <div
           className={`flex ${isMobileShowNav && window.innerWidth < 1024 ? "hidden" : ""}`}
         >
-          <NavBarLink image={createIcon} imageAlt={"Create"} ></NavBarLink>
+          <NavBarLink image={createIcon} imageAlt={"PostCreation"} onClick={() => handleComponentChange("PostCreation")}></NavBarLink>
           <NavBarLink image={historyIcon} imageAlt={"History"} onClick={() => handleComponentChange("history")}></NavBarLink>
           <NavBarLink image={messagesIcon} imageAlt={"Messages"} linkAddress="/messages"></NavBarLink>
           <NavBarLink image={leaderboardIcon} imageAlt={"Leaderboard"} onClick={() => handleComponentChange("leaderboard")}></NavBarLink>
         </div>
       </div>
-      
+
       {/* Search Bar */}
       <div
         ref={searchBarRef}
-        className={`flex items-center transition-all duration-300 ${
-          isMobileShowNav && window.innerWidth < 1024
+        className={`flex items-center transition-all duration-300 ${isMobileShowNav && window.innerWidth < 1024
             ? "w-6/12 bg-gray-100 outline outline-gray-400"
             : "w-2/12 md:w-3/12 lg:bg-gray-100"
-        } justify-center rounded focus-within:outline-gray-400 lg:outline lg:outline-gray-200`}
+          } justify-center rounded focus-within:outline-gray-400 lg:outline lg:outline-gray-200`}
       >
         <Image
           src={searchIcon}
@@ -129,11 +125,10 @@ const NavBar: React.FC<NavBarProps> = ({ handleComponentChange }) => {
         />
         <input
           type="text"
-          className={`w-full bg-gray-100 text-gray-600 outline-none ${
-            isMobileShowNav && window.innerWidth < 1024
+          className={`w-full bg-gray-100 text-gray-600 outline-none ${isMobileShowNav && window.innerWidth < 1024
               ? "block"
               : "hidden lg:block"
-          }`}
+            }`}
           placeholder="Search for styles..."
         />
       </div>
@@ -166,8 +161,13 @@ const NavBar: React.FC<NavBarProps> = ({ handleComponentChange }) => {
             </Link>
             <span
               className="rounded bg-white px-4 py-2 text-left text-gray-800 hover:bg-gray-200"
-              onClick={() => {
-                console.log("Log Out clicked"); // Replace with actual logout logic
+              onClick={async () => {
+                try {
+                  await backendConnection.get("/auth/logout");
+                  window.location.href = "/landing";
+                } catch (error) {
+                  console.error("Logout failed:", error);
+                }
               }}
             >
               Log Out

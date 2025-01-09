@@ -3,13 +3,8 @@ import Message from '../models/Message';
 
 const router = express.Router();
 
-// Test route
-router.get('/messages/test', (req: Request, res: Response) => {
-  res.send('Messages route is working');
-});
-
 // GET: Fetch all messages in a conversation
-router.get('/messages/:conversation_id', async (req: Request, res: Response) => {
+router.get('/:conversation_id', async (req: Request, res: Response) => {
   try {
     const { conversation_id } = req.params;
     const messages = await Message.find({ conversation_id }).sort({ timestamp: 1 });
@@ -21,7 +16,7 @@ router.get('/messages/:conversation_id', async (req: Request, res: Response) => 
 });
 
 // POST: Send a new message
-router.post('/messages', async (req: Request, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const { conversation_id, user_id, timestamp, message } = req.body;
 

@@ -42,9 +42,6 @@ const PostCreation: React.FC<MyComponentProps> = () => {
       
     try {
       // make POST request to the backend
-      const numStores = 0
-      const available_stores = [];
-      const image = "https://i.pinimg.com/originals/13/cb/4e/13cb4e45fdc7d4a07b9df3e7f7cf0b31.jpg";
       backendConnection.post("/posts", {
         title,
         description,

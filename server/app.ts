@@ -6,7 +6,6 @@ import logger from 'morgan';
 import passport from './utils/passport';
 import session from 'express-session';
 import connectDB from './db';
-import mongoose from 'mongoose';
 import cors from 'cors';
 
 import indexRouter from './routes/index';
@@ -16,6 +15,8 @@ import postRoutes from './routes/post';
 import messageRoutes from './routes/message';
 import searchRouter from './routes/search';
 import dotenv from 'dotenv';
+import leaderborderRoutes from './routes/leaderboard';
+
 
 dotenv.config();
 
@@ -54,9 +55,10 @@ app.use(passport.session());
 // Routes
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
-app.use('/user', userRoutes);
+app.use('/users', userRoutes);
 app.use('/posts', postRoutes);
-app.use('/api', messageRoutes);
+app.use('/messages', messageRoutes);
+app.use('/leaderboard', leaderborderRoutes)
 app.use('/search', searchRouter);
 
 

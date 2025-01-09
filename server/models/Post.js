@@ -15,25 +15,19 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
+const imageSchema = new mongoose_1.Schema({
+    data: { type: Buffer, required: true },
+    contentType: { type: String, required: true },
+});
 const postSchema = new mongoose_1.Schema({
     title: { type: String, required: true },
     product_details: { type: String },
@@ -44,9 +38,10 @@ const postSchema = new mongoose_1.Schema({
     numStores: { type: Number },
     author: { type: String, required: true },
     available_stores: { type: [String], default: [] },
-    image: { type: String, required: true },
+    images: { type: [imageSchema], required: true }, // Array of image schemas
     tags: { type: [String], default: [] },
     date_created: { type: String, required: true },
+    likesList: { type: [String], default: [] },
 });
 const Post = mongoose_1.default.model('Post', postSchema);
 exports.default = Post;

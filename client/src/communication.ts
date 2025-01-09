@@ -6,4 +6,3 @@ const backendConnection = axios.create({
 });
 
 export default backendConnection;
-

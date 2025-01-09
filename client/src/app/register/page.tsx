@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
-import InputBox from "../components/InputBox";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
+import InputBox from '../components/InputBox';
 
 const RegisterPage: React.FC = () => {
   // Password visibility
@@ -46,6 +46,29 @@ const RegisterPage: React.FC = () => {
 
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const [email, setEmail] = useState(""); // ← Move here
+  const searchParams = useSearchParams(); // ← Move here
+
+  useEffect(() => {
+    if (searchParams) {
+      // Debugging: log parameters
+      const allParams = Array.from(searchParams.entries());
+      console.log("All Search Params:", allParams);
+
+      // Extract email
+      const emailParam = searchParams.get("email");
+      if (emailParam) {
+        console.log("Extracted Email:", emailParam);
+        setFormData((prev) => ({ ...prev, email: emailParam }));
+        setEmail(emailParam);
+      } else {
+        console.log("Email parameter not found.");
+      }
+    } else {
+      console.log("searchParams is not available.");
+    }
+  }, [searchParams]);
 
   const handleInputChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -144,6 +167,7 @@ const RegisterPage: React.FC = () => {
             <form
               action="/login"
               method="POST"
+              onSubmit={handleRegistration}
               className="flex w-full flex-wrap place-content-around place-items-center content-center gap-6"
             >
               {/* Form elements */}

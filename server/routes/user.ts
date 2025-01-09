@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { User, IUser } from '../models/User';
-
+import Post from '../models/Post';
 const router = express.Router();
 
 /**
@@ -8,10 +8,10 @@ const router = express.Router();
  * @desc Get user information
  * @access Private
  * 
- * This endpoint allows an authenticated user to view a user's information.
+ * This endpoint allows a user to view another user's information.
  * 
  * Request Body:
- * - user_id: The ID of the user. (required)
+ * - user_id: The ID of the user to view. (required)
  * 
  * Response:
  * - 200: The user was successfully found and their information was retrieved.
@@ -21,17 +21,34 @@ const router = express.Router();
 
 router.get('/', async (req: Request, res: Response) => {
     try {
-      const user = await User.findOne({ user_id: req.body.user_id }); 
+      const user_id = req.params.user_id;
+      const user = await User.findOne({ user_id: user_id }); 
       if (!user) {
         res.status(404).json({ error: 'User not found' });
         return;
+      }
+
+      if(req.user){
+        const currUser = await User.findOne({user_id: (req.user as IUser).user_id});
+
+        await currUser?.updateOne(
+          {$pull: {viewedUsers: user_id}}
+        )
+
+        await currUser?.updateOne(
+          {$push: {
+            viewedUsers: {$each: [user_id], $position: 0}
+          }}
+        );
+
+        await currUser?.save();
       }
       res.status(200).json(user);
     } catch (error) {
       console.error('Error fetching user:', error);
       res.status(500).json({ error: 'Error fetching user' });
     }
-  });
+});
   
 /**
  * WIP
@@ -66,7 +83,7 @@ router.post('/new', async (req: Request, res: Response) => {
 });
 
 /**
- * @route POST /follow
+ * @route PATCH /follow
  * @desc Follow a user
  * @access Private
  * 
@@ -85,7 +102,7 @@ router.post('/new', async (req: Request, res: Response) => {
  * - 404: Error finding a user.
  * - 500: Internal server error.
  */
-router.post('/follow', async (req: Request, res: Response) => {
+router.patch('/follow', async (req: Request, res: Response) => {
   if(!req.user){
     res.status(401).json({message: `Unauthorized`});
     return;
@@ -215,7 +232,7 @@ router.patch('/profile', async (req, res) => {
 
 router.get('/self', async (req: Request, res: Response, next: NextFunction) => {
   if (req.user) {
-    const user = await User.findOne({ user_id: (req.user as IUser).user_id});
+    const user = await (req.user as IUser).user_id;
     res.status(200).json(user);  
   } else {
     res.status(401).send('Unauthorized');
@@ -254,4 +271,141 @@ router.get('/all', async (req: Request, res: Response, next: NextFunction) => {
   }
 });
 
+/**
+ * @route GET /history
+ * @desc View user's history
+ * @access Private
+ * 
+ * Allows an authenticated user to view their viewed user history.
+ * 
+ * Request User:
+ * - req.user.user_id: The user's user ID
+ * 
+ * Response:
+ * - 200: Retrieved history data successfully.
+ * - 400: No users were found in history.
+ * - 401: Unauthorized
+ * - 404: User not found
+ * - 500: Internal server error
+ */
+
+router.get('/history', async(req, res) => {
+  if (!req.user){
+    res.status(401).json({error: 'Unauthorized'});
+    return;
+  }
+
+  try {
+    const user = await User.findOne({user_id: (req.user as IUser).user_id});
+    if(!user){
+      res.status(401).json({message: "User not found"});
+      return;
+    }
+    const history = user?.viewedUsers;
+
+    if(!history[0]){
+      res.status(400).json({message: "No recently viewed users found"});
+      return;
+    }
+
+    const viewedUsers = await Promise.all(
+      history.map(user_id => {return User.findOne({user_id: user_id})})
+    )
+
+    res.status(200).json(viewedUsers);
+  } catch (err){
+    res.status(500).json({err: "Error fetching user history"});
+  }
+})
+
+/**
+ * @route PATCH /history/clear
+ * @desc Allows user to clear history
+ * @access Private
+ * 
+ * This endpoint allows an authenticated user to clear their viewed user history.
+ * 
+ * Request User:
+ * - req.user.user_id: The user's user ID.
+ * 
+ * Response:
+ * - 200: The post history was clear successfully.
+ * - 401: Unauthorized.
+ * - 404: User was not found.
+ * - 500: Internal server error
+ */
+
+router.patch('/history/clear', async(req, res) => {
+  if (!req.user){
+    res.status(401).json({message: "Not authorized"});
+    return;
+  }
+
+  try{
+    const user_id = (req.user as IUser).user_id;
+    const result = await User.findOneAndUpdate(
+      {user_id: user_id},
+      {$set: {viewedUsers: []}},
+      {new: true}
+    );
+
+    if(!result){
+      res.status(404).json({message: "User not found"});
+      return;
+    }
+    res.status(200).json({message: "User history cleared successfully"});
+  } catch (error){
+    res.status(500).json({error: "Error clearing user history"});
+  }
+})
+
+/**
+ * @route GET /feed
+ * @desc Create feed for the user.
+ * @access Private
+ * 
+ * This endpoint creates a randomized feed for the user. If the user views a post, it will
+ * not show up in the feed.
+ * 
+ * Request:
+ * - user: The authenticated user.
+ * - user.user_id: The ID of the authenticated user.
+ * 
+ * Response:
+ * - 200: Successfully retrieved the next random post.
+ * - 201: No unseen posts were found.
+ * - 401: Not authenticated.
+ * - 500: Internal server error.
+ */
+
+router.get('/feed', async(req, res) => {
+  if(!req.user){
+    res.status(401).json({message: "Unauthorized"});
+    return;
+  }
+  try {
+    const user_id = (req.user as IUser).user_id;
+    const user = await User.findOne({ user_id: user_id });
+
+    const randomPost = await Post.aggregate([
+      {
+        $match: {
+          _id: {$in: user?.viewedPosts}  // temporarily editing this for testing purposes
+        }
+      },
+      {$sample: {size: 1}}
+    ]);
+
+    if(!randomPost[0]){
+      res.status(201).json({message: "No unseen posts found"});
+      return;
+    }
+``
+    await User.findOneAndUpdate({user_id: user_id}, {$push: {viewedPosts: randomPost[0]._id}});
+
+    res.status(200).json(randomPost[0])
+  } catch(error){
+    res.status(500).json({message: "Error retrieving post feed"});
+  }
+})
 export default router;
