@@ -16,7 +16,7 @@ const express_1 = __importDefault(require("express"));
 const User_1 = require("../models/User");
 const router = express_1.default.Router();
 /**
- * @route GET /
+ * @route GET /leaderboard
  * @desc Retrieve the leaderboard
  * @access Public
  *
@@ -26,6 +26,7 @@ const router = express_1.default.Router();
  * - 200: Leaderboard retrieved successfully.
  *   - The response includes the list of users sorted by total likes.
  * - 500: Internal server error.
+ *   - The response includes an error message indicating the failure to fetch the leaderboard.
  */
 router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {

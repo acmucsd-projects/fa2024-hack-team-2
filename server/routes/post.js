@@ -378,7 +378,15 @@ router.patch("/like", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         }
         const postObjectId = new mongoose_1.default.Types.ObjectId(post_id);
         const index = user.liked.indexOf(postObjectId);
-        if (index !== -1) {
+        const dislikeIndex = user.disliked.indexOf(postObjectId);
+        if (dislikeIndex !== -1) {
+            user.disliked.splice(dislikeIndex, 1);
+            post.likes++;
+            author.totalLikes++;
+            post.likesList.push(user_id);
+            user.liked.push(postObjectId);
+        }
+        else if (index !== -1) {
             user.liked.splice(index, 1);
             post.likes--;
             author.totalLikes--;
@@ -396,6 +404,53 @@ router.patch("/like", (req, res) => __awaiter(void 0, void 0, void 0, function* 
     catch (error) {
         console.error("Error liking post:", error);
         res.status(500).json({ error: "Error liking post" });
+    }
+}));
+router.patch('/dislike', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.user) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+    }
+    try {
+        const user_id = req.user.user_id;
+        const post_id = req.body.post_id;
+        if (!mongoose_1.default.Types.ObjectId.isValid(post_id)) {
+            res.status(400).json({ error: "Invalid post_id format" });
+        }
+        const post = yield Post_1.default.findById(post_id);
+        if (!post) {
+            res.status(404).json({ error: "Post not found" });
+            return;
+        }
+        const [author, user] = yield Promise.all([
+            User_1.User.findOne({ user_id: post.author }),
+            User_1.User.findOne({ user_id: user_id }),
+        ]);
+        if (!author) {
+            res.status(404).json({ error: "Author not found" });
+            return;
+        }
+        if (!user) {
+            res.status(404).json({ error: "User not found" });
+            return;
+        }
+        if (user.liked.includes(post_id)) {
+            yield user.updateOne({ $pull: { liked: post_id } });
+            yield user.updateOne({ $push: { disliked: post_id } });
+            yield post.updateOne({ $inc: { likes: -1 } });
+            yield post.updateOne({ $pull: { likesList: user_id } });
+        }
+        else if (user.disliked.includes(post_id)) {
+            yield user.updateOne({ $pull: { disliked: post_id } });
+        }
+        else {
+            yield user.updateOne({ $push: { disliked: post_id } });
+        }
+        yield user.save(), author.save(), post.save();
+        res.status(200).json({ message: "Disliked successfully" });
+    }
+    catch (error) {
+        res.status(500).json({ error: "Error dislking post" });
     }
 }));
 /**
