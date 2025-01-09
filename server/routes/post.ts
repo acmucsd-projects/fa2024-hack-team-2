@@ -496,7 +496,7 @@ router.get('/history', async(req, res) => {
     }
     const history = user.viewedPosts;
     if(!history[0]){
-      res.status(400).json({message: 'No recently viewed posts found'});
+      res.status(400)
       return;
     }
     
@@ -504,7 +504,15 @@ router.get('/history', async(req, res) => {
       history.map(post_id => {return Post.findById(post_id)})
     );
     
-    res.status(200).json(posts);
+    const postsWithBase64Images = posts.map(post => ({
+      ...post?.toObject(),
+      images: post?.images.map(image => ({
+        contentType: image.contentType,
+        data: image.data.toString('base64')
+      }))
+    }));
+
+    res.status(200).json(postsWithBase64Images);
   } catch(err){
     console.error(err);
     res.status(500).json({error: "Error retrieving post history"});
@@ -551,34 +559,6 @@ router.patch('/history/clear', async(req, res) => {
     res.status(200).json({message: "Post history successfully cleared"});
   } catch(error){
     res.status(500).json({error: "Error clearing post history"});
-  }
-})
-
-/**
- * @route GET /trending
- * @desc Fetches the top 3 liked posts
- * @access Public
- * 
- * Gets the top 3 liked posts, order from most to least liked.
- * 
- * Request:
- * N/A
- * 
- * Response:
- * - 200: Posts retrieved successfully.
- * - 400: No trending posts found.
- * - 500: Internal server error.
- */
-router.get('/trending', async(req,res) => {
-  try {
-    const posts = await Post.find({}).sort({likes: -1}).limit(3);
-    if (!posts){
-      res.status(400).json({message: "No trending posts found"});
-      return;
-    }
-    res.status(200).json(posts);
-  } catch(error){
-    res.status(500).json({error: "Error fetching trending posts"});
   }
 })
 
