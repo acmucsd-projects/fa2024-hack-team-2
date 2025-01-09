@@ -31,7 +31,7 @@ export const Leaderboard: React.FC = () => {
     "https://cdn.builder.io/api/v1/image/assets/TEMP/e57ce0fb4d7e6f9d8ae6cf2dda741add41521ccec68798186f13f301773163b5?placeholderIfAbsent=true";
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white">
+    <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-4xl">
         {/* Top 3 Section */}
         <div className="relative mb-12 flex items-end justify-center gap-16">
