@@ -10,9 +10,9 @@ const NavBar = () => {
   };
 
   return (
-    <div className="bg-white border flex flex-col items-center justify-center w-full h-[10%]">
+    <div className="bg-white flex items-center justify-center w-full h-[8%] shadow-md">
       {/* Navigation Bar */}
-      <nav className="bg-white fixed top-0 w-full flex justify-between items-center px-12 max-w-full h-[10%] shadow-md">
+      <nav className="bg-white w-full flex justify-between items-center px-12">
         <div className="flex justify-center items-center gap-8">
           {/* Logo */}
           <Link

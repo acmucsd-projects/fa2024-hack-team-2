@@ -16,7 +16,7 @@ const Chatlog = () => {
 
     const fetchUserData = async () => {
         try {
-            const response = await backendConnection.get("users/self", { withCredentials: true })
+            const response = await backendConnection.get("users/self")
                 .then((res) => res.data)
                 .then((data) => {
                     setCurrentUserId(data);

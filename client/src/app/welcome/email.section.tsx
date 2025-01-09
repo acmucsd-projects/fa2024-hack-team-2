@@ -77,7 +77,6 @@ const EmailSection = () => {
           So why not start exploring
         </h3>
         {/* Input and Button */}
-        {/* Input and Button */}
         <div className="flex flex-col items-start justify-center">
           <form
             onSubmit={handleSubmit}

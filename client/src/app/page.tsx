@@ -42,7 +42,7 @@ const Home: React.FC = () => {
       <div className="flex justify-center mt-4">
         {currentComponent === "cards" && <Cards />}
         {currentComponent === "history" && <ViewHistory />}
-        {currentComponent === "leaderboard" && <Leaderboard users={users} />}
+        {currentComponent === "leaderboard" && <Leaderboard/>}
         {currentComponent === "PostCreation"&& <PostCreation />}
         </div>
     </main>

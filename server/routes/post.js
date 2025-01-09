@@ -472,6 +472,21 @@ router.patch('/history/clear', (req, res) => __awaiter(void 0, void 0, void 0, f
         res.status(500).json({ error: "Error clearing post history" });
     }
 }));
+/**
+ * @route GET /trending
+ * @desc Fetches the top 3 liked posts
+ * @access Public
+ *
+ * Gets the top 3 liked posts, order from most to least liked.
+ *
+ * Request:
+ * N/A
+ *
+ * Response:
+ * - 200: Posts retrieved successfully.
+ * - 400: No trending posts found.
+ * - 500: Internal server error.
+ */
 router.get('/trending', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const posts = yield Post_1.default.find({}).sort({ likes: -1 }).limit(3);
