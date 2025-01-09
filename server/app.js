@@ -48,9 +48,9 @@ app.use(passport_1.default.session());
 // Routes
 app.use('/', index_1.default);
 app.use('/auth', auth_1.default);
-app.use('/user', user_1.default);
+app.use('/users', user_1.default);
 app.use('/posts', post_1.default);
-app.use('/api', message_1.default);
+app.use('/messages', message_1.default);
 app.use('/leaderboard', leaderboard_1.default);
 app.use('/search', search_1.default);
 // catch 404 and forward to error handler

@@ -47,6 +47,29 @@ const RegisterPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  const [email, setEmail] = useState(""); // ← Move here
+  const searchParams = useSearchParams(); // ← Move here
+
+  useEffect(() => {
+    if (searchParams) {
+      // Debugging: log parameters
+      const allParams = Array.from(searchParams.entries());
+      console.log("All Search Params:", allParams);
+
+      // Extract email
+      const emailParam = searchParams.get("email");
+      if (emailParam) {
+        console.log("Extracted Email:", emailParam);
+        setFormData((prev) => ({ ...prev, email: emailParam }));
+        setEmail(emailParam);
+      } else {
+        console.log("Email parameter not found.");
+      }
+    } else {
+      console.log("searchParams is not available.");
+    }
+  }, [searchParams]);
+
   const handleInputChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -60,35 +83,7 @@ const RegisterPage: React.FC = () => {
   // Function for create button
   const router = useRouter();
   const handleRegistration = async (event: React.FormEvent) => {
-  event.preventDefault();
-
-  const [email, setEmail] = useState("")
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    if (searchParams) {
-      // Debugging: Log all search parameters
-      const allParams = Array.from(searchParams.entries());
-      console.log("All Search Params:", allParams);
-
-      // Extract the email parameter
-      const emailParam = searchParams.get('email');
-      if (emailParam) {
-        console.log("Extracted Email:", emailParam);
-      } else {
-        console.log("Email parameter not found.");
-      }
-    } else {
-      console.log("searchParams is not available.");
-    }
-  }, [searchParams]);
-
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Registering with email:", email);
-    // Add form submission logic here
-  };
+    event.preventDefault();
 
     // Validate all fields filled out
     for (const [name, value] of Object.entries(formData)) {
@@ -197,13 +192,13 @@ const RegisterPage: React.FC = () => {
                 onChange={(e) => handleInputChange("last name", e.target.value)}
               />
               <InputBox
-                  htmlFor="email"
-                  text="Email"
-                  size="basis-1/2"
-                  type="email"
-                  isRequired={true}
-                  value={formData["email"]}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
+                htmlFor="email"
+                text="Email"
+                size="basis-1/2"
+                type="email"
+                isRequired={true}
+                value={formData["email"]}
+                onChange={(e) => handleInputChange("email", e.target.value)}
               />
               <InputBox
                 htmlFor="username"
