@@ -4,12 +4,14 @@ interface MyComponentProps {
   name: string;
   initialTags?: string[];
   onChange?: (tags: string[]) => void;
+  canEdit?: boolean;
 }
 
 const TagList: React.FC<MyComponentProps> = ({
   name,
   initialTags = [],
   onChange,
+  canEdit = true
 }) => {
   const [tags, setTags] = useState<string[]>(initialTags);
   const [newTagName, setNewTagName] = useState<string>("");
@@ -31,11 +33,32 @@ const TagList: React.FC<MyComponentProps> = ({
 
   useEffect(() => {
     // scroll to the newest tag when tags are updated
-    if (tagContainerRef.current) {
+    if (canEdit && tagContainerRef.current) {
       tagContainerRef.current.scrollLeft = tagContainerRef.current.scrollWidth;
     }
   }, [tags]);
 
+
+  // non-editable
+  if (!canEdit)
+    return (
+      // tags
+      <div
+        ref={tagContainerRef}
+        className="scrollbar-hide flex gap-2 overflow-x-auto whitespace-nowrap"
+      >
+        {tags.map((tag, index) => (
+          <span
+            key={index}
+            className="flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700 shadow-sm"
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+    )
+
+  // editable
   return (
     <div className="w-full rounded-lg bg-white p-4 shadow-md md:w-[28rem]">
       {/* title row */}

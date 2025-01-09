@@ -6,7 +6,7 @@ import CreatePostMaterialBox from "./CreatePostMaterialBox";
 import CreatePostBrandBox from "./CreatePostBrandBox";
 import CreatePostSlider from "./CreatePostSlider";
 import TagList from "./TagList";
-import backendConnection from "@/communication";
+import backendConnection from "../../communication";
 
 interface MyComponentProps {}
 
@@ -39,15 +39,7 @@ const PostCreation: React.FC<MyComponentProps> = () => {
           .map(([key, value]) => `${value}% ${key}`)
           .join(", ")
       : "";
-    const json = {
-      image: images,
-      title: title,
-      product_details: description,
-      material: materialString,
-      brand: brand,
-      cost: cost,
-      tags: tags,
-    };
+      
     try {
       // make POST request to the backend
       backendConnection.post("/posts", {
