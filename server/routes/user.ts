@@ -49,6 +49,37 @@ router.get('/', async (req: Request, res: Response) => {
       res.status(500).json({ error: 'Error fetching user' });
     }
 });
+
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    const username = req.params.username;
+    const user = await User.findOne({ username: username }); 
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    // if(req.user){
+    //   const currUser = await User.findOne({user_id: (req.user as IUser).user_id});
+
+    //   await currUser?.updateOne(
+    //     {$pull: {viewedUsers: username}}
+    //   )
+
+    //   await currUser?.updateOne(
+    //     {$push: {
+    //       viewedUsers: {$each: [user_id], $position: 0}
+    //     }}
+    //   );
+
+    //   await currUser?.save();
+    // }
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: 'Error fetching user' });
+  }
+});
   
 /**
  * WIP
