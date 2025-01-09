@@ -470,6 +470,28 @@ router.patch("/like", async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * @route PATCH /dislike
+ * @desc Dislike a post
+ * @access Private
+ * 
+ * Allows an authenticated user to dislike a post. If the post has been liked, then
+ * remove the like and add a dislike.
+ * 
+ * Request:
+ * - user: The authenticated user.
+ * - user.user_id: The user's ID.
+ * - body: The body of the request.
+ * - body.post_id: The desired post to be disliked.
+ * 
+ * Response:
+ * - 200: Successful dislike.
+ * - 400: Post ID is not formatted correctly.
+ * - 401: Unauthorized.
+ * - 404: Either the post or the author of the post was not found.
+ * - 500: Internal server error.
+ */
+
 router.patch('/dislike', async (req, res) => {
   if (!req.user){
     res.status(401).json({ error: "Unauthorized"});
