@@ -172,15 +172,15 @@ router.patch('/profile', async (req, res) => {
     }
 
     if (tags){
-      if(user.tags.includes(tags)){
-        await User.findOneAndUpdate({user_id: user_id},{
-          $pull: {tags: tags}
-        }, {new: true});
-      } else{
-        await User.findOneAndUpdate({user_id: user_id},{
-          $push: {tags: {$each: [tags]}}
-        }, {new: true})
+      if (!Array.isArray(tags)) {
+        res.status(400).json({message: 'Tags must be an array'});
+        return;
       }
+      await User.findOneAndUpdate(
+        {user_id: user_id},
+        { $set: { tags: tags }},
+        {new: true}
+      );
     }
     const updatedUser = await User.findOneAndUpdate({user_id: user_id},{
       $set: {
@@ -215,7 +215,8 @@ router.patch('/profile', async (req, res) => {
 
 router.get('/self', async (req: Request, res: Response, next: NextFunction) => {
   if (req.user) {
-    res.status(200).json((req.user as IUser).user_id);  
+    const user = (req.user as IUser).user_id;
+    res.status(200).json(user);  
   } else {
     res.status(401).send('Unauthorized');
   }

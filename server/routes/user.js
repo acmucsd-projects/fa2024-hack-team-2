@@ -170,16 +170,11 @@ router.patch('/profile', (req, res) => __awaiter(void 0, void 0, void 0, functio
             return;
         }
         if (tags) {
-            if (user.tags.includes(tags)) {
-                yield User_1.User.findOneAndUpdate({ user_id: user_id }, {
-                    $pull: { tags: tags }
-                }, { new: true });
+            if (!Array.isArray(tags)) {
+                res.status(400).json({ message: 'Tags must be an array' });
+                return;
             }
-            else {
-                yield User_1.User.findOneAndUpdate({ user_id: user_id }, {
-                    $push: { tags: { $each: [tags] } }
-                }, { new: true });
-            }
+            yield User_1.User.findOneAndUpdate({ user_id: user_id }, { $set: { tags: tags } }, { new: true });
         }
         const updatedUser = yield User_1.User.findOneAndUpdate({ user_id: user_id }, {
             $set: {
@@ -212,7 +207,8 @@ router.patch('/profile', (req, res) => __awaiter(void 0, void 0, void 0, functio
  */
 router.get('/self', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.user) {
-        res.status(200).json(req.user.user_id);
+        const user = req.user.user_id;
+        res.status(200).json(user);
     }
     else {
         res.status(401).send('Unauthorized');
