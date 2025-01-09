@@ -406,6 +406,27 @@ router.patch("/like", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         res.status(500).json({ error: "Error liking post" });
     }
 }));
+/**
+ * @route PATCH /dislike
+ * @desc Dislike a post
+ * @access Private
+ *
+ * Allows an authenticated user to dislike a post. If the post has been liked, then
+ * remove the like and add a dislike.
+ *
+ * Request:
+ * - user: The authenticated user.
+ * - user.user_id: The user's ID.
+ * - body: The body of the request.
+ * - body.post_id: The desired post to be disliked.
+ *
+ * Response:
+ * - 200: Successful dislike.
+ * - 400: Post ID is not formatted correctly.
+ * - 401: Unauthorized.
+ * - 404: Either the post or the author of the post was not found.
+ * - 500: Internal server error.
+ */
 router.patch('/dislike', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.user) {
         res.status(401).json({ error: "Unauthorized" });
@@ -465,7 +486,7 @@ router.patch('/dislike', (req, res) => __awaiter(void 0, void 0, void 0, functio
  *
  * Response:
  * - 200: Retrieved history data successfully.
- * - 400: No posts were found in history.
+ * - 201: No posts were found in history.
  * - 401: Unauthorized
  * - 404: User not found
  * - 500: Internal server error
@@ -483,11 +504,15 @@ router.get('/history', (req, res) => __awaiter(void 0, void 0, void 0, function*
         }
         const history = user.viewedPosts;
         if (!history[0]) {
-            res.status(400).json({ message: 'No recently viewed posts found' });
+            res.status(201).json({ message: "No recently viewed posts found" });
             return;
         }
         const posts = yield Promise.all(history.map(post_id => { return Post_1.default.findById(post_id); }));
-        res.status(200).json(posts);
+        const postsWithBase64Images = posts.map(post => (Object.assign(Object.assign({}, post === null || post === void 0 ? void 0 : post.toObject()), { images: post === null || post === void 0 ? void 0 : post.images.map(image => ({
+                contentType: image.contentType,
+                data: image.data.toString('base64')
+            })) })));
+        res.status(200).json(postsWithBase64Images);
     }
     catch (err) {
         console.error(err);
@@ -526,34 +551,6 @@ router.patch('/history/clear', (req, res) => __awaiter(void 0, void 0, void 0, f
     }
     catch (error) {
         res.status(500).json({ error: "Error clearing post history" });
-    }
-}));
-/**
- * @route GET /trending
- * @desc Fetches the top 3 liked posts
- * @access Public
- *
- * Gets the top 3 liked posts, order from most to least liked.
- *
- * Request:
- * N/A
- *
- * Response:
- * - 200: Posts retrieved successfully.
- * - 400: No trending posts found.
- * - 500: Internal server error.
- */
-router.get('/trending', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const posts = yield Post_1.default.find({}).sort({ likes: -1 }).limit(3);
-        if (!posts) {
-            res.status(400).json({ message: "No trending posts found" });
-            return;
-        }
-        res.status(200).json(posts);
-    }
-    catch (error) {
-        res.status(500).json({ error: "Error fetching trending posts" });
     }
 }));
 exports.default = router;

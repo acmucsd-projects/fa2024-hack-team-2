@@ -557,7 +557,7 @@ router.patch('/dislike', async (req, res) => {
  * 
  * Response:
  * - 200: Retrieved history data successfully.
- * - 400: No posts were found in history.
+ * - 201: No posts were found in history.
  * - 401: Unauthorized
  * - 404: User not found
  * - 500: Internal server error
@@ -578,7 +578,7 @@ router.get('/history', async(req, res) => {
     }
     const history = user.viewedPosts;
     if(!history[0]){
-      res.status(400)
+      res.status(201).json({message: "No recently viewed posts found"});
       return;
     }
     
