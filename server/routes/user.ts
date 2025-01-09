@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { User, IUser } from '../models/User';
-
+import Post from '../models/Post';
 const router = express.Router();
 
 /**
@@ -21,7 +21,7 @@ const router = express.Router();
 
 router.get('/', async (req: Request, res: Response) => {
     try {
-      const user_id = req.body.user_id;
+      const user_id = req.params.user_id;
       const user = await User.findOne({ user_id: user_id }); 
       if (!user) {
         res.status(404).json({ error: 'User not found' });
@@ -232,7 +232,7 @@ router.patch('/profile', async (req, res) => {
 
 router.get('/self', async (req: Request, res: Response, next: NextFunction) => {
   if (req.user) {
-    const user = await User.findOne({ user_id: (req.user as IUser).user_id});
+    const user = await (req.user as IUser).user_id;
     res.status(200).json(user);  
   } else {
     res.status(401).send('Unauthorized');
@@ -359,4 +359,53 @@ router.patch('/history/clear', async(req, res) => {
   }
 })
 
+/**
+ * @route GET /feed
+ * @desc Create feed for the user.
+ * @access Private
+ * 
+ * This endpoint creates a randomized feed for the user. If the user views a post, it will
+ * not show up in the feed.
+ * 
+ * Request:
+ * - user: The authenticated user.
+ * - user.user_id: The ID of the authenticated user.
+ * 
+ * Response:
+ * - 200: Successfully retrieved the next random post.
+ * - 201: No unseen posts were found.
+ * - 401: Not authenticated.
+ * - 500: Internal server error.
+ */
+
+router.get('/feed', async(req, res) => {
+  if(!req.user){
+    res.status(401).json({message: "Unauthorized"});
+    return;
+  }
+  try {
+    const user_id = (req.user as IUser).user_id;
+    const user = await User.findOne({ user_id: user_id });
+
+    const randomPost = await Post.aggregate([
+      {
+        $match: {
+          _id: {$in: user?.viewedPosts}  // temporarily editing this for testing purposes
+        }
+      },
+      {$sample: {size: 1}}
+    ]);
+
+    if(!randomPost[0]){
+      res.status(201).json({message: "No unseen posts found"});
+      return;
+    }
+``
+    await User.findOneAndUpdate({user_id: user_id}, {$push: {viewedPosts: randomPost[0]._id}});
+
+    res.status(200).json(randomPost[0])
+  } catch(error){
+    res.status(500).json({message: "Error retrieving post feed"});
+  }
+})
 export default router;

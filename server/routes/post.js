@@ -118,7 +118,7 @@ router.post("/", upload.array("images", 3), (req, res) => __awaiter(void 0, void
  */
 router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const post_id = new mongoose_1.default.Types.ObjectId(req.body.post_id); // Convert post_id to ObjectId
+        const post_id = new mongoose_1.default.Types.ObjectId(req.params.post_id); // Convert post_id to ObjectId
         const post = yield Post_1.default.findById(post_id); // Find post by MongoDB's ObjectId
         if (!post) {
             res.status(404).json({ error: "Post not found" });
@@ -307,7 +307,7 @@ router.patch("/", upload.array("images", 3), (req, res) => __awaiter(void 0, voi
  */
 router.get("/author", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield User_1.User.findOne({ user_id: req.body.user_id });
+        const user = yield User_1.User.findOne({ user_id: req.params.user_id });
         if (!user) {
             res.status(404).json({ error: "User not found" });
             return;
@@ -357,6 +357,7 @@ router.patch("/like", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         // Validate post_id
         if (!mongoose_1.default.Types.ObjectId.isValid(post_id)) {
             res.status(400).json({ error: "Invalid post_id format" });
+            return;
         }
         const post = yield Post_1.default.findById(post_id);
         if (!post) {
