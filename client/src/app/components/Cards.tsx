@@ -37,7 +37,7 @@ const Cards: React.FC<MyComponentProps> = ({}) => {
 
   const [cards, setCards] = useState<any[]>([]);
   const [authorPFP, setAuthorPFP] = useState<string>("");
-  const [postId, setPostId] = useState<string>("");
+  const [noMorePosts, setNoMorePosts] = useState<boolean>(false);
   const postIdRef = useRef<string>("");
   const [cardDetails, setCardDetails] = useState<{
     title: string;
@@ -48,15 +48,7 @@ const Cards: React.FC<MyComponentProps> = ({}) => {
     brand?: string;
     cost?: number;
   } | null>(null);
-  const [availableStores, setAvailableStores] = useState<
-    {
-      location: string;
-      address: string;
-      status: string;
-      image: string;
-      link: string;
-    }[]
-  >([]);
+
   const [rotations, setRotations] = useState<number[]>([]);
   const [opacities, setOpacities] = useState<number[]>([]);
 
@@ -69,6 +61,7 @@ const Cards: React.FC<MyComponentProps> = ({}) => {
 
   // Fetch data after interest/disinterest buttons are cålicked
   const nextPost = async (liked: boolean, initial=false) => {
+    // send like/dislike
     if (!initial && postIdRef.current) {
       console.log("PATCH", `/posts/${liked ? "like" : "dislike"}`);
       console.log("POST ID: ", postIdRef.current);
@@ -76,9 +69,13 @@ const Cards: React.FC<MyComponentProps> = ({}) => {
         post_id: postIdRef.current,
       });
     }
-
-    const data:Post = await fetchData();
-    setPostId(data._id);
+    // get data
+    const data:any = await fetchData();
+    if (data.message && data.message === "No unseen posts found") {
+        setNoMorePosts(true);
+        return;
+    }
+    setNoMorePosts(false);
     postIdRef.current = data._id; 
     setCards(data.images);
     // NOTE: image has 3 properties: contentType, data, _id
@@ -103,6 +100,7 @@ const Cards: React.FC<MyComponentProps> = ({}) => {
 
     // setAuthorPFP(response.data["picture"]);
 
+    // card rotations
     const newRotations = data.images.slice(1).map(() => getRandomRotation());
     const newOpacities = data.images.slice(1).map(() => getRandomOpacity());
     setRotations(newRotations);
@@ -113,6 +111,14 @@ const Cards: React.FC<MyComponentProps> = ({}) => {
   useEffect(() => {
     nextPost(false, true);
   }, []);
+
+  if (noMorePosts) {
+    return (<div className="flex flex-col w-full h-full">
+      <p className="text-2xl font-bold text-center">No More Posts</p>
+      <p className="text-xl text-center">You have viewed all posts.</p>
+
+    </div>);
+  }
 
   return (
     <div className="mb-8 flex flex-1 flex-col items-center justify-center gap-0 lg:flex-row lg:items-center lg:justify-center">
@@ -255,7 +261,7 @@ const Cards: React.FC<MyComponentProps> = ({}) => {
             </>
           )}
         </div>
-        {/* Available Stores */}
+        {/* Available Stores - to be changed */}
         <div className="max-h-56 w-full overflow-y-scroll rounded bg-white p-4 outline outline-gray-300 lg:max-h-48 mb-[5.5rem]">
           <p className="mb-4 text-3xl font-bold">Trendings</p>
           {/* {availableStores.map((store, index) => (
