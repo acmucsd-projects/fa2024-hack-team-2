@@ -16,6 +16,23 @@ import {LoginPopup} from "./LoginPopup";
 
 interface NavBarProps {
   handleComponentChange: (component: string) => void;
+  onQueryEnter: (query: string) => void;
+}
+  
+interface IUser {
+  user_id: string;
+  username: string;
+  bio?: string;
+  pronouns: string;
+  tags: string[];
+  followers: number;
+  following: number;
+  liked: [];
+  picture: string;
+  settings: {
+    privateAccount: boolean;
+  };
+  posts?: [],
 }
   
 interface IUser {
@@ -34,7 +51,7 @@ interface IUser {
   posts?: [],
 }
 
-const NavBar: React.FC<NavBarProps> = ({ handleComponentChange }) => {
+const NavBar: React.FC<NavBarProps> = ({ handleComponentChange, onQueryEnter }) => {
   const [notAuthenticated, setNotAuthenticated] = useState<boolean>(false);
   const [PFP, setPFP] = useState<string>("");
   const [username, setUsername] = useState<string>("");
@@ -139,10 +156,11 @@ const NavBar: React.FC<NavBarProps> = ({ handleComponentChange }) => {
       {/* Search Bar */}
       <div
         ref={searchBarRef}
-        className={`flex items-center transition-all duration-300 ${isMobileShowNav && window.innerWidth < 1024
+        className={`flex items-center transition-all duration-300 ${
+          isMobileShowNav && window.innerWidth < 1024
             ? "w-6/12 bg-gray-100 outline outline-gray-400"
             : "w-2/12 md:w-3/12 lg:bg-gray-100"
-          } justify-center rounded focus-within:outline-gray-400 lg:outline lg:outline-gray-200`}
+        } justify-center rounded focus-within:outline-gray-400 lg:outline lg:outline-gray-200`}
       >
         <Image
           src={searchIcon}
@@ -156,13 +174,24 @@ const NavBar: React.FC<NavBarProps> = ({ handleComponentChange }) => {
         />
         <input
           type="text"
-          className={`w-full bg-gray-100 text-gray-600 outline-none ${isMobileShowNav && window.innerWidth < 1024
-              ? "block"
-              : "hidden lg:block"
-            }`}
+          className={`w-full bg-gray-100 text-gray-600 outline-none ${
+            isMobileShowNav && window.innerWidth < 1024 ? "block" : "hidden lg:block"
+          }`}
           placeholder="Search for styles..."
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              const inputValue = (e.target as HTMLInputElement).value.trim();
+              if (inputValue) {
+                console.log("Search query submitted:", inputValue);
+                // Add functionality to handle the search query here
+                onQueryEnter(inputValue);
+                handleComponentChange("SearchResults");
+              }
+            }
+          }}
         />
       </div>
+
 
       {/* User Profile Button */}
       <div

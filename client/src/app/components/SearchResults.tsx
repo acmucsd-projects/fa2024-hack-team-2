@@ -13,7 +13,7 @@ interface PostProps {
   cost?: number;
   likes: number;
   author: string;
-  image: string;
+  images: string[];
   tags: string[];
   date_created: string;
 }
@@ -58,6 +58,7 @@ const SearchResults: React.FC<MyComponentProps> = ({ searchQuery }) => {
             },
           });
           setSearchResults(response.data);
+          console.log(response.data);
         }
       } catch (err) {
         setError("Failed to fetch search results. Please try again.");
