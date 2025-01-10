@@ -17,6 +17,71 @@ const User_1 = require("../models/User");
 const Post_1 = __importDefault(require("../models/Post"));
 const router = express_1.default.Router();
 /**
+ * @route GET /
+ * @desc Get user information
+ * @access Private
+ *
+ * This endpoint allows a user to view another user's information.
+ *
+ * Request Body:
+ * - user_id: The ID of the user to view. (required)
+ *
+ * Response:
+ * - 200: The user was successfully found and their information was retrieved.
+ * - 404: The specified user was not found.
+ * - 500: Internal server error.
+ */
+router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user_id = req.params.user_id;
+        const user = yield User_1.User.findOne({ user_id: user_id });
+        if (!user) {
+            res.status(404).json({ error: 'User not found' });
+            return;
+        }
+        if (req.user) {
+            const currUser = yield User_1.User.findOne({ user_id: req.user.user_id });
+            yield (currUser === null || currUser === void 0 ? void 0 : currUser.updateOne({ $pull: { viewedUsers: user_id } }));
+            yield (currUser === null || currUser === void 0 ? void 0 : currUser.updateOne({ $push: {
+                    viewedUsers: { $each: [user_id], $position: 0 }
+                } }));
+            yield (currUser === null || currUser === void 0 ? void 0 : currUser.save());
+        }
+        res.status(200).json(user);
+    }
+    catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ error: 'Error fetching user' });
+    }
+}));
+router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const username = req.params.username;
+        const user = yield User_1.User.findOne({ username: username });
+        if (!user) {
+            res.status(404).json({ error: 'User not found' });
+            return;
+        }
+        // if(req.user){
+        //   const currUser = await User.findOne({user_id: (req.user as IUser).user_id});
+        //   await currUser?.updateOne(
+        //     {$pull: {viewedUsers: username}}
+        //   )
+        //   await currUser?.updateOne(
+        //     {$push: {
+        //       viewedUsers: {$each: [user_id], $position: 0}
+        //     }}
+        //   );
+        //   await currUser?.save();
+        // }
+        res.status(200).json(user);
+    }
+    catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ error: 'Error fetching user' });
+    }
+}));
+/**
  * WIP
  */
 router.post('/new', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -303,7 +368,7 @@ router.get('/all', (req, res, next) => __awaiter(void 0, void 0, void 0, functio
  *
  * Response:
  * - 200: Retrieved history data successfully.
- * - 400: No users were found in history.
+ * - 201: No users were found in history.
  * - 401: Unauthorized
  * - 404: User not found
  * - 500: Internal server error
@@ -321,7 +386,7 @@ router.get('/history', (req, res) => __awaiter(void 0, void 0, void 0, function*
         }
         const history = user === null || user === void 0 ? void 0 : user.viewedUsers;
         if (!history[0]) {
-            res.status(400).json({ message: "No recently viewed users found" });
+            res.status(201).json({ message: "No recently viewed users found" });
             return;
         }
         const viewedUsers = yield Promise.all(history.map(user_id => { return User_1.User.findOne({ user_id: user_id }); }));
@@ -394,7 +459,7 @@ router.get('/feed', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         const randomPost = yield Post_1.default.aggregate([
             {
                 $match: {
-                    _id: { $in: user === null || user === void 0 ? void 0 : user.viewedPosts } // temporarily editing this for testing purposes
+                    _id: { $nin: user === null || user === void 0 ? void 0 : user.viewedPosts } // temporarily editing this for testing purposes
                 }
             },
             { $sample: { size: 1 } }

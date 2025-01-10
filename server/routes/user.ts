@@ -325,7 +325,7 @@ router.get('/all', async (req: Request, res: Response, next: NextFunction) => {
  * 
  * Response:
  * - 200: Retrieved history data successfully.
- * - 400: No users were found in history.
+ * - 201: No users were found in history.
  * - 401: Unauthorized
  * - 404: User not found
  * - 500: Internal server error
@@ -346,7 +346,7 @@ router.get('/history', async(req, res) => {
     const history = user?.viewedUsers;
 
     if(!history[0]){
-      res.status(400).json({message: "No recently viewed users found"});
+      res.status(201).json({message: "No recently viewed users found"});
       return;
     }
 
@@ -432,7 +432,7 @@ router.get('/feed', async(req, res) => {
     const randomPost = await Post.aggregate([
       {
         $match: {
-          _id: {$in: user?.viewedPosts}  // temporarily editing this for testing purposes
+          _id: {$nin: user?.viewedPosts}  // temporarily editing this for testing purposes
         }
       },
       {$sample: {size: 1}}

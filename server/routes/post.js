@@ -496,7 +496,7 @@ router.patch("/dislike", (req, res) => __awaiter(void 0, void 0, void 0, functio
  *
  * Response:
  * - 200: Retrieved history data successfully.
- * - 400: No posts were found in history.
+ * - 201: No posts were found in history.
  * - 401: Unauthorized
  * - 404: User not found
  * - 500: Internal server error

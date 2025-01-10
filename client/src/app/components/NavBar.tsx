@@ -34,6 +34,22 @@ interface IUser {
   };
   posts?: [],
 }
+  
+interface IUser {
+  user_id: string;
+  username: string;
+  bio?: string;
+  pronouns: string;
+  tags: string[];
+  followers: number;
+  following: number;
+  liked: [];
+  picture: string; // Assuming a profile picture URL
+  settings: {
+    privateAccount: boolean;
+  };
+  posts?: [],
+}
 
 const NavBar: React.FC<NavBarProps> = ({ handleComponentChange, onQueryEnter }) => {
   const [notAuthenticated, setNotAuthenticated] = useState<boolean>(false);
