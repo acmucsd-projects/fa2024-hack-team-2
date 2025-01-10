@@ -8,9 +8,13 @@ import Cards from "./components/Cards";
 import ViewHistory from "./components/ViewHistory";
 import Leaderboard from "./components/Leaderboard";
 import PostCreation from "./components/PostCreation";
+import SearchResults from "./components/SearchResults";
+
 
 const Home: React.FC = () => {
   const [currentComponent, setCurrentComponent] = useState<string>("cards");
+  const [query, setQuery] = useState<string>("");
+
 
   const handleComponentChange = (component: string) => {
     setCurrentComponent(component);
@@ -20,7 +24,7 @@ const Home: React.FC = () => {
     <main className="flex h-screen w-screen flex-col bg-gray-50">
       {/* Navbar */}
       <div className="mb-4 flex justify-center lg:mb-2">
-        <NavBar handleComponentChange={handleComponentChange} />
+        <NavBar handleComponentChange={handleComponentChange} onQueryEnter={(q) => setQuery(q)}/>
       </div>
 
       {/* Main Content */}
@@ -28,7 +32,9 @@ const Home: React.FC = () => {
         {currentComponent === "cards" && <Cards />}
         {currentComponent === "history" && <ViewHistory />}
         {currentComponent === "leaderboard" && <Leaderboard/>}
-        {currentComponent === "PostCreation"&& <PostCreation />}
+        {currentComponent === "PostCreation" && <PostCreation />}
+        {currentComponent === "SearchResults" && <SearchResults searchQuery={query}/>}
+
         </div>
     </main>
   );
