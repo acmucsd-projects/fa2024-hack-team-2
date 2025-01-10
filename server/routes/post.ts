@@ -593,17 +593,17 @@ router.get("/history", async (req, res) => {
         return Post.findById(post_id);
       })
     );
-
-    const postsWithBase64Images = posts.map((post) => ({
+    
+    const postsWithBase64Images = posts.map(post => ({
       ...post?.toObject(),
-      images: post?.images.map((image) => ({
+      images: post?.images.map(image => ({
         contentType: image.contentType,
-        data: image.data.toString("base64"),
-      })),
+        data: image.data.toString('base64')
+      }))
     }));
 
     res.status(200).json(postsWithBase64Images);
-  } catch (err) {
+  } catch(err){
     console.error(err);
     res.status(500).json({ error: "Error retrieving post history" });
   }
@@ -645,10 +645,10 @@ router.patch("/history/clear", async (req, res) => {
       return;
     }
 
-    res.status(200).json({ message: "Post history successfully cleared" });
-  } catch (error) {
-    res.status(500).json({ error: "Error clearing post history" });
+    res.status(200).json({message: "Post history successfully cleared"});
+  } catch(error){
+    res.status(500).json({error: "Error clearing post history"});
   }
-});
+})
 
 export default router;
