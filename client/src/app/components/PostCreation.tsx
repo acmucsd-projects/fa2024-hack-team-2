@@ -49,7 +49,7 @@ const PostCreation: React.FC<MyComponentProps> = () => {
         formData.append("description", description);
         formData.append("materialString", materialString);
         formData.append("brand", brand);
-        formData.append("cost", cost);
+        formData.append("cost", cost.toString());
     
         // Append each image to the FormData (assuming images is an array of File objects)
         images.forEach((image) => {
@@ -88,7 +88,7 @@ const PostCreation: React.FC<MyComponentProps> = () => {
                 alert("Failed to create post. Please try again.");
             });
     } catch (error) {
-        console.error("Unexpected error:", error.message);
+        console.error("Unexpected error:", error);
         alert("Failed to create post. Please try again.");
     }
   }    
