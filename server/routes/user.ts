@@ -207,6 +207,58 @@ router.get('/self', async (req: Request, res: Response) => {
   }
 });
 
+
+/**
+ * @route GET /feed
+ * @desc Create feed for the user.
+ * @access Private
+ * 
+ * This endpoint creates a randomized feed for the user. If the user views a post, it will
+ * not show up in the feed.
+ * 
+ * Request:
+ * - user: The authenticated user.
+ * - user.user_id: The ID of the authenticated user.
+ * 
+ * Response:
+ * - 200: Successfully retrieved the next random post.
+ * - 201: No unseen posts were found.
+ * - 401: Not authenticated.
+ * - 500: Internal server error.
+ */
+
+router.get('/feed', async(req, res) => {
+  if(!req.user){
+    res.status(401).json({message: "Unauthorized"});
+    return;
+  }
+  try {
+    const user_id = (req.user as IUser).user_id;
+    const user = await User.findOne({ user_id: user_id });
+
+    const randomPost = await Post.aggregate([
+      {
+        $match: {
+          _id: {$nin: user?.viewedPosts}  // temporarily editing this for testing purposes
+        }
+      },
+      {$sample: {size: 1}}
+    ]);
+
+    if(!randomPost[0]){
+      res.status(201).json({message: "No unseen posts found"});
+      return;
+    }
+``
+    await User.findOneAndUpdate({user_id: user_id}, {$push: {viewedPosts: randomPost[0]._id}});
+
+    res.status(200).json(randomPost[0])
+  } catch(error){
+    res.status(500).json({message: "Error retrieving post feed"});
+  }
+})
+export default router;
+
 /**
  * @route GET /:identifier
  * @desc Get user information by user_id or username
@@ -400,54 +452,3 @@ router.patch('/history/clear', async(req, res) => {
     res.status(500).json({error: "Error clearing user history"});
   }
 })
-
-/**
- * @route GET /feed
- * @desc Create feed for the user.
- * @access Private
- * 
- * This endpoint creates a randomized feed for the user. If the user views a post, it will
- * not show up in the feed.
- * 
- * Request:
- * - user: The authenticated user.
- * - user.user_id: The ID of the authenticated user.
- * 
- * Response:
- * - 200: Successfully retrieved the next random post.
- * - 201: No unseen posts were found.
- * - 401: Not authenticated.
- * - 500: Internal server error.
- */
-
-router.get('/feed', async(req, res) => {
-  if(!req.user){
-    res.status(401).json({message: "Unauthorized"});
-    return;
-  }
-  try {
-    const user_id = (req.user as IUser).user_id;
-    const user = await User.findOne({ user_id: user_id });
-
-    const randomPost = await Post.aggregate([
-      {
-        $match: {
-          _id: {$nin: user?.viewedPosts}  // temporarily editing this for testing purposes
-        }
-      },
-      {$sample: {size: 1}}
-    ]);
-
-    if(!randomPost[0]){
-      res.status(201).json({message: "No unseen posts found"});
-      return;
-    }
-``
-    await User.findOneAndUpdate({user_id: user_id}, {$push: {viewedPosts: randomPost[0]._id}});
-
-    res.status(200).json(randomPost[0])
-  } catch(error){
-    res.status(500).json({message: "Error retrieving post feed"});
-  }
-})
-export default router;
