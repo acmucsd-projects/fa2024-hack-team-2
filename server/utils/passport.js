@@ -22,20 +22,29 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
     clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     callbackURL: process.env.GOOGLE_CALLBACK_URL || '',
 }, (accessToken, refreshToken, profile, done) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     try {
         // Check if the user already exists in the database
+        // console.log(profile);
         let user = yield User_1.User.findOne({ user_id: profile.id });
         if (!user) {
             // Create and save a new user with only googleID and username
+            let baseUsername = (profile.displayName || ((_a = profile.name) === null || _a === void 0 ? void 0 : _a.givenName) || 'Unknown_User').toLowerCase().replace(/\s+/g, '_');
+            let username = baseUsername;
+            let counter = 1;
+            while (yield User_1.User.findOne({ username: username })) {
+                username = `${baseUsername}_${counter}`;
+                counter++;
+            }
             user = new User_1.User({
                 user_id: profile.id,
-                username: profile.displayName || ((_a = profile.name) === null || _a === void 0 ? void 0 : _a.givenName) || 'Unknown User',
+                username: username || ((_b = profile.name) === null || _b === void 0 ? void 0 : _b.givenName) || 'Unknown User',
+                picture: profile._json.picture
             });
             yield user.save();
         }
         // Return the user for further processing
-        return done(null, { user_id: user.user_id, username: user.username });
+        return done(null, { user_id: user.user_id, username: user.username, picture: profile._json.picture });
     }
     catch (err) {
         return done(err);
