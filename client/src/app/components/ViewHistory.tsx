@@ -54,7 +54,6 @@ const Card: React.FC<CardProps> = ({ data, type, onClick }) => {
     </a>
   );
 };
-
 const ViewHistory: React.FC = () => {
   const decodeBase64 = (base64Str: string) => {
     try {
@@ -94,8 +93,6 @@ const ViewHistory: React.FC = () => {
       const response = await backendConnection.get("/posts/history");
       setPosts(response.data);
       console.log("post data", response.data);
-
-      
     } catch (error) {
       console.error("Error fetching post history", error);
     }
@@ -143,7 +140,6 @@ const ViewHistory: React.FC = () => {
     }
   };
 
- 
 
   useEffect(() => {
     fetchPostHistory();

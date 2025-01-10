@@ -58,13 +58,19 @@ router.post("/", upload.array("images", 3), (req, res) => __awaiter(void 0, void
             res.status(404).json({ error: "User not found" });
             return;
         }
-        const { title, product_details, material, brand, cost, numStores, available_stores, tags, } = req.body;
+        console.log(req.body);
+        console.log(req.files);
+        const { title, product_details, material, brand, cost, 
+        // numStores,
+        // available_stores,
+        tags, } = req.body;
         const images = req.files
             ? req.files.map((file) => ({
                 data: file.buffer,
                 contentType: file.mimetype,
             }))
             : [];
+        console.log(images);
         // Debug statements for images
         console.log(`Number of images uploaded: ${images.length}`);
         images.forEach((image, index) => {
@@ -78,9 +84,9 @@ router.post("/", upload.array("images", 3), (req, res) => __awaiter(void 0, void
             material,
             brand,
             cost,
-            numStores,
+            // numStores,
             author: req.user.user_id,
-            available_stores,
+            // available_stores,
             images,
             tags,
             date_created: new Date().toLocaleDateString("en-US", {
@@ -89,6 +95,7 @@ router.post("/", upload.array("images", 3), (req, res) => __awaiter(void 0, void
                 day: "2-digit",
             }),
         });
+        console.log(newPost.images);
         // adding post to the author's list of posts
         author.posts.push(new mongoose_1.default.Types.ObjectId(newPost._id));
         const savedPost = yield newPost.save();
@@ -118,7 +125,7 @@ router.post("/", upload.array("images", 3), (req, res) => __awaiter(void 0, void
  */
 router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const post_id = new mongoose_1.default.Types.ObjectId(req.body.post_id); // Convert post_id to ObjectId
+        const post_id = new mongoose_1.default.Types.ObjectId(req.params.post_id); // Convert post_id to ObjectId
         const post = yield Post_1.default.findById(post_id); // Find post by MongoDB's ObjectId
         if (!post) {
             res.status(404).json({ error: "Post not found" });
@@ -129,15 +136,15 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             yield (user === null || user === void 0 ? void 0 : user.updateOne({ $pull: { viewedPosts: post_id } }));
             yield (user === null || user === void 0 ? void 0 : user.updateOne({
                 $push: {
-                    viewedPosts: { $each: [post_id], $position: 0 }
-                }
+                    viewedPosts: { $each: [post_id], $position: 0 },
+                },
             }));
             yield (user === null || user === void 0 ? void 0 : user.save());
         }
         // Convert image data to base64-encoded strings
-        const postWithBase64Images = Object.assign(Object.assign({}, post.toObject()), { images: post.images.map(image => ({
+        const postWithBase64Images = Object.assign(Object.assign({}, post.toObject()), { images: post.images.map((image) => ({
                 contentType: image.contentType,
-                data: image.data.toString('base64')
+                data: image.data.toString("base64"),
             })) });
         res.status(200).json(postWithBase64Images);
     }
@@ -249,7 +256,10 @@ router.patch("/", upload.array("images", 3), (req, res) => __awaiter(void 0, voi
             res.status(401).json({ error: "Unauthorized" });
             return;
         }
-        const { title, product_details, material, brand, cost, numStores, available_stores, image, tags, } = req.body;
+        const { title, product_details, material, brand, cost, 
+        // numStores,
+        // available_stores,
+        image, tags, } = req.body;
         if (title) {
             post.title = title;
         }
@@ -265,17 +275,17 @@ router.patch("/", upload.array("images", 3), (req, res) => __awaiter(void 0, voi
         if (cost) {
             post.cost = cost;
         }
-        if (numStores) {
-            post.numStores = numStores;
-        }
-        if (available_stores) {
-            post.available_stores = available_stores;
-        }
+        // if (numStores) {
+        //   post.numStores = numStores;
+        // }
+        // if (available_stores) {
+        //   post.available_stores = available_stores;
+        // }
         if (tags) {
             post.tags = tags;
         }
         if (Array.isArray(req.files) && req.files.length > 0) {
-            const images = req.files.map(file => ({
+            const images = req.files.map((file) => ({
                 data: file.buffer,
                 contentType: file.mimetype,
             }));
@@ -307,16 +317,16 @@ router.patch("/", upload.array("images", 3), (req, res) => __awaiter(void 0, voi
  */
 router.get("/author", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield User_1.User.findOne({ user_id: req.body.user_id });
+        const user = yield User_1.User.findOne({ user_id: req.params.user_id });
         if (!user) {
             res.status(404).json({ error: "User not found" });
             return;
         }
         const posts = yield Post_1.default.find({ _id: { $in: user.posts } });
         // Convert image data to base64-encoded strings for each post
-        const postsWithBase64Images = posts.map(post => (Object.assign(Object.assign({}, post.toObject()), { images: post.images.map(image => ({
+        const postsWithBase64Images = posts.map((post) => (Object.assign(Object.assign({}, post.toObject()), { images: post.images.map((image) => ({
                 contentType: image.contentType,
-                data: image.data.toString('base64')
+                data: image.data.toString("base64"),
             })) })));
         res.status(200).json(postsWithBase64Images);
     }
@@ -357,6 +367,7 @@ router.patch("/like", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         // Validate post_id
         if (!mongoose_1.default.Types.ObjectId.isValid(post_id)) {
             res.status(400).json({ error: "Invalid post_id format" });
+            return;
         }
         const post = yield Post_1.default.findById(post_id);
         if (!post) {
@@ -377,7 +388,15 @@ router.patch("/like", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         }
         const postObjectId = new mongoose_1.default.Types.ObjectId(post_id);
         const index = user.liked.indexOf(postObjectId);
-        if (index !== -1) {
+        const dislikeIndex = user.disliked.indexOf(postObjectId);
+        if (dislikeIndex !== -1) {
+            user.disliked.splice(dislikeIndex, 1);
+            post.likes++;
+            author.totalLikes++;
+            post.likesList.push(user_id);
+            user.liked.push(postObjectId);
+        }
+        else if (index !== -1) {
             user.liked.splice(index, 1);
             post.likes--;
             author.totalLikes--;
@@ -398,6 +417,74 @@ router.patch("/like", (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 }));
 /**
+ * @route PATCH /dislike
+ * @desc Dislike a post
+ * @access Private
+ *
+ * Allows an authenticated user to dislike a post. If the post has been liked, then
+ * remove the like and add a dislike.
+ *
+ * Request:
+ * - user: The authenticated user.
+ * - user.user_id: The user's ID.
+ * - body: The body of the request.
+ * - body.post_id: The desired post to be disliked.
+ *
+ * Response:
+ * - 200: Successful dislike.
+ * - 400: Post ID is not formatted correctly.
+ * - 401: Unauthorized.
+ * - 404: Either the post or the author of the post was not found.
+ * - 500: Internal server error.
+ */
+router.patch("/dislike", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.user) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+    }
+    try {
+        const user_id = req.user.user_id;
+        const post_id = req.body.post_id;
+        if (!mongoose_1.default.Types.ObjectId.isValid(post_id)) {
+            res.status(400).json({ error: "Invalid post_id format" });
+        }
+        const post = yield Post_1.default.findById(post_id);
+        if (!post) {
+            res.status(404).json({ error: "Post not found" });
+            return;
+        }
+        const [author, user] = yield Promise.all([
+            User_1.User.findOne({ user_id: post.author }),
+            User_1.User.findOne({ user_id: user_id }),
+        ]);
+        if (!author) {
+            res.status(404).json({ error: "Author not found" });
+            return;
+        }
+        if (!user) {
+            res.status(404).json({ error: "User not found" });
+            return;
+        }
+        if (user.liked.includes(post_id)) {
+            yield user.updateOne({ $pull: { liked: post_id } });
+            yield user.updateOne({ $push: { disliked: post_id } });
+            yield post.updateOne({ $inc: { likes: -1 } });
+            yield post.updateOne({ $pull: { likesList: user_id } });
+        }
+        else if (user.disliked.includes(post_id)) {
+            yield user.updateOne({ $pull: { disliked: post_id } });
+        }
+        else {
+            yield user.updateOne({ $push: { disliked: post_id } });
+        }
+        yield user.save(), author.save(), post.save();
+        res.status(200).json({ message: "Disliked successfully" });
+    }
+    catch (error) {
+        res.status(500).json({ error: "Error dislking post" });
+    }
+}));
+/**
  * @route GET /history
  * @desc View user's history
  * @access Private
@@ -409,12 +496,12 @@ router.patch("/like", (req, res) => __awaiter(void 0, void 0, void 0, function* 
  *
  * Response:
  * - 200: Retrieved history data successfully.
- * - 400: No posts were found in history.
+ * - 201: No posts were found in history.
  * - 401: Unauthorized
  * - 404: User not found
  * - 500: Internal server error
  */
-router.get('/history', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/history", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.user) {
         res.status(401).json({ message: "User not authenticated" });
         return;
@@ -422,16 +509,22 @@ router.get('/history', (req, res) => __awaiter(void 0, void 0, void 0, function*
     try {
         const user = yield User_1.User.findOne({ user_id: req.user.user_id });
         if (!user) {
-            res.status(404).json({ message: 'user not found' });
+            res.status(404).json({ message: "user not found" });
             return;
         }
         const history = user.viewedPosts;
         if (!history[0]) {
-            res.status(400).json({ message: 'No recently viewed posts found' });
+            res.status(400);
             return;
         }
-        const posts = yield Promise.all(history.map(post_id => { return Post_1.default.findById(post_id); }));
-        res.status(200).json(posts);
+        const posts = yield Promise.all(history.map((post_id) => {
+            return Post_1.default.findById(post_id);
+        }));
+        const postsWithBase64Images = posts.map((post) => (Object.assign(Object.assign({}, post === null || post === void 0 ? void 0 : post.toObject()), { images: post === null || post === void 0 ? void 0 : post.images.map((image) => ({
+                contentType: image.contentType,
+                data: image.data.toString("base64"),
+            })) })));
+        res.status(200).json(postsWithBase64Images);
     }
     catch (err) {
         console.error(err);
@@ -454,7 +547,7 @@ router.get('/history', (req, res) => __awaiter(void 0, void 0, void 0, function*
  * - 404: User was not found.
  * - 500: Internal server error
  */
-router.patch('/history/clear', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.patch("/history/clear", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.user) {
         res.status(401).json({ message: "User not authenticated" });
         return;
@@ -470,34 +563,6 @@ router.patch('/history/clear', (req, res) => __awaiter(void 0, void 0, void 0, f
     }
     catch (error) {
         res.status(500).json({ error: "Error clearing post history" });
-    }
-}));
-/**
- * @route GET /trending
- * @desc Fetches the top 3 liked posts
- * @access Public
- *
- * Gets the top 3 liked posts, order from most to least liked.
- *
- * Request:
- * N/A
- *
- * Response:
- * - 200: Posts retrieved successfully.
- * - 400: No trending posts found.
- * - 500: Internal server error.
- */
-router.get('/trending', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const posts = yield Post_1.default.find({}).sort({ likes: -1 }).limit(3);
-        if (!posts) {
-            res.status(400).json({ message: "No trending posts found" });
-            return;
-        }
-        res.status(200).json(posts);
-    }
-    catch (error) {
-        res.status(500).json({ error: "Error fetching trending posts" });
     }
 }));
 exports.default = router;

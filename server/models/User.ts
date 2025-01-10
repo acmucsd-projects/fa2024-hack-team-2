@@ -23,7 +23,7 @@ interface IUser {
 
 const userSchema = new Schema<IUser>({
   user_id: { type: String, unique: true, required: true },
-  username: { type: String, required: true },
+  username: { type: String, unique: true, required: true },
   bio: { type: String },
   pronouns: { type: String },
   tags: { type: [String], default: [] },

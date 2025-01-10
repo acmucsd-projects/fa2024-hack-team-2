@@ -6,6 +6,7 @@ import CreatePostMaterialBox from "./CreatePostMaterialBox";
 import CreatePostBrandBox from "./CreatePostBrandBox";
 import CreatePostSlider from "./CreatePostSlider";
 import TagList from "./TagList";
+import backendConnection from "../../communication";
 
 interface MyComponentProps {}
 
@@ -38,43 +39,59 @@ const PostCreation: React.FC<MyComponentProps> = () => {
           .map(([key, value]) => `${value}% ${key}`)
           .join(", ")
       : "";
-    const json = {
-      image: images,
-      title: title,
-      product_details: description,
-      material: materialString,
-      brand: brand,
-      cost: cost,
-      tags: tags,
-    };
-    try {
-      // make POST request to the backend
-      // TODO: change url later?
-      const response = await fetch("http://localhost:3001/api/posts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(json),
-      });
-      // handle response
-      if (!response.ok) {
-        throw new Error(`Failed to post data: ${response.statusText}`);
-      }
-      alert("Post created successfully!");
-      // reset form state
-      setImages([]);
-      setTitle("");
-      setDescription("");
-      setMaterial(undefined);
-      setBrand("");
-      setCost(100.0);
-      setTags([]);
+      
+      try {
+        // Create a FormData object
+        const formData = new FormData();
+    
+        // Append fields to FormData
+        formData.append("title", title);
+        formData.append("description", description);
+        formData.append("materialString", materialString);
+        formData.append("brand", brand);
+        formData.append("cost", cost);
+    
+        // Append each image to the FormData (assuming images is an array of File objects)
+        images.forEach((image) => {
+            formData.append("images", image); // Ensure this matches the backend's expected key
+        });
+    
+        // Append tags (assuming tags is an array of strings)
+        tags.forEach((tag) => {
+            formData.append("tags[]", tag); // Using tags[] ensures correct backend interpretation
+        });
+    
+        // Make the POST request
+        backendConnection
+            .post("/posts", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data", 
+                },
+            })
+            .then((response) => {
+                // Success
+                alert("Successfully created post.");
+    
+                // Reset form state
+                setImages([]);
+                setTitle("");
+                setDescription("");
+                setMaterial(undefined);
+                setBrand("");
+                setCost(0.0);
+                setTags([]);
+    
+                // TODO: Add code to navigate out of post creation
+            })
+            .catch((error) => {
+                console.error("Failed to post data:", error.response?.data || error.message);
+                alert("Failed to create post. Please try again.");
+            });
     } catch (error) {
-      // console.error("Error posting data:", error);
-      alert("Failed to create post. Please try again.");
+        console.error("Unexpected error:", error.message);
+        alert("Failed to create post. Please try again.");
     }
-  };
+  }    
 
   return (
     <div

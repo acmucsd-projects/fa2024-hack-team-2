@@ -53,16 +53,21 @@ router.post(
         return;
       }
 
+      console.log(req.body);
+      console.log(req.files);
+
       const {
         title,
         product_details,
         material,
         brand,
         cost,
-        numStores,
-        available_stores,
+        // numStores,
+        // available_stores,
         tags,
       } = req.body;
+
+
 
       const images = req.files
         ? (req.files as Express.Multer.File[]).map((file) => ({
@@ -70,6 +75,9 @@ router.post(
             contentType: file.mimetype,
           }))
         : [];
+
+      console.log(images);
+
 
       // Debug statements for images
       console.log(`Number of images uploaded: ${images.length}`);
@@ -85,9 +93,9 @@ router.post(
         material,
         brand,
         cost,
-        numStores,
+        // numStores,
         author: (req.user as IUser).user_id,
-        available_stores,
+        // available_stores,
         images,
         tags,
         date_created: new Date().toLocaleDateString("en-US", {
@@ -96,7 +104,7 @@ router.post(
           day: "2-digit",
         }),
       });
-
+      console.log(newPost.images);
       // adding post to the author's list of posts
       author.posts.push(new mongoose.Types.ObjectId(newPost._id));
       const savedPost = await newPost.save();
@@ -128,34 +136,32 @@ router.post(
  */
 router.get("/", async (req: Request, res: Response) => {
   try {
-    const post_id = new mongoose.Types.ObjectId(req.body.post_id); // Convert post_id to ObjectId
+    const post_id = new mongoose.Types.ObjectId(req.params.post_id); // Convert post_id to ObjectId
     const post = await Post.findById(post_id); // Find post by MongoDB's ObjectId
     if (!post) {
       res.status(404).json({ error: "Post not found" });
       return;
     }
 
-    if(req.user){
-      const user = await User.findOne({user_id: (req.user as IUser).user_id});
+    if (req.user) {
+      const user = await User.findOne({ user_id: (req.user as IUser).user_id });
 
-      await user?.updateOne(
-        {$pull: {viewedPosts: post_id}}
-      );
+      await user?.updateOne({ $pull: { viewedPosts: post_id } });
 
       await user?.updateOne({
         $push: {
-          viewedPosts: { $each: [post_id], $position: 0}
-        }
+          viewedPosts: { $each: [post_id], $position: 0 },
+        },
       });
       await user?.save();
     }
     // Convert image data to base64-encoded strings
     const postWithBase64Images = {
       ...post.toObject(),
-      images: post.images.map(image => ({
+      images: post.images.map((image) => ({
         contentType: image.contentType,
-        data: image.data.toString('base64')
-      }))
+        data: image.data.toString("base64"),
+      })),
     };
 
     res.status(200).json(postWithBase64Images);
@@ -292,8 +298,8 @@ router.patch(
         material,
         brand,
         cost,
-        numStores,
-        available_stores,
+        // numStores,
+        // available_stores,
         image,
         tags,
       } = req.body;
@@ -313,22 +319,22 @@ router.patch(
       if (cost) {
         post.cost = cost;
       }
-      if (numStores) {
-        post.numStores = numStores;
-      }
-      if (available_stores) {
-        post.available_stores = available_stores;
-      }
+      // if (numStores) {
+      //   post.numStores = numStores;
+      // }
+      // if (available_stores) {
+      //   post.available_stores = available_stores;
+      // }
       if (tags) {
         post.tags = tags;
       }
 
       if (Array.isArray(req.files) && req.files.length > 0) {
-        const images = (req.files as Express.Multer.File[]).map(file => ({
+        const images = (req.files as Express.Multer.File[]).map((file) => ({
           data: file.buffer,
           contentType: file.mimetype,
         }));
-  
+
         post.images = images;
       }
 
@@ -359,7 +365,7 @@ router.patch(
  */
 router.get("/author", async (req: Request, res: Response) => {
   try {
-    const user = await User.findOne({ user_id: req.body.user_id });
+    const user = await User.findOne({ user_id: req.params.user_id });
     if (!user) {
       res.status(404).json({ error: "User not found" });
       return;
@@ -368,12 +374,12 @@ router.get("/author", async (req: Request, res: Response) => {
     const posts = await Post.find({ _id: { $in: user.posts } });
 
     // Convert image data to base64-encoded strings for each post
-    const postsWithBase64Images = posts.map(post => ({
+    const postsWithBase64Images = posts.map((post) => ({
       ...post.toObject(),
-      images: post.images.map(image => ({
+      images: post.images.map((image) => ({
         contentType: image.contentType,
-        data: image.data.toString('base64')
-      }))
+        data: image.data.toString("base64"),
+      })),
     }));
 
     res.status(200).json(postsWithBase64Images);
@@ -417,6 +423,7 @@ router.patch("/like", async (req: Request, res: Response) => {
     // Validate post_id
     if (!mongoose.Types.ObjectId.isValid(post_id)) {
       res.status(400).json({ error: "Invalid post_id format" });
+      return;
     }
 
     const post = await Post.findById(post_id);
@@ -442,8 +449,15 @@ router.patch("/like", async (req: Request, res: Response) => {
 
     const postObjectId = new mongoose.Types.ObjectId(post_id);
     const index = user.liked.indexOf(postObjectId);
+    const dislikeIndex = user.disliked.indexOf(postObjectId);
 
-    if (index !== -1) {
+    if (dislikeIndex !== -1) {
+      user.disliked.splice(dislikeIndex, 1);
+      post.likes++;
+      author.totalLikes++;
+      post.likesList.push(user_id);
+      user.liked.push(postObjectId);
+    } else if (index !== -1) {
       user.liked.splice(index, 1);
       post.likes--;
       author.totalLikes--;
@@ -464,44 +478,120 @@ router.patch("/like", async (req: Request, res: Response) => {
 });
 
 /**
+ * @route PATCH /dislike
+ * @desc Dislike a post
+ * @access Private
+ *
+ * Allows an authenticated user to dislike a post. If the post has been liked, then
+ * remove the like and add a dislike.
+ *
+ * Request:
+ * - user: The authenticated user.
+ * - user.user_id: The user's ID.
+ * - body: The body of the request.
+ * - body.post_id: The desired post to be disliked.
+ *
+ * Response:
+ * - 200: Successful dislike.
+ * - 400: Post ID is not formatted correctly.
+ * - 401: Unauthorized.
+ * - 404: Either the post or the author of the post was not found.
+ * - 500: Internal server error.
+ */
+
+router.patch("/dislike", async (req, res) => {
+  if (!req.user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  try {
+    const user_id = (req.user as IUser).user_id;
+    const post_id = req.body.post_id;
+
+    if (!mongoose.Types.ObjectId.isValid(post_id)) {
+      res.status(400).json({ error: "Invalid post_id format" });
+    }
+
+    const post = await Post.findById(post_id);
+    if (!post) {
+      res.status(404).json({ error: "Post not found" });
+      return;
+    }
+
+    const [author, user] = await Promise.all([
+      User.findOne({ user_id: post.author }),
+      User.findOne({ user_id: user_id }),
+    ]);
+
+    if (!author) {
+      res.status(404).json({ error: "Author not found" });
+      return;
+    }
+
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    if (user.liked.includes(post_id)) {
+      await user.updateOne({ $pull: { liked: post_id } });
+      await user.updateOne({ $push: { disliked: post_id } });
+
+      await post.updateOne({ $inc: { likes: -1 } });
+      await post.updateOne({ $pull: { likesList: user_id } });
+    } else if (user.disliked.includes(post_id)) {
+      await user.updateOne({ $pull: { disliked: post_id } });
+    } else {
+      await user.updateOne({ $push: { disliked: post_id } });
+    }
+
+    await user.save(), author.save(), post.save();
+    res.status(200).json({ message: "Disliked successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Error dislking post" });
+  }
+});
+/**
  * @route GET /history
  * @desc View user's history
  * @access Private
- * 
+ *
  * Allows an authenticated user to view their viewed post history.
- * 
+ *
  * Request User:
  * - req.user.user_id: The user's user ID
- * 
+ *
  * Response:
  * - 200: Retrieved history data successfully.
- * - 400: No posts were found in history.
+ * - 201: No posts were found in history.
  * - 401: Unauthorized
  * - 404: User not found
  * - 500: Internal server error
  */
 
-router.get('/history', async(req, res) => {
-  if(!req.user){
-    res.status(401).json({message: "User not authenticated"});
+router.get("/history", async (req, res) => {
+  if (!req.user) {
+    res.status(401).json({ message: "User not authenticated" });
     return;
   }
 
-  try{
-    const user = await User.findOne({user_id: (req.user as IUser).user_id});
-    
-    if(!user){
-      res.status(404).json({message: 'user not found'});
+  try {
+    const user = await User.findOne({ user_id: (req.user as IUser).user_id });
+
+    if (!user) {
+      res.status(404).json({ message: "user not found" });
       return;
     }
     const history = user.viewedPosts;
     if(!history[0]){
-      res.status(400)
+      res.status(201).json({message: "No recently viewed posts found"});
       return;
     }
-    
+
     const posts = await Promise.all(
-      history.map(post_id => {return Post.findById(post_id)})
+      history.map((post_id) => {
+        return Post.findById(post_id);
+      })
     );
     
     const postsWithBase64Images = posts.map(post => ({
@@ -515,21 +605,20 @@ router.get('/history', async(req, res) => {
     res.status(200).json(postsWithBase64Images);
   } catch(err){
     console.error(err);
-    res.status(500).json({error: "Error retrieving post history"});
+    res.status(500).json({ error: "Error retrieving post history" });
   }
-  
-})
+});
 
 /**
  * @route PATCH /history/clear
  * @desc Allows user to clear history
  * @access Private
- * 
+ *
  * This endpoint allows an authenticated user to clear their post history.
- * 
+ *
  * Request User:
  * - req.user.user_id: The user's user ID.
- * 
+ *
  * Response:
  * - 200: The post history was clear successfully.
  * - 401: Unauthorized.
@@ -537,22 +626,22 @@ router.get('/history', async(req, res) => {
  * - 500: Internal server error
  */
 
-router.patch('/history/clear', async(req, res) => {
-  if (!req.user){
-    res.status(401).json({message: "User not authenticated"});
+router.patch("/history/clear", async (req, res) => {
+  if (!req.user) {
+    res.status(401).json({ message: "User not authenticated" });
     return;
   }
 
   try {
     const user_id = (req.user as IUser).user_id;
     const result = await User.findOneAndUpdate(
-      {user_id: user_id},
-      {$set: {viewedPosts: []}},
-      {new: true}
+      { user_id: user_id },
+      { $set: { viewedPosts: [] } },
+      { new: true }
     );
 
-    if (!result){
-      res.status(404).json({message: "User not found"});
+    if (!result) {
+      res.status(404).json({ message: "User not found" });
       return;
     }
 
