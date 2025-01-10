@@ -106,7 +106,14 @@ router.get('/posts', async (req, res) => {
             return;
         }
 
-        res.status(200).json(results);
+        const postsWithBase64Images = results.map(post => ({
+            ...post?.toObject(),
+            images: post?.images.map(image => ({
+              contentType: image.contentType,
+              data: image.data.toString('base64')
+            }))
+        }));
+        res.status(200).json(postsWithBase64Images);
     } catch (err){
         res.status(500).json({ error: 'Error searching for posts' });
     }

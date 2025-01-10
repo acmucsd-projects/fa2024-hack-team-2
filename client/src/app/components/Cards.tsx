@@ -76,7 +76,7 @@ const Cards: React.FC<MyComponentProps> = ({}) => {
     // get data
     const data:any = await fetchData();
     try {
-        if (data.message && data.message === "No unseen posts found") {
+        if (data.message !== undefined && data.message === "No unseen posts found") {
           setNoMorePosts(true);
           return;
       }

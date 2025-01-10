@@ -16,7 +16,7 @@ interface MyComponentProps {
     cost?: number;
     likes: number;
     author: string;
-    image: string;
+    images: string[];
     tags: string[];
     date_created: string;
   }[];
@@ -32,7 +32,7 @@ interface PostProps {
   cost?: number;
   likes: number;
   author: string;
-  image: string;
+  images: string[];
   tags: string[];
   date_created: string;
 }
@@ -98,14 +98,14 @@ const Posts: React.FC<MyComponentProps> = ({ posts, isUser }) => {
             <div>
               <div className="aspect-w-16 aspect-h-9 relative mb-4">
                 {/* image preview */}
-                {/* <Image
-                  src={post.image[0]}
+                <img
+                  src={"data:image/png;base64," + post.images[0].data}
                   alt={post.title}
                   width={400}
                   height={400}
-                  objectFit="cover"
+                  // objectFit="cover"
                   className="rounded-md"
-                /> */}
+                />
               </div>
             </div>
             {/* post title */}
