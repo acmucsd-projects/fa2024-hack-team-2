@@ -5,6 +5,8 @@ import { useSearchParams } from 'next/navigation';
 import backendConnection from "@/communication";
 import SettingsIcon from './SettingsIcon'
 import ShareIcon from "./ShareIcon";
+import NavBar from "../components/NavBar";
+
 
 interface IUser {
   user_id: string;
@@ -46,7 +48,7 @@ const posts = [
     likes: 20,
     likedByUser: false,
     imageUrl: "https://cdni.llbean.net/is/image/wim/520163_699_82?hei=1095&wid=950&resMode=sharp2&defaultImage=llbprod/520163_699_41",
-  },
+  }
 ];
 
 const liked = [
@@ -79,29 +81,49 @@ const Card: React.FC<{ data: any; type: 'post' | 'liked' }> = ({ data, type }) =
   </a>
 );
 
-
 // Main User Page Component
 const UserPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"posts" | "liked">("posts");
+  const [errorGettingUser, setErrorGettingUser] = useState(false);
   const searchParams = useSearchParams();
-  
+
   const [user, setUser] = useState<IUser>({
-    user_id: "",
-    username: "",
-    bio: "",
-    pronouns: "",
+    user_id: "asdf",
+    username: "asdf",
+    bio: "asdf",
+    pronouns: "asdf",
     tags: [],
     followers: 0,
     following: 0,
     liked: [],
-    picture: "",
+    posts: [],
+    picture: "asdf",
     settings: {
       privateAccount: false,
     },
   });
 
-  // Early return if no username is provided
-  if (!searchParams.has("username")) {
+  const fetchUser = async (username: string) => {
+    try {
+      const response = await backendConnection.get(`/users/${username}`);
+      console.log(response.data);
+      setUser(response.data);
+      setErrorGettingUser(false);
+    } catch (error) {
+      setErrorGettingUser(true);
+    }
+  };
+
+  useEffect(() => {
+    if (searchParams.has("username")) {
+      console.log(searchParams.get("username"));
+      const userByName = searchParams.get("username") || "";
+      fetchUser(userByName);
+    }
+  }, [searchParams]);
+
+  // Early return if no username is provided or if there was an error fetching the user
+  if (!searchParams.has("username") || errorGettingUser) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-gray-100">
         <div className="text-center p-8 bg-white rounded-lg shadow-md">
@@ -111,51 +133,27 @@ const UserPage: React.FC = () => {
       </div>
     );
   }
-  const fetchUser = (username: string) => {
-    // Dummy data for testing
-    const dummyUser: IUser = {
-      user_id: "1",
-      username: "testuser",
-      bio: "This is a test user.",
-      pronouns: "they/them",
-      tags: ["Developer", "Designer"],
-      followers: 100,
-      following: 50,
-      liked: [],
-      picture: "https://via.placeholder.com/150",
-      settings: {
-        privateAccount: false,
-      },
-    };
 
-    setUser(dummyUser);
-  };
-
-  useEffect(() => {
-    if (searchParams.has("username")) {
-      console.log(searchParams.get("username"));
-      const userByName = searchParams.get("username") || ""; 
-      fetchUser(userByName);
-    }
-  }, []);
   return (
-    <div className="relative h-screen w-screen bg-gray-100 z-0">
+    <div className="relative h-screen w-screen bg-gray-100 z-0 overflow-hidden">
       {/* Top Background Gradient */}
       <div className="absolute top-0 left-0 w-full h-[20vh] bg-gradient-to-b from-blue-500 to-blue-300 z-0"></div>
+      <a href="/" className="z-10 absolute underline text-gray-200 top-4 left-4 hover:text-gray-300 transition-all">Back</a>
 
       {/* Main Content */}
       <div className="absolute top-[60%] left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col h-[100%] w-[40%] z-1">
+
         {/* User Information Box */}
         <div className="relative h-[25%] w-full bg-gray-100 shadow-lg rounded-lg">
           <div className="flex justify-between items-center p-4">
             <div className="flex items-center gap-4">
-                <p><span className="font-bold text-lg">{user.followers}</span> followers</p>
-                <p><span className="font-bold text-lg">{user.following}</span> following</p>
+              <p><span className="font-bold text-lg">{user.followers}</span> followers</p>
+              <p><span className="font-bold text-lg">{user.following}</span> following</p>
             </div>
 
             <div className="flex items-center gap-4">
-                <SettingsIcon className="h-8 w-8"/>
-                <ShareIcon className="h-8 w-8"/>
+              <SettingsIcon className="h-8 w-8" />
+              <ShareIcon className="h-8 w-8" />
             </div>
           </div>
 
@@ -168,23 +166,23 @@ const UserPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Tags Section  */}
+          {/* Tags Section */}
           <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 h-[40%] w-full flex items-center justify-center gap-1 flex-wrap p-2">
-          {user.tags.map((tag, index) => (
-            <Tag key={index} text={tag} />
-          ))}
+            {user.tags.map((tag, index) => (
+              <Tag key={index} text={tag} />
+            ))}
           </div>
         </div>
 
-
-        <div className="h-[75%] w-ful p-6 shadow-lg rounded-lg">
+        <div className="h-[75%] w-full p-6 shadow-lg rounded-lg">
           {/* Tabs */}
-          <div className="flex border-b text-center mb-4">
+          <div className="flex border-b text-center mb-4 sticky top-0 bg-gray-100 z-10">
             {["posts", "liked"].map((tab) => (
               <div
                 key={tab}
                 onClick={() => setActiveTab(tab as "posts" | "liked")}
-                className={`flex-1 py-2 cursor-pointer ${activeTab === tab ? "border-b-2 border-black font-semibold" : "text-gray-400"}`}
+                className={`flex-1 py-2 cursor-pointer ${activeTab === tab ? "border-b-2 border-black font-semibold" : "text-gray-400"
+                  }`}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </div>
@@ -192,9 +190,14 @@ const UserPage: React.FC = () => {
           </div>
 
           {/* Content */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {activeTab === "posts" && posts.map((post) => <Card key={post.id} data={post} type="post" />)}
-            {activeTab === "liked" && liked.map((post) => <Card key={post.id} data={post} type="liked" />)}
+          <div className="overflow-y-scroll h-full">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-32">
+              {/* <Posts posts={posts}/> */}
+              {activeTab === "posts" &&
+                posts.map((post) => <Card key={post.id} data={post} type="post" />)}
+              {activeTab === "liked" &&
+                liked.map((post) => <Card key={post.id} data={post} type="liked" />)}
+            </div>
           </div>
         </div>
       </div>

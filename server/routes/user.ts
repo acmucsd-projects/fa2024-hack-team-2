@@ -2,85 +2,6 @@ import express, { Request, Response, NextFunction } from 'express';
 import { User, IUser } from '../models/User';
 import Post from '../models/Post';
 const router = express.Router();
-
-/**
- * @route GET /
- * @desc Get user information
- * @access Private
- * 
- * This endpoint allows a user to view another user's information.
- * 
- * Request Body:
- * - user_id: The ID of the user to view. (required)
- * 
- * Response:
- * - 200: The user was successfully found and their information was retrieved.
- * - 404: The specified user was not found.
- * - 500: Internal server error.
- */
-
-router.get('/', async (req: Request, res: Response) => {
-    try {
-      const user_id = req.params.user_id;
-      const user = await User.findOne({ user_id: user_id }); 
-      if (!user) {
-        res.status(404).json({ error: 'User not found' });
-        return;
-      }
-
-      if(req.user){
-        const currUser = await User.findOne({user_id: (req.user as IUser).user_id});
-
-        await currUser?.updateOne(
-          {$pull: {viewedUsers: user_id}}
-        )
-
-        await currUser?.updateOne(
-          {$push: {
-            viewedUsers: {$each: [user_id], $position: 0}
-          }}
-        );
-
-        await currUser?.save();
-      }
-      res.status(200).json(user);
-    } catch (error) {
-      console.error('Error fetching user:', error);
-      res.status(500).json({ error: 'Error fetching user' });
-    }
-});
-
-router.get('/', async (req: Request, res: Response) => {
-  try {
-    const username = req.params.username;
-    const user = await User.findOne({ username: username }); 
-    if (!user) {
-      res.status(404).json({ error: 'User not found' });
-      return;
-    }
-
-    // if(req.user){
-    //   const currUser = await User.findOne({user_id: (req.user as IUser).user_id});
-
-    //   await currUser?.updateOne(
-    //     {$pull: {viewedUsers: username}}
-    //   )
-
-    //   await currUser?.updateOne(
-    //     {$push: {
-    //       viewedUsers: {$each: [user_id], $position: 0}
-    //     }}
-    //   );
-
-    //   await currUser?.save();
-    // }
-    res.status(200).json(user);
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    res.status(500).json({ error: 'Error fetching user' });
-  }
-});
-  
 /**
  * WIP
  */
@@ -260,13 +181,103 @@ router.patch('/profile', async (req, res) => {
  * - 200: User information was retrieved successfully.
  * - 401: Unauthorized.
  */
+router.get('/self', async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
 
-router.get('/self', async (req: Request, res: Response, next: NextFunction) => {
-  if (req.user) {
-    const user = await (req.user as IUser).user_id;
-    res.status(200).json(user);  
-  } else {
-    res.status(401).send('Unauthorized');
+    const currUser = await User.findOne({ user_id: (req.user as IUser).user_id }, 'user_id username picture');
+    if (!currUser) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    const userResponse = {
+      user_id: currUser.user_id,
+      username: currUser.username,
+      picture: currUser.picture,
+    };
+
+    res.status(200).json(userResponse);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: 'Error fetching user' });
+  }
+});
+
+/**
+ * @route GET /:identifier
+ * @desc Get user information by user_id or username
+ * @access Private
+ * 
+ * This endpoint allows a user to view another user's information by user_id or username.
+ * 
+ * Request Parameters:
+ * - identifier: The user_id or username of the user to view. (required)
+ * 
+ * Response:
+ * - 200: The user was successfully found and their information was retrieved.
+ * - 404: The specified user was not found.
+ * - 500: Internal server error.
+ */
+router.get('/:identifier', async (req: Request, res: Response) => {
+  try {
+    const identifier = req.params.identifier;
+    let user = await User.findOne(
+      { user_id: identifier },
+      'user_id username bio pronouns tags followers following liked picture settings'
+    );
+
+    if (!user) {
+      user = await User.findOne(
+        { username: identifier },
+        'user_id username bio pronouns tags followers following liked picture settings'
+      );
+    }
+
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    if (req.user) {
+      const currUser = await User.findOne({ user_id: (req.user as IUser).user_id });
+
+      await currUser?.updateOne(
+        { $pull: { viewedUsers: user.user_id } }
+      );
+
+      await currUser?.updateOne(
+        {
+          $push: {
+            viewedUsers: { $each: [user.user_id], $position: 0 }
+          }
+        }
+      );
+
+      await currUser?.save();
+    }
+
+    const userResponse = {
+      user_id: user.user_id,
+      username: user.username,
+      bio: user.bio,
+      pronouns: user.pronouns,
+      tags: user.tags,
+      followers: user.followers,
+      following: user.following,
+      liked: user.liked,
+      picture: user.picture,
+      settings: user.settings,
+      posts: user.posts,
+    };
+
+    res.status(200).json(userResponse);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: 'Error fetching user' });
   }
 });
 
