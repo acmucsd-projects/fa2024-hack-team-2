@@ -11,7 +11,37 @@
 
 ## Project Overview
 
+Swipe Style is a social media platform designed for fashion enthusiasts. It combines the addictive swiping mechanism of Tinder with a vibrant community for discovering, sharing, and interacting with fashion content. Users can like or dislike posts, see leaderboards, exchange messages, and explore posts featuring fashion items, complete with images, details, costs, and availability.
+
 ## Features
+
+Interactive Swiping: Swipe through fashion posts to like or dislike items.
+
+Social Media Integration:
+
+Create, share, and view posts with detailed product information (e.g., name, cost, available stores).
+
+Like and dislike posts, influencing their popularity.
+
+Leaderboards:
+
+Track the top users and posts based on likes and interactions.
+
+Messaging System:
+
+Send and receive messages with other users.
+
+Search Functionality:
+
+Find posts, users, or products quickly.
+
+User Profiles:
+
+View and edit user profiles with bios, pronouns, tags, and more.
+
+Secure Authentication:
+
+Google OAuth for login and session handling.
 
 ## Technologies Used
 
@@ -80,5 +110,7 @@
    ```
 
 ## Summary
+
+Swipe Style is a next-generation fashion platform that fosters engagement and creativity. With a mix of social interaction, discovery, and personalization, it empowers users to explore and connect with the latest in fashion trends.
 
 ## Developer Notes
