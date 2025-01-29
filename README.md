@@ -1,4 +1,5 @@
 # Swipe Style
+---
 
 ## Table of Contents
 
@@ -6,54 +7,63 @@
 2. [Features](#features)
 3. [Technologies Used](#technologies-used)
 4. [Setup](#setup)
-5. [Summary](#summary)
-6. [Developer Notes](#developer-notes)
+5. [Contributors](#contributors)
+6. [Summary](#summary)
+7. [Developer Notes](#developer-notes)
 
 ## Project Overview
+---
 
 Swipe Style is a social media platform designed for fashion enthusiasts. It combines the addictive swiping mechanism of Tinder with a vibrant community for discovering, sharing, and interacting with fashion content. Users can like or dislike posts, see leaderboards, exchange messages, and explore posts featuring fashion items, complete with images, details, costs, and availability.
 
 ## Features
+---
 
-Interactive Swiping: Swipe through fashion posts to like or dislike items.
+### Interactive Swiping
 
-Social Media Integration:
+- Swipe through fashion posts to like or dislike items.
 
-Create, share, and view posts with detailed product information (e.g., name, cost, available stores).
+### Social Media Integration
 
-Like and dislike posts, influencing their popularity.
+- Create, share, and view posts with detailed product information (e.g., name, cost, available stores).
+- Like and dislike posts, influencing their popularity.
 
-Leaderboards:
+### Leaderboards
 
-Track the top users and posts based on likes and interactions.
+- Track the top users and posts based on likes and interactions.
 
-Messaging System:
+### Messaging System
 
-Send and receive messages with other users.
+- Send and receive messages with other users.
 
-Search Functionality:
+### Search Functionality
 
-Find posts, users, or products quickly.
+- Find posts, users, or products quickly.
 
-User Profiles:
+### User Profiles
 
-View and edit user profiles with bios, pronouns, tags, and more.
+- View and edit user profiles with bios, pronouns, tags, and more.
 
-Secure Authentication:
+### Secure Authentication
 
-Google OAuth for login and session handling.
+- Google OAuth for login and session handling.
 
 ## Technologies Used
+___
 
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
 ![NextJS](https://img.shields.io/badge/Next-black?style=for-the-badge&logo=next.js&logoColor=white)
 ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
 ![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB)
 ![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
+
 
 ## Setup
+___
 
 **Requirements**
+
 - Install Node and npm [here](https://nodejs.org/en/download/)
 - Set up a [MongoDB Atlas](https://www.mongodb.com/) instance. See [this video](https://www.youtube.com/watch?v=CcOL5h_ZFJM) for help!
 
@@ -88,7 +98,6 @@ Google OAuth for login and session handling.
    MONGO_URI="mongodb://mongodburl.example.com:portnumber"
    ```
 
-
 3. **Server Side**:
    Install dependencies:
 
@@ -105,12 +114,27 @@ Google OAuth for login and session handling.
    To start the server, run:
 
    ```bash
-   npx tsc 
+   npx tsc
    npm start
    ```
 
-## Summary
+## Contributors
+___
+[**Christopher Rebollar-Ramirez**](https://github.com/crebollarramirez) (Team Lead) - Full Stack Developer <br>
+[**Kelvin Mai**](https://github.com/watawada) - Backend Developer  
+[**Ryan Fordham**](https://github.com/theryanfo) - Backend Developer  
+[**Isabel Ku**](https://github.com/OrigamiStarz) - Frontend Developer  
+[**Chester Huey**](https://github.com/ChesterHuey) - Frontend Developer  
+[**Mikey Nguyen**](https://github.com/migingyn) - Frontend Developer  
 
-Swipe Style is a next-generation fashion platform that fosters engagement and creativity. With a mix of social interaction, discovery, and personalization, it empowers users to explore and connect with the latest in fashion trends.
+## Summary
+___
+
+Swipe Style is a next-generation fashion platform that fosters engagement and creativity. With a mix of social interaction, discovery, and personalization, it empowers users to explore and connect with the latest in fashion trends. With further improvements and development, the app has the potential to become a mainstream clothing social media app.
 
 ## Developer Notes
+___
+
+**Team Drive**
+
+- [Google Drive Folder](https://drive.google.com/drive/u/1/folders/1Vv8ejY)
